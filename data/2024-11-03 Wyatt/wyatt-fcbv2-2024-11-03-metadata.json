@@ -1,0 +1,11 @@
+{
+    "pressure_ref": 1.0173698494942018,
+    "gravity_ref": 1,
+    "launched": 1,
+    "gps_timestamp": 1730660182,
+    "apogee_timestamp": 650257,
+    "trigger_fire_status": -15,
+    "gyro_offset_x": -0.015625953674316406,
+    "gyro_offset_y": 0.01171875,
+    "gyro_offset_z": 7.327471962526033e-15
+}

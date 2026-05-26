@@ -1,0 +1,13 @@
+# Beanboozler FCBv0 config 09/17/2022
+--config -t 0 -m 3 -p 5 -M
+--config -t 1 -m 1 -p 0 -A
+--config -t 2 -m 1 -p 1 -H 230
+--config -t 3 -m 4 -p 5 -T
+--config -e 0
+--config -r 18
+--config -c 0
+# Remove bad configs
+--config -t 4 -m 4 -p 5 -M
+--config -t 5 -m 4 -p 5 -M
+--config -t 6 -m 4 -p 5 -M
+--config -t 7 -m 4 -p 5 -M
