@@ -1,0 +1,10 @@
+key	value	source
+altimeter.board	AngryGoose	derived
+altimeter.source_folder	root-FAR_Launch	derived
+data.has_parsed_timeseries	true	derived
+data.row_count	21	derived
+data.source_file	FAR_Launch.csv	derived
+data.synthetic_time_added	true	derived
+data.time_column	generated_time_s	derived
+flight.date	2023-07-15	derived
+flight.name	Angry Goose Small Owl FAR	derived

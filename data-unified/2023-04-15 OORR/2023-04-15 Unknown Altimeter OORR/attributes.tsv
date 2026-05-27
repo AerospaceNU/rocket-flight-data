@@ -1,0 +1,16 @@
+key	value	source
+altimeter.board	Unknown Altimeter	derived
+altimeter.source_folder	root-V0 2023-04-15-oorr-metadata	derived
+data.has_parsed_timeseries	false	derived
+data.row_count	0	derived
+data.source_file	none	derived
+data.synthetic_time_added	true	derived
+data.time_column	generated_time_s	derived
+flight.date	2023-04-15	derived
+flight.name	OORR	derived
+log.V0_2023-04-15-oorr-metadata.apogee_timestamp	1075457	log
+log.V0_2023-04-15-oorr-metadata.gps_timestamp	1681579011	log
+log.V0_2023-04-15-oorr-metadata.gravity_ref	1	log
+log.V0_2023-04-15-oorr-metadata.launched	1	log
+log.V0_2023-04-15-oorr-metadata.pressure_ref	0.993872440167777	log
+log.V0_2023-04-15-oorr-metadata.trigger_fire_status	-4	log

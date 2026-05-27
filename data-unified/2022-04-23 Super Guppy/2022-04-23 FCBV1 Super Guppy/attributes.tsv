@@ -1,0 +1,10 @@
+key	value	source
+altimeter.board	FCBV1	derived
+altimeter.source_folder	root-fcbv1-super-guppy-parsed-messages	derived
+data.has_parsed_timeseries	true	derived
+data.row_count	2020	derived
+data.source_file	fcbv1-super-guppy-parsed-messages.txt	derived
+data.synthetic_time_added	true	derived
+data.time_column	generated_time_s	derived
+flight.date	2022-04-23	derived
+flight.name	Super Guppy	derived

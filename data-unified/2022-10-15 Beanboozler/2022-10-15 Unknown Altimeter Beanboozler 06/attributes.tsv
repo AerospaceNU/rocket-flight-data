@@ -1,0 +1,10 @@
+key	value	source
+altimeter.board	Unknown Altimeter	derived
+altimeter.source_folder	root-daq-bean-10-16-flight	derived
+data.has_parsed_timeseries	true	derived
+data.row_count	5179	derived
+data.source_file	daq-bean-10-16-flight.csv	derived
+data.synthetic_time_added	true	derived
+data.time_column	generated_time_s	derived
+flight.date	2022-10-15	derived
+flight.name	Beanboozler	derived

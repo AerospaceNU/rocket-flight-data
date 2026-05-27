@@ -1,0 +1,10 @@
+key	value	source
+altimeter.board	FCBV0	derived
+altimeter.source_folder	root-fcbv0-beanboozler-parsed-messages	derived
+data.has_parsed_timeseries	true	derived
+data.row_count	6255	derived
+data.source_file	fcbv0-beanboozler-parsed-messages.txt	derived
+data.synthetic_time_added	true	derived
+data.time_column	generated_time_s	derived
+flight.date	2022-04-23	derived
+flight.name	Beanboozler	derived

@@ -1,61 +1,100 @@
 # rocket-flight-data
 
-Logs from flight data.
+Logs from rocket flight data.
 
-## Layout
+## Flight Viewer App (Electron)
 
+The app runs locally and provides:
+
+- flight list + filters
+- altimeter-level selection (instead of per-file selection)
+- tabbed views for summary, 2D plot, 3D plot, raw data, metadata
+- event display using only explicitly reported events
+- persisted user overrides for flight/altimeter/file metadata
+- schema-driven flight parameter editing
+
+## Setup
+
+```bash
+npm install
 ```
+
+## Data Reorganization (one-time for legacy folders)
+
+If flight folders still contain all files directly in the flight directory, run:
+
+```bash
+npm run reorganize-data
+```
+
+This moves files into per-altimeter subfolders within each flight directory.
+
+## Indexing
+
+Indexing can be run from the GUI (`Run Index` button) or CLI:
+
+```bash
+npm run index-data
+```
+
+The indexer scans `data/` recursively, writes `.flight-overview.json` into each flight folder, and skips unchanged flights on subsequent runs.
+
+## Launch
+
+```bash
+npm start
+```
+
+Or index + launch:
+
+```bash
+npm run start:indexed
+```
+
+## Data Layout
+
+```text
 data/
   <YYYY-MM-DD> <Rocket Name>/
-    <log files for this flight day>
+    <altimeter-group>/
+      <log files>
+    .flight-overview.json
+    .flight-user-overrides.json   (optional, user-authored)
 ```
 
-Each subdirectory of `data/` corresponds to a single launch day on a single rocket. The directory name is the **launch date** (not the offload date) followed by the **rocket name**.
+Each subdirectory of `data/` corresponds to one launch day and rocket.
 
-## SillyGoose log file naming
+## Override Persistence
 
-```
+Summary edit mode writes to `.flight-user-overrides.json`.
+Those overrides are merged back during re-indexing and are designed to remain stable across parser/code updates.
+
+## Extensible File Type Interfaces
+
+File parsing is interface-driven from `lib/file-interfaces/`.
+
+- One `*.interface.js` file per file type
+- Runtime dynamically loads all interfaces from that directory
+- Add new file support by dropping in another interface module
+
+See [FILE_INPUT_INTERFACE.md](C:/Users/patri/Documents/Software/rocket-flight-data/lib/file-interfaces/FILE_INPUT_INTERFACE.md).
+
+## Flight Attribute Schema
+
+The standard editable flight parameter list is defined in `config/flight-attributes.json`.
+The summary editor renders this schema as a scrollable form (typed fields), and values persist in `.flight-user-overrides.json`.
+
+## SillyGoose Naming Convention
+
+```text
 <YYYY-MM-DD> V<n> <Rocket Name> <descriptors...>.txt
 ```
 
-| Part | Meaning |
-| --- | --- |
-| `YYYY-MM-DD` | Launch date. Matches the parent directory. |
-| `V<n>` | SillyGoose board hardware revision (`V1`, `V2`, ...). |
-| `<Rocket Name>` | Rocket name. Matches the parent directory. |
-| `<descriptors>` | Space-separated tags describing this particular file. See below. |
+Common descriptors:
 
-### Descriptors
-
-Stack any combination, separated by spaces. Order is not significant but the examples below reflect the convention.
-
-| Descriptor | Use when |
-| --- | --- |
-| `primary` | This board was the rocket's primary recovery computer. |
-| `backup` | This board was the backup recovery computer behind a non-SillyGoose primary. |
-| `ridealong` | This board was a passive payload; another (non-SillyGoose) computer handled recovery. |
-| `board1` / `board2` / ... | More than one SillyGoose was on the same flight — use to disambiguate. |
-| `pre reboot` / `post reboot` | The board rebooted mid-flight; the log is in multiple segments. |
-| `doctored` | The file has been altered after offload (e.g. trimmed, reorder, hand-edited). The original raw offload is *not* preserved in the repo, so always flag a modified file with this tag. |
-
-### Examples
-
-```
-2025-11-15 V1 Crocket backup.txt
-2025-11-15 V1 MBTA ridealong board1.txt
-2025-11-15 V1 MBTA ridealong board2.txt
-2026-02-22 V1 Haybales primary pre reboot.txt
-2026-02-22 V1 Haybales primary post reboot.txt
-2026-02-22 V2 RocketWorks ridealong doctored.txt
-2026-05-16 V2 Gianni L3 ridealong.txt
-```
-
-## Non-SillyGoose files
-
-Logs from other altimeters (PerfectFlite Stratologger, AltusMetrum EasyMini, etc.) are kept under their original filenames so the source device is obvious. They live alongside the SillyGoose logs in the same flight-day directory.
-
-```
-2026-02-22 Ethical Missile/
-  2026-02-22 V1 Ethical Missile backup.txt    ← SillyGoose
-  EthicalMissile-EasyMini-primary.csv         ← EasyMini, original name
-```
+- `primary`
+- `backup`
+- `ridealong`
+- `board1` / `board2` / ...
+- `pre reboot` / `post reboot`
+- `doctored`

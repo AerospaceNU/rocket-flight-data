@@ -1,0 +1,17 @@
+key	value	source
+altimeter.board	Unknown Altimeter	derived
+altimeter.source_folder	root-teapot_fcb_02_25-metadata	derived
+data.has_parsed_timeseries	false	derived
+data.row_count	0	derived
+data.source_file	none	derived
+data.synthetic_time_added	true	derived
+data.time_column	generated_time_s	derived
+flight.date	2024-02-25	derived
+flight.name	Teapot	derived
+log.teapot_fcb_02_25-metadata.apogee_timestamp	1350915	log
+log.teapot_fcb_02_25-metadata.gps_timestamp	1708891218	log
+log.teapot_fcb_02_25-metadata.gravity_ref	1	log
+log.teapot_fcb_02_25-metadata.gyro_offsets	0.01771610975265503	log
+log.teapot_fcb_02_25-metadata.launched	1	log
+log.teapot_fcb_02_25-metadata.pressure_ref	0.9968295090056748	log
+log.teapot_fcb_02_25-metadata.trigger_fire_status	-4	log

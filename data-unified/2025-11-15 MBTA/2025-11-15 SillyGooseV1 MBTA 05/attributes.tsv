@@ -1,0 +1,10 @@
+key	value	source
+altimeter.board	SillyGooseV1	derived
+altimeter.source_folder	root-MBTA_GPS_out	derived
+data.has_parsed_timeseries	true	derived
+data.row_count	433	derived
+data.source_file	MBTA_GPS_out.txt	derived
+data.synthetic_time_added	true	derived
+data.time_column	generated_time_s	derived
+flight.date	2025-11-15	derived
+flight.name	MBTA	derived

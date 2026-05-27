@@ -1,0 +1,16 @@
+key	value	source
+altimeter.board	Unknown Altimeter	derived
+altimeter.source_folder	root-starship_good-metadata	derived
+data.has_parsed_timeseries	false	derived
+data.row_count	0	derived
+data.source_file	none	derived
+data.synthetic_time_added	true	derived
+data.time_column	generated_time_s	derived
+flight.date	2023-07-15	derived
+flight.name	Starship FAR	derived
+log.starship_good-metadata.apogee_timestamp	4294967295	log
+log.starship_good-metadata.gps_timestamp	1689466066	log
+log.starship_good-metadata.gravity_ref	1	log
+log.starship_good-metadata.launched	1	log
+log.starship_good-metadata.pressure_ref	0.9265297310634097	log
+log.starship_good-metadata.trigger_fire_status	-1	log

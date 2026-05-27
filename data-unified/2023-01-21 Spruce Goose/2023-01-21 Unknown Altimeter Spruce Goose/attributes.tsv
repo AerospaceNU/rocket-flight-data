@@ -1,0 +1,10 @@
+key	value	source
+altimeter.board	Unknown Altimeter	derived
+altimeter.source_folder	root-spruce-goose-jan-21-metadata	derived
+data.has_parsed_timeseries	false	derived
+data.row_count	0	derived
+data.source_file	none	derived
+data.synthetic_time_added	true	derived
+data.time_column	generated_time_s	derived
+flight.date	2023-01-21	derived
+flight.name	Spruce Goose	derived

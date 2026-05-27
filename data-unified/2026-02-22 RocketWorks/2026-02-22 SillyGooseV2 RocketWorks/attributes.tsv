@@ -1,0 +1,10 @@
+key	value	source
+altimeter.board	SillyGooseV2	derived
+altimeter.source_folder	root-2026-02-22 V2 RocketWorks ridealong doctored	derived
+data.has_parsed_timeseries	true	derived
+data.row_count	1300	derived
+data.source_file	2026-02-22 V2 RocketWorks ridealong doctored.txt	derived
+data.synthetic_time_added	false	derived
+data.time_column	timestampMs	derived
+flight.date	2026-02-22	derived
+flight.name	RocketWorks	derived

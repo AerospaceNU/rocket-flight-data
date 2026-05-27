@@ -1,0 +1,50 @@
+{
+  "schemaVersion": 1,
+  "attributes": [
+    { "key": "flight_id", "label": "Flight ID", "type": "text", "group": "General" },
+    { "key": "launch_date", "label": "Launch Date", "type": "date", "group": "General" },
+    { "key": "launch_time_local", "label": "Launch Time (Local)", "type": "text", "group": "General", "placeholder": "HH:MM" },
+    { "key": "launch_site_name", "label": "Launch Site", "type": "text", "group": "General" },
+    { "key": "launch_organization", "label": "Launch Organization", "type": "select", "group": "General", "options": ["NAR", "TRA", "Research", "Other"] },
+    { "key": "crew_or_flyer", "label": "Flyer / Team", "type": "text", "group": "General" },
+
+    { "key": "site_latitude_deg", "label": "Latitude (deg)", "type": "number", "group": "Launch Conditions", "step": 0.000001 },
+    { "key": "site_longitude_deg", "label": "Longitude (deg)", "type": "number", "group": "Launch Conditions", "step": 0.000001 },
+    { "key": "site_altitude_msl_ft", "label": "Site Altitude MSL (ft)", "type": "number", "group": "Launch Conditions" },
+    { "key": "launch_guide_type", "label": "Guide Type", "type": "select", "group": "Launch Conditions", "options": ["Rod", "Rail 1010", "Rail 1515", "Tower", "Other"] },
+    { "key": "launch_guide_length_ft", "label": "Guide Length (ft)", "type": "number", "group": "Launch Conditions", "step": 0.1 },
+    { "key": "launch_azimuth_deg", "label": "Launch Azimuth (deg)", "type": "number", "group": "Launch Conditions", "step": 0.1 },
+
+    { "key": "wind_speed_mph", "label": "Wind Speed (mph)", "type": "number", "group": "Weather", "step": 0.1 },
+    { "key": "wind_direction_deg", "label": "Wind Direction (deg)", "type": "number", "group": "Weather", "step": 0.1 },
+    { "key": "air_temp_c", "label": "Air Temperature (C)", "type": "number", "group": "Weather", "step": 0.1 },
+    { "key": "barometric_pressure_pa", "label": "Pressure (Pa)", "type": "number", "group": "Weather" },
+    { "key": "humidity_pct", "label": "Humidity (%)", "type": "number", "group": "Weather", "step": 0.1 },
+
+    { "key": "rocket_mass_liftoff_kg", "label": "Liftoff Mass (kg)", "type": "number", "group": "Vehicle", "step": 0.001 },
+    { "key": "airframe_diameter_in", "label": "Airframe Diameter (in)", "type": "number", "group": "Vehicle", "step": 0.01 },
+    { "key": "airframe_length_in", "label": "Airframe Length (in)", "type": "number", "group": "Vehicle", "step": 0.01 },
+    { "key": "stability_margin_cal", "label": "Stability Margin (cal)", "type": "number", "group": "Vehicle", "step": 0.01 },
+
+    { "key": "motor_manufacturer", "label": "Motor Manufacturer", "type": "text", "group": "Motor" },
+    { "key": "motor_designation", "label": "Motor Designation", "type": "text", "group": "Motor", "placeholder": "e.g. J425R" },
+    { "key": "motor_impulse_class", "label": "Impulse Class", "type": "select", "group": "Motor", "options": ["F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "Research"] },
+    { "key": "motor_total_impulse_ns", "label": "Total Impulse (N*s)", "type": "number", "group": "Motor", "step": 0.1 },
+    { "key": "motor_count", "label": "Motor Count", "type": "number", "group": "Motor", "step": 1 },
+    { "key": "staging_configuration", "label": "Staging", "type": "select", "group": "Motor", "options": ["Single", "Cluster", "Staged", "Air-start"] },
+
+    { "key": "altimeter_primary_model", "label": "Primary Altimeter", "type": "text", "group": "Avionics" },
+    { "key": "altimeter_backup_model", "label": "Backup Altimeter", "type": "text", "group": "Avionics" },
+    { "key": "main_deploy_altitude_ft", "label": "Main Deploy Altitude (ft)", "type": "number", "group": "Avionics" },
+    { "key": "apogee_delay_s", "label": "Apogee Delay (s)", "type": "number", "group": "Avionics", "step": 0.1 },
+    { "key": "dual_deploy", "label": "Dual Deploy", "type": "boolean", "group": "Avionics" },
+
+    { "key": "achieved_apogee_ft", "label": "Achieved Apogee (ft)", "type": "number", "group": "Outcome" },
+    { "key": "max_velocity_ft_s", "label": "Max Velocity (ft/s)", "type": "number", "group": "Outcome", "step": 0.1 },
+    { "key": "max_mach", "label": "Max Mach", "type": "number", "group": "Outcome", "step": 0.01 },
+    { "key": "max_accel_g", "label": "Max Acceleration (g)", "type": "number", "group": "Outcome", "step": 0.1 },
+    { "key": "ground_hit_velocity_ft_s", "label": "Ground Hit Velocity (ft/s)", "type": "number", "group": "Outcome", "step": 0.1 },
+    { "key": "recovery_success", "label": "Recovery Success", "type": "boolean", "group": "Outcome" },
+    { "key": "notes", "label": "Flight Notes", "type": "textarea", "group": "Outcome" }
+  ]
+}

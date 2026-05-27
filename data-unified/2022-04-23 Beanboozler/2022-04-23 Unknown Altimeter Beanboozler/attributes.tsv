@@ -1,0 +1,10 @@
+key	value	source
+altimeter.board	Unknown Altimeter	derived
+altimeter.source_folder	root-beanboozler-4-24-2022-output-post	derived
+data.has_parsed_timeseries	true	derived
+data.row_count	6125	derived
+data.source_file	beanboozler-4-24-2022-output-post.csv	derived
+data.synthetic_time_added	false	derived
+data.time_column	timestamp_ms	derived
+flight.date	2022-04-23	derived
+flight.name	Beanboozler	derived

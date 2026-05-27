@@ -1,0 +1,10 @@
+key	value	source
+altimeter.board	SillyGooseV1	derived
+altimeter.source_folder	root-SurprisinglyIt-EasyMini-backup	derived
+data.has_parsed_timeseries	false	derived
+data.row_count	0	derived
+data.source_file	none	derived
+data.synthetic_time_added	true	derived
+data.time_column	generated_time_s	derived
+flight.date	2026-02-22	derived
+flight.name	SurprisinglyIt	derived

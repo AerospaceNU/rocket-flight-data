@@ -1,0 +1,10 @@
+key	value	source
+altimeter.board	AngryGoose	derived
+altimeter.source_folder	root-Angry Goose StAlbans 11-20-21	derived
+data.has_parsed_timeseries	true	derived
+data.row_count	14159	derived
+data.source_file	Angry Goose StAlbans 11-20-21.txt	derived
+data.synthetic_time_added	false	derived
+data.time_column	time	derived
+flight.date	2021-11-20	derived
+flight.name	Carby	derived

@@ -1,0 +1,10 @@
+key	value	source
+altimeter.board	Unknown Altimeter	derived
+altimeter.source_folder	root-parsed_messages	derived
+data.has_parsed_timeseries	true	derived
+data.row_count	241	derived
+data.source_file	parsed_messages.txt	derived
+data.synthetic_time_added	true	derived
+data.time_column	generated_time_s	derived
+flight.date	2022-06-11	derived
+flight.name	Beanboozler (LDRS)	derived

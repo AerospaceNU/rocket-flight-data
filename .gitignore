@@ -4,3 +4,7 @@
 *.rar
 .DS_Store
 Thumbs.db
+node_modules/
+data/**/.flight-overview.json
+data/.flight-index-manifest.json
+/dist

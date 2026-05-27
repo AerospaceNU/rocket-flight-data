@@ -1,0 +1,10 @@
+key	value	source
+altimeter.board	Unknown Altimeter	derived
+altimeter.source_folder	root-line cutter 4 super guppy 4 24 2022	derived
+data.has_parsed_timeseries	true	derived
+data.row_count	258045	derived
+data.source_file	line cutter 4 super guppy 4 24 2022.csv	derived
+data.synthetic_time_added	true	derived
+data.time_column	generated_time_s	derived
+flight.date	2022-04-23	derived
+flight.name	Super Guppy	derived

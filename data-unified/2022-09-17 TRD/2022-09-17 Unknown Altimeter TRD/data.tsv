@@ -1,0 +1,13 @@
+generated_time_s	# TRD FCBv1 config 09/17/2022
+0	--config -t 0 -m 2 -p 2 -C
+1	--config -t 1 -m 2 -p 2 -A
+2	--config -t 2 -m 1 -p 0 -D 1.5
+3	--config -e 0
+4	--config -r 18
+5	--config -c 0
+6	# Remove bad configs
+7	--config -t 3 -m 4 -p 5 -M
+8	--config -t 4 -m 4 -p 5 -M
+9	--config -t 5 -m 4 -p 5 -M
+10	--config -t 6 -m 4 -p 5 -M
+11	--config -t 7 -m 4 -p 5 -M

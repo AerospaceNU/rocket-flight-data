@@ -1,0 +1,60 @@
+{
+  "name": "rocket-flight-data",
+  "version": "1.0.0",
+  "description": "Logs from flight data.",
+  "main": "main.js",
+  "scripts": {
+    "index-data": "node scripts/index-data.js",
+    "reorganize-data": "node scripts/reorganize-data.js",
+    "unify-data-format": "node scripts/unify-data-format.js",
+    "start": "electron .",
+    "start:indexed": "npm run index-data && electron .",
+    "build:win": "electron-builder --win portable"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AerospaceNU/rocket-flight-data.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/AerospaceNU/rocket-flight-data/issues"
+  },
+  "homepage": "https://github.com/AerospaceNU/rocket-flight-data#readme",
+  "private": true,
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "csv-parse": "^6.2.1",
+    "plotly.js-dist-min": "^3.5.1"
+  },
+  "devDependencies": {
+    "electron": "^42.3.0",
+    "electron-builder": "^24.13.3"
+  },
+  "build": {
+    "appId": "com.aerospacenu.rocketflightdata",
+    "productName": "Rocket Flight Data Viewer",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "app/**/*",
+      "lib/**/*",
+      "scripts/**/*",
+      "data/**/*",
+      "main.js",
+      "preload.js",
+      "package.json",
+      "README.md"
+    ],
+    "win": {
+      "target": [
+        "portable"
+      ]
+    }
+  }
+}

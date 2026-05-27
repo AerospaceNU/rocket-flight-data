@@ -1,0 +1,10 @@
+key	value	source
+altimeter.board	Unknown Altimeter	derived
+altimeter.source_folder	root-Goose_MDRA_11-14	derived
+data.has_parsed_timeseries	true	derived
+data.row_count	60606	derived
+data.source_file	Goose_MDRA_11-14.csv	derived
+data.synthetic_time_added	true	derived
+data.time_column	generated_time_s	derived
+flight.date	2021-11-14	derived
+flight.name	TRD	derived

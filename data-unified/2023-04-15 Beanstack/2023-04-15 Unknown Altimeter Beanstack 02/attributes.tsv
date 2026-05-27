@@ -1,0 +1,16 @@
+key	value	source
+altimeter.board	Unknown Altimeter	derived
+altimeter.source_folder	root-2023-04-15-beanboozler-metadata	derived
+data.has_parsed_timeseries	false	derived
+data.row_count	0	derived
+data.source_file	none	derived
+data.synthetic_time_added	true	derived
+data.time_column	generated_time_s	derived
+flight.date	2023-04-15	derived
+flight.name	Beanstack	derived
+log.2023-04-15-beanboozler-metadata.apogee_timestamp	987292	log
+log.2023-04-15-beanboozler-metadata.gps_timestamp	1681582695	log
+log.2023-04-15-beanboozler-metadata.gravity_ref	1	log
+log.2023-04-15-beanboozler-metadata.launched	1	log
+log.2023-04-15-beanboozler-metadata.pressure_ref	0.9934900074019245	log
+log.2023-04-15-beanboozler-metadata.trigger_fire_status	-64	log

@@ -1,0 +1,10 @@
+key	value	source
+altimeter.board	SillyGooseV1	derived
+altimeter.source_folder	root-EZ Mini 2025-11-17-serial-9895-flight-0005	derived
+data.has_parsed_timeseries	true	derived
+data.row_count	3269	derived
+data.source_file	EZ Mini 2025-11-17-serial-9895-flight-0005.csv	derived
+data.synthetic_time_added	false	derived
+data.time_column	time	derived
+flight.date	2025-11-15	derived
+flight.name	Crocket	derived

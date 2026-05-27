@@ -1,0 +1,1471 @@
+generated_time_s	RUN START 2023-07-01 12:44:33
+0	12:44:42.582297: Switching radio to  433 MHz
+1	12:44:42.587525: Switching radio to band 1
+2	12:44:42.600462: Switching radio to band 1
+3	12:44:43.186914: GPS Passthrough {'Latitude': 0.0
+4	12:44:43.512384: GPS Passthrough {'Latitude': 0.0
+5	12:44:43.686429: GPS Passthrough {'Latitude': 0.0
+6	12:44:43.845716: Groundstation Status {'gs_lat': 0.0
+7	12:44:44.197459: GPS Passthrough {'Latitude': 0.0
+8	12:44:44.669056: GPS Passthrough {'Latitude': 0.0
+9	12:44:44.897015: GPS Passthrough {'Latitude': 0.0
+10	12:44:45.432264: GPS Passthrough {'Latitude': 0.0
+11	12:44:45.918054: GPS Passthrough {'Latitude': 0.0
+12	12:44:45.925178: GPS Passthrough {'Latitude': 0.0
+13	12:44:45.990213: GPS Passthrough {'Latitude': 0.0
+14	12:44:46.225359: Groundstation Status {'gs_lat': 0.0
+15	12:44:46.321418: GPS Passthrough {'Latitude': 0.0
+16	12:44:46.603629: GPS Passthrough {'Latitude': 0.0
+17	12:44:46.958445: GPS Passthrough {'Latitude': 0.0
+18	12:44:47.182867: GPS Passthrough {'Latitude': 0.0
+19	12:44:47.511521: GPS Passthrough {'Latitude': 0.0
+20	12:44:47.684757: GPS Passthrough {'Latitude': 0.0
+21	12:44:47.853018: Groundstation Status {'gs_lat': 0.0
+22	12:44:48.174902: GPS Passthrough {'Latitude': 0.0
+23	12:44:48.507090: GPS Passthrough {'Latitude': 0.0
+24	12:44:48.841594: GPS Passthrough {'Latitude': 0.0
+25	12:44:49.175794: GPS Passthrough {'Latitude': 0.0
+26	12:44:49.507742: GPS Passthrough {'Latitude': 0.0
+27	12:44:49.694770: GPS Passthrough {'Latitude': 0.0
+28	12:44:49.843606: Groundstation Status {'gs_lat': 0.0
+29	12:44:50.167728: GPS Passthrough {'Latitude': 0.0
+30	12:44:50.535515: GPS Passthrough {'Latitude': 0.0
+31	12:44:50.536553: GPS Passthrough {'Latitude': 0.0
+32	12:44:50.853037: GPS Passthrough {'Latitude': 0.0
+33	12:44:51.180960: GPS Passthrough {'Latitude': 0.0
+34	12:44:51.508029: GPS Passthrough {'Latitude': 0.0
+35	12:44:51.702800: GPS Passthrough {'Latitude': 0.0
+36	12:44:51.852697: Groundstation Status {'gs_lat': 0.0
+37	12:44:52.174812: GPS Passthrough {'Latitude': 0.0
+38	12:44:52.501629: GPS Passthrough {'Latitude': 0.0
+39	12:44:52.828363: GPS Passthrough {'Latitude': 0.0
+40	12:44:53.185426: GPS Passthrough {'Latitude': 0.0
+41	12:44:53.508421: GPS Passthrough {'Latitude': 0.0
+42	12:44:53.701399: GPS Passthrough {'Latitude': 0.0
+43	12:44:53.843829: Groundstation Status {'gs_lat': 0.0
+44	12:44:54.174011: GPS Passthrough {'Latitude': 0.0
+45	12:44:54.291205: GPS Passthrough {'Latitude': 0.0
+46	12:44:54.333787: Orientation {'radio_id': 0
+47	12:44:54.374676: Position Data {'radio_id': 0
+48	12:44:54.416813: Pyro Info {'radio_id': 0
+49	12:44:54.434628: Line Cutter Data  {'radio_id': 0
+50	12:44:54.506002: Line Cutter Data  {'radio_id': 0
+51	12:44:54.507617: Orientation {'radio_id': 0
+52	12:44:54.556856: GPS Passthrough {'Latitude': 0.0
+53	12:44:54.836981: Position Data {'radio_id': 0
+54	12:44:55.171544: GPS Passthrough {'Latitude': 0.0
+55	12:44:55.320419: GPS Passthrough {'Latitude': 0.0
+56	12:44:55.362708: Pyro Info {'radio_id': 0
+57	12:44:55.483629: Pyro Info {'radio_id': 0
+58	12:44:55.524459: Orientation {'radio_id': 0
+59	12:44:55.525440: Position Data {'radio_id': 0
+60	12:44:55.526368: GPS Passthrough {'Latitude': 0.0
+61	12:44:55.695011: GPS Passthrough {'Latitude': 0.0
+62	12:44:55.841679: Groundstation Status {'gs_lat': 0.0
+63	12:44:56.178186: GPS Passthrough {'Latitude': 0.0
+64	12:44:56.507356: GPS Passthrough {'Latitude': 0.0
+65	12:44:56.833230: GPS Passthrough {'Latitude': 0.0
+66	12:44:56.902248: GPS Passthrough {'Latitude': 0.0
+67	12:44:57.103916: Position Data {'radio_id': 0
+68	12:44:57.175604: Position Data {'radio_id': 0
+69	12:44:57.461615: GPS Passthrough {'Latitude': 0.0
+70	12:44:57.500302: Orientation {'radio_id': 0
+71	12:44:57.501177: GPS Passthrough {'Latitude': 0.0
+72	12:44:57.542926: Position Data {'radio_id': 0
+73	12:44:57.564913: Pyro Info {'radio_id': 0
+74	12:44:57.602806: Line Cutter Data  {'radio_id': 0
+75	12:44:57.695267: Line Cutter Data  {'radio_id': 0
+76	12:44:57.849551: Groundstation Status {'gs_lat': 0.0
+77	12:44:57.888167: GPS Passthrough {'Latitude': 0.0
+78	12:44:57.888959: Orientation {'radio_id': 0
+79	12:44:58.087123: Position Data {'radio_id': 0
+80	12:44:58.139371: Orientation {'radio_id': 0
+81	12:44:58.177991: Position Data {'radio_id': 0
+82	12:44:58.308632: GPS Passthrough {'Latitude': 0.0
+83	12:44:58.333844: Orientation {'radio_id': 0
+84	12:44:58.377811: Position Data {'radio_id': 0
+85	12:44:58.465829: Alt Info & Cfg {'radio_id': 0
+86	12:44:58.522381: Orientation {'radio_id': 0
+87	12:44:58.523838: Position Data {'radio_id': 0
+88	12:44:58.526730: GPS Passthrough {'Latitude': 0.0
+89	12:44:58.584194: Pyro Info {'radio_id': 0
+90	12:44:58.599397: Line Cutter Data  {'radio_id': 0
+91	12:44:58.671221: Line Cutter Data  {'radio_id': 0
+92	12:44:58.698353: Orientation {'radio_id': 0
+93	12:44:58.828198: Position Data {'radio_id': 0
+94	12:44:58.882809: GPS Passthrough {'Latitude': 0.0
+95	12:44:58.894798: Orientation {'radio_id': 0
+96	12:44:59.081268: Position Data {'radio_id': 0
+97	12:44:59.095621: Orientation {'radio_id': 0
+98	12:44:59.178180: Position Data {'radio_id': 0
+99	12:44:59.263021: GPS Passthrough {'Latitude': 0.0
+100	12:44:59.295691: Orientation {'radio_id': 0
+101	12:44:59.460143: Position Data {'radio_id': 0
+102	12:44:59.502356: Orientation {'radio_id': 0
+103	12:44:59.525232: Position Data {'radio_id': 0
+104	12:44:59.527424: GPS Passthrough {'Latitude': 0.0
+105	12:44:59.573091: Pyro Info {'radio_id': 0
+106	12:44:59.671988: Line Cutter Data  {'radio_id': 0
+107	12:44:59.691953: Orientation {'radio_id': 0
+108	12:44:59.723582: Position Data {'radio_id': 0
+109	12:44:59.732701: Groundstation Status {'gs_lat': 0.0
+110	12:44:59.837443: Alt Info & Cfg {'radio_id': 0
+111	12:44:59.889277: GPS Passthrough {'Latitude': 0.0
+112	12:44:59.912709: Orientation {'radio_id': 0
+113	12:45:00.070756: Position Data {'radio_id': 0
+114	12:45:00.126927: Orientation {'radio_id': 0
+115	12:45:00.187658: Position Data {'radio_id': 0
+116	12:45:00.284942: GPS Passthrough {'Latitude': 0.0
+117	12:45:00.285800: Orientation {'radio_id': 0
+118	12:45:00.467000: Position Data {'radio_id': 0
+119	12:45:00.481093: Orientation {'radio_id': 0
+120	12:45:00.538798: Position Data {'radio_id': 0
+121	12:45:00.540119: Pyro Info {'radio_id': 0
+122	12:45:00.541015: GPS Passthrough {'Latitude': 0.0
+123	12:45:00.541437: GPS Passthrough {'Latitude': 0.0
+124	12:45:00.596477: Line Cutter Data  {'radio_id': 0
+125	12:45:00.654717: Line Cutter Data  {'radio_id': 0
+126	12:45:00.704637: Orientation {'radio_id': 0
+127	12:45:00.846019: Position Data {'radio_id': 0
+128	12:45:00.868243: GPS Passthrough {'Latitude': 0.0
+129	12:45:00.891859: Orientation {'radio_id': 0
+130	12:45:00.942525: Position Data {'radio_id': 0
+131	12:45:01.053768: Alt Info & Cfg {'radio_id': 0
+132	12:45:01.107714: Orientation {'radio_id': 0
+133	12:45:01.172097: Position Data {'radio_id': 0
+134	12:45:01.269674: GPS Passthrough {'Latitude': 0.0
+135	12:45:01.281533: Orientation {'radio_id': 0
+136	12:45:01.463797: Position Data {'radio_id': 0
+137	12:45:01.517389: Position Data {'radio_id': 0
+138	12:45:01.534999: Pyro Info {'radio_id': 0
+139	12:45:01.553019: GPS Passthrough {'Latitude': 0.0
+140	12:45:01.554165: Line Cutter Data  {'radio_id': 0
+141	12:45:01.630365: Line Cutter Data  {'radio_id': 0
+142	12:45:01.697775: Orientation {'radio_id': 0
+143	12:45:01.710818: Position Data {'radio_id': 0
+144	12:45:01.830314: Groundstation Status {'gs_lat': 0.0
+145	12:45:01.880672: GPS Passthrough {'Latitude': 0.0
+146	12:45:01.899590: Orientation {'radio_id': 0
+147	12:45:02.063727: Position Data {'radio_id': 0
+148	12:45:02.078695: Orientation {'radio_id': 0
+149	12:45:02.121113: Position Data {'radio_id': 0
+150	12:45:02.195018: Alt Info & Cfg {'radio_id': 0
+151	12:45:02.266742: GPS Passthrough {'Latitude': 0.0
+152	12:45:02.280224: Orientation {'radio_id': 0
+153	12:45:02.445717: Position Data {'radio_id': 0
+154	12:45:02.473786: Orientation {'radio_id': 0
+155	12:45:02.500909: Position Data {'radio_id': 0
+156	12:45:02.546849: GPS Passthrough {'Latitude': 0.0
+157	12:45:02.550102: Pyro Info {'radio_id': 0
+158	12:45:02.564169: Line Cutter Data  {'radio_id': 0
+159	12:45:02.633352: Line Cutter Data  {'radio_id': 0
+160	12:45:02.686132: Orientation {'radio_id': 0
+161	12:45:02.828439: Position Data {'radio_id': 0
+162	12:45:02.885469: GPS Passthrough {'Latitude': 0.0
+163	12:45:02.886183: Orientation {'radio_id': 0
+164	12:45:03.052461: Position Data {'radio_id': 0
+165	12:45:03.097535: Orientation {'radio_id': 0
+166	12:45:03.164629: Position Data {'radio_id': 0
+167	12:45:03.226164: GPS Passthrough {'Latitude': 0.0
+168	12:45:03.299248: Orientation {'radio_id': 0
+169	12:45:03.339945: Position Data {'radio_id': 0
+170	12:45:03.438649: Alt Info & Cfg {'radio_id': 0
+171	12:45:03.489624: Orientation {'radio_id': 0
+172	12:45:03.506605: Position Data {'radio_id': 0
+173	12:45:03.509238: GPS Passthrough {'Latitude': 0.0
+174	12:45:03.571807: Pyro Info {'radio_id': 0
+175	12:45:03.573956: Line Cutter Data  {'radio_id': 0
+176	12:45:03.646261: Line Cutter Data  {'radio_id': 0
+177	12:45:03.687222: Orientation {'radio_id': 0
+178	12:45:03.714450: Position Data {'radio_id': 0
+179	12:45:03.836470: Groundstation Status {'gs_lat': 0.0
+180	12:45:03.837650: GPS Passthrough {'Latitude': 0.0
+181	12:45:03.892442: Orientation {'radio_id': 0
+182	12:45:04.033533: Position Data {'radio_id': 0
+183	12:45:04.067530: Orientation {'radio_id': 0
+184	12:45:04.165766: Position Data {'radio_id': 0
+185	12:45:04.224508: GPS Passthrough {'Latitude': 0.0
+186	12:45:04.277189: Orientation {'radio_id': 0
+187	12:45:04.445868: Position Data {'radio_id': 0
+188	12:45:04.476534: Orientation {'radio_id': 0
+189	12:45:04.487945: Position Data {'radio_id': 0
+190	12:45:04.542188: GPS Passthrough {'Latitude': 0.0
+191	12:45:04.559841: Pyro Info {'radio_id': 0
+192	12:45:04.603497: Line Cutter Data  {'radio_id': 0
+193	12:45:04.635404: Line Cutter Data  {'radio_id': 0
+194	12:45:04.704144: Orientation {'radio_id': 0
+195	12:45:04.706407: Position Data {'radio_id': 0
+196	12:45:04.852951: Alt Info & Cfg {'radio_id': 0
+197	12:45:04.861204: GPS Passthrough {'Latitude': 0.0
+198	12:45:04.873166: Orientation {'radio_id': 0
+199	12:45:04.922445: Position Data {'radio_id': 0
+200	12:45:04.948643: Line Cutter Vars  {'radio_id': 0
+201	12:45:05.056057: Line Cutter Vars  {'radio_id': 0
+202	12:45:05.057151: Orientation {'radio_id': 0
+203	12:45:05.170946: Position Data {'radio_id': 0
+204	12:45:05.228239: GPS Passthrough {'Latitude': 0.0
+205	12:45:05.252533: Orientation {'radio_id': 0
+206	12:45:05.430383: Position Data {'radio_id': 0
+207	12:45:05.485768: Orientation {'radio_id': 0
+208	12:45:05.527958: Position Data {'radio_id': 0
+209	12:45:05.534942: Pyro Info {'radio_id': 0
+210	12:45:05.546405: GPS Passthrough {'Latitude': 0.0
+211	12:45:05.568317: GPS Passthrough {'Latitude': 0.0
+212	12:45:05.569251: Line Cutter Data  {'radio_id': 0
+213	12:45:05.632008: Line Cutter Data  {'radio_id': 0
+214	12:45:05.686442: Orientation {'radio_id': 0
+215	12:45:05.708758: Position Data {'radio_id': 0
+216	12:45:05.848666: Groundstation Status {'gs_lat': 0.0
+217	12:45:05.849613: Orientation {'radio_id': 0
+218	12:45:05.878311: GPS Passthrough {'Latitude': 0.0
+219	12:45:05.909486: Position Data {'radio_id': 0
+220	12:45:06.025849: Alt Info & Cfg {'radio_id': 0
+221	12:45:06.075163: Orientation {'radio_id': 0
+222	12:45:06.161313: Position Data {'radio_id': 0
+223	12:45:06.234796: GPS Passthrough {'Latitude': 0.0
+224	12:45:06.259641: Orientation {'radio_id': 0
+225	12:45:06.443941: Position Data {'radio_id': 0
+226	12:45:06.473919: Orientation {'radio_id': 0
+227	12:45:06.506828: Position Data {'radio_id': 0
+228	12:45:06.526267: GPS Passthrough {'Latitude': 0.0
+229	12:45:06.527909: Pyro Info {'radio_id': 0
+230	12:45:06.590834: Line Cutter Data  {'radio_id': 0
+231	12:45:06.665749: Line Cutter Data  {'radio_id': 0
+232	12:45:06.667973: Orientation {'radio_id': 0
+233	12:45:06.821649: Position Data {'radio_id': 0
+234	12:45:06.823171: Orientation {'radio_id': 0
+235	12:45:06.874480: GPS Passthrough {'Latitude': 0.0
+236	12:45:07.036791: Position Data {'radio_id': 0
+237	12:45:07.056850: Orientation {'radio_id': 0
+238	12:45:07.098417: Position Data {'radio_id': 0
+239	12:45:07.171966: Alt Info & Cfg {'radio_id': 0
+240	12:45:07.244457: GPS Passthrough {'Latitude': 0.0
+241	12:45:07.272204: Orientation {'radio_id': 0
+242	12:45:07.411722: Position Data {'radio_id': 0
+243	12:45:07.464684: Orientation {'radio_id': 0
+244	12:45:07.504657: Position Data {'radio_id': 0
+245	12:45:07.541219: GPS Passthrough {'Latitude': 0.0
+246	12:45:07.543201: Pyro Info {'radio_id': 0
+247	12:45:07.609074: Line Cutter Data  {'radio_id': 0
+248	12:45:07.621405: Line Cutter Data  {'radio_id': 0
+249	12:45:07.669843: Orientation {'radio_id': 0
+250	12:45:07.739848: Position Data {'radio_id': 0
+251	12:45:07.819906: Groundstation Status {'gs_lat': 0.0
+252	12:45:07.856937: Orientation {'radio_id': 0
+253	12:45:07.857787: GPS Passthrough {'Latitude': 0.0
+254	12:45:08.039478: Position Data {'radio_id': 0
+255	12:45:08.080465: Orientation {'radio_id': 0
+256	12:45:08.168492: Position Data {'radio_id': 0
+257	12:45:08.224840: GPS Passthrough {'Latitude': 0.0
+258	12:45:08.262779: Orientation {'radio_id': 0
+259	12:45:08.371881: Position Data {'radio_id': 0
+260	12:45:08.430843: Alt Info & Cfg {'radio_id': 0
+261	12:45:08.510564: Position Data {'radio_id': 0
+262	12:45:08.512160: GPS Passthrough {'Latitude': 0.0
+263	12:45:08.541189: Pyro Info {'radio_id': 0
+264	12:45:08.562718: Line Cutter Data  {'radio_id': 0
+265	12:45:08.638988: Line Cutter Data  {'radio_id': 0
+266	12:45:08.655690: Orientation {'radio_id': 0
+267	12:45:08.807714: Position Data {'radio_id': 0
+268	12:45:08.825294: Orientation {'radio_id': 0
+269	12:45:08.826228: GPS Passthrough {'Latitude': 0.0
+270	12:45:09.032755: Position Data {'radio_id': 0
+271	12:45:09.067307: Orientation {'radio_id': 0
+272	12:45:09.165782: Position Data {'radio_id': 0
+273	12:45:09.224563: GPS Passthrough {'Latitude': 0.0
+274	12:45:09.269591: Orientation {'radio_id': 0
+275	12:45:09.423947: Position Data {'radio_id': 0
+276	12:45:09.459212: Orientation {'radio_id': 0
+277	12:45:09.497767: Position Data {'radio_id': 0
+278	12:45:09.619524: GPS Passthrough {'Latitude': 0.0
+279	12:45:09.632168: Orientation {'radio_id': 0
+280	12:45:09.694366: Position Data {'radio_id': 0
+281	12:45:09.707902: Alt Info & Cfg {'radio_id': 0
+282	12:45:09.740334: Pyro Info {'radio_id': 0
+283	12:45:09.777245: Groundstation Status {'gs_lat': 0.0
+284	12:45:09.843338: Line Cutter Data  {'radio_id': 0
+285	12:45:09.853500: Orientation {'radio_id': 0
+286	12:45:09.868003: GPS Passthrough {'Latitude': 0.0
+287	12:45:10.013044: Position Data {'radio_id': 0
+288	12:45:10.055070: Orientation {'radio_id': 0
+289	12:45:10.159056: Position Data {'radio_id': 0
+290	12:45:10.235208: GPS Passthrough {'Latitude': 0.0
+291	12:45:10.247329: Orientation {'radio_id': 0
+292	12:45:10.432147: Position Data {'radio_id': 0
+293	12:45:10.434599: Orientation {'radio_id': 0
+294	12:45:10.521552: Position Data {'radio_id': 0
+295	12:45:10.535459: GPS Passthrough {'Latitude': 0.0
+296	12:45:10.620493: GPS Passthrough {'Latitude': 0.0
+297	12:45:10.653550: Orientation {'radio_id': 0
+298	12:45:10.674166: Position Data {'radio_id': 0
+299	12:45:10.714380: Pyro Info {'radio_id': 0
+300	12:45:10.743561: Line Cutter Data  {'radio_id': 0
+301	12:45:10.808854: Line Cutter Data  {'radio_id': 0
+302	12:45:10.828411: Orientation {'radio_id': 0
+303	12:45:10.829630: GPS Passthrough {'Latitude': 0.0
+304	12:45:10.864361: Position Data {'radio_id': 0
+305	12:45:10.993732: Alt Info & Cfg {'radio_id': 0
+306	12:45:11.045420: Orientation {'radio_id': 0
+307	12:45:11.151660: Position Data {'radio_id': 0
+308	12:45:11.216775: GPS Passthrough {'Latitude': 0.0
+309	12:45:11.234344: Orientation {'radio_id': 0
+310	12:45:11.400037: Position Data {'radio_id': 0
+311	12:45:11.450394: Orientation {'radio_id': 0
+312	12:45:11.514976: Position Data {'radio_id': 0
+313	12:45:11.587613: GPS Passthrough {'Latitude': 0.0
+314	12:45:11.640130: Orientation {'radio_id': 0
+315	12:45:11.659092: Position Data {'radio_id': 0
+316	12:45:11.715653: Pyro Info {'radio_id': 0
+317	12:45:11.729648: Line Cutter Data  {'radio_id': 0
+318	12:45:11.796071: Groundstation Status {'gs_lat': 0.0
+319	12:45:11.813752: Orientation {'radio_id': 0
+320	12:45:11.861169: GPS Passthrough {'Latitude': 0.0
+321	12:45:12.001035: Position Data {'radio_id': 0
+322	12:45:12.062007: Position Data {'radio_id': 0
+323	12:45:12.156846: Alt Info & Cfg {'radio_id': 0
+324	12:45:12.204467: GPS Passthrough {'Latitude': 0.0
+325	12:45:12.224355: Orientation {'radio_id': 0
+326	12:45:12.386913: Position Data {'radio_id': 0
+327	12:45:12.433546: Orientation {'radio_id': 0
+328	12:45:12.496272: Position Data {'radio_id': 0
+329	12:45:12.594618: GPS Passthrough {'Latitude': 0.0
+330	12:45:12.616761: Orientation {'radio_id': 0
+331	12:45:12.650309: Position Data {'radio_id': 0
+332	12:45:12.699081: Pyro Info {'radio_id': 0
+333	12:45:12.719962: Line Cutter Data  {'radio_id': 0
+334	12:45:12.798733: Line Cutter Data  {'radio_id': 0
+335	12:45:12.810563: Orientation {'radio_id': 0
+336	12:45:12.823560: GPS Passthrough {'Latitude': 0.0
+337	12:45:13.005556: Position Data {'radio_id': 0
+338	12:45:13.020499: Orientation {'radio_id': 0
+339	12:45:13.158856: Position Data {'radio_id': 0
+340	12:45:13.207735: GPS Passthrough {'Latitude': 0.0
+341	12:45:13.221171: Orientation {'radio_id': 0
+342	12:45:13.272452: Position Data {'radio_id': 0
+343	12:45:13.439686: Alt Info & Cfg {'radio_id': 0
+344	12:45:13.458653: Orientation {'radio_id': 0
+345	12:45:13.483236: Position Data {'radio_id': 0
+346	12:45:13.598519: GPS Passthrough {'Latitude': 0.0
+347	12:45:13.632949: Orientation {'radio_id': 0
+348	12:45:13.673926: Position Data {'radio_id': 0
+349	12:45:13.694316: Pyro Info {'radio_id': 0
+350	12:45:13.759468: Line Cutter Data  {'radio_id': 0
+351	12:45:13.763432: Line Cutter Data  {'radio_id': 0
+352	12:45:13.801582: Groundstation Status {'gs_lat': 0.0
+353	12:45:13.852063: Position Data {'radio_id': 0
+354	12:45:14.014407: GPS Passthrough {'Latitude': 0.0
+355	12:45:14.031586: Orientation {'radio_id': 0
+356	12:45:14.150445: Position Data {'radio_id': 0
+357	12:45:14.210518: GPS Passthrough {'Latitude': 0.0
+358	12:45:14.211178: Orientation {'radio_id': 0
+359	12:45:14.384178: Position Data {'radio_id': 0
+360	12:45:14.440344: Orientation {'radio_id': 0
+361	12:45:14.473011: Position Data {'radio_id': 0
+362	12:45:14.519192: Alt Info & Cfg {'radio_id': 0
+363	12:45:14.587453: GPS Passthrough {'Latitude': 0.0
+364	12:45:14.646684: Orientation {'radio_id': 0
+365	12:45:14.647545: Position Data {'radio_id': 0
+366	12:45:14.675373: Pyro Info {'radio_id': 0
+367	12:45:14.718179: Line Cutter Data  {'radio_id': 0
+368	12:45:14.804918: Line Cutter Data  {'radio_id': 0
+369	12:45:14.818289: Orientation {'radio_id': 0
+370	12:45:14.821327: GPS Passthrough {'Latitude': 0.0
+371	12:45:14.861481: Position Data {'radio_id': 0
+372	12:45:14.895554: Line Cutter Vars  {'radio_id': 0
+373	12:45:14.986553: Line Cutter Vars  {'radio_id': 0
+374	12:45:15.016794: Orientation {'radio_id': 0
+375	12:45:15.143730: Position Data {'radio_id': 0
+376	12:45:15.188997: GPS Passthrough {'Latitude': 0.0
+377	12:45:15.208520: Orientation {'radio_id': 0
+378	12:45:15.422880: Position Data {'radio_id': 0
+379	12:45:15.424331: Orientation {'radio_id': 0
+380	12:45:15.500452: Position Data {'radio_id': 0
+381	12:45:15.501671: GPS Passthrough {'Latitude': 0.0
+382	12:45:15.596115: GPS Passthrough {'Latitude': 0.0
+383	12:45:15.625854: Position Data {'radio_id': 0
+384	12:45:15.671372: Pyro Info {'radio_id': 0
+385	12:45:15.699293: Line Cutter Data  {'radio_id': 0
+386	12:45:15.767325: Line Cutter Data  {'radio_id': 0
+387	12:45:15.786384: Groundstation Status {'gs_lat': 0.0
+388	12:45:15.808410: Orientation {'radio_id': 0
+389	12:45:15.862209: Position Data {'radio_id': 0
+390	12:45:15.865180: GPS Passthrough {'Latitude': 0.0
+391	12:45:15.994585: Alt Info & Cfg {'radio_id': 0
+392	12:45:16.029140: Orientation {'radio_id': 0
+393	12:45:16.150854: Position Data {'radio_id': 0
+394	12:45:16.170789: GPS Passthrough {'Latitude': 0.0
+395	12:45:16.217133: Orientation {'radio_id': 0
+396	12:45:16.383417: Position Data {'radio_id': 0
+397	12:45:16.428907: Orientation {'radio_id': 0
+398	12:45:16.510177: Position Data {'radio_id': 0
+399	12:45:16.574994: GPS Passthrough {'Latitude': 0.0
+400	12:45:16.620818: Orientation {'radio_id': 0
+401	12:45:16.651820: Position Data {'radio_id': 0
+402	12:45:16.676707: Line Cutter Data  {'radio_id': 0
+403	12:45:16.794114: Line Cutter Data  {'radio_id': 0
+404	12:45:16.794779: Orientation {'radio_id': 0
+405	12:45:16.813064: Position Data {'radio_id': 0
+406	12:45:16.979684: GPS Passthrough {'Latitude': 0.0
+407	12:45:16.994651: Orientation {'radio_id': 0
+408	12:45:17.037780: Position Data {'radio_id': 0
+409	12:45:17.164099: Alt Info & Cfg {'radio_id': 0
+410	12:45:17.179740: GPS Passthrough {'Latitude': 0.0
+411	12:45:17.199882: Orientation {'radio_id': 0
+412	12:45:17.377897: Position Data {'radio_id': 0
+413	12:45:17.498600: Position Data {'radio_id': 0
+414	12:45:17.562319: GPS Passthrough {'Latitude': 0.0
+415	12:45:17.624763: Orientation {'radio_id': 0
+416	12:45:17.638043: Position Data {'radio_id': 0
+417	12:45:17.702133: Pyro Info {'radio_id': 0
+418	12:45:17.702964: Line Cutter Data  {'radio_id': 0
+419	12:45:17.763068: Line Cutter Data  {'radio_id': 0
+420	12:45:17.784784: Groundstation Status {'gs_lat': 0.0
+421	12:45:17.798704: Orientation {'radio_id': 0
+422	12:45:17.812238: Position Data {'radio_id': 0
+423	12:45:17.988224: GPS Passthrough {'Latitude': 0.0
+424	12:45:18.007885: Orientation {'radio_id': 0
+425	12:45:18.158131: Position Data {'radio_id': 0
+426	12:45:18.159500: GPS Passthrough {'Latitude': 0.0
+427	12:45:18.216810: Orientation {'radio_id': 0
+428	12:45:18.233597: Position Data {'radio_id': 0
+429	12:45:18.370406: Alt Info & Cfg {'radio_id': 0
+430	12:45:18.470133: Orientation {'radio_id': 0
+431	12:45:18.495950: Position Data {'radio_id': 0
+432	12:45:18.554005: GPS Passthrough {'Latitude': 0.0
+433	12:45:18.611688: Orientation {'radio_id': 0
+434	12:45:18.630344: Position Data {'radio_id': 0
+435	12:45:18.657980: Pyro Info {'radio_id': 0
+436	12:45:18.694250: Line Cutter Data  {'radio_id': 0
+437	12:45:18.774837: Line Cutter Data  {'radio_id': 0
+438	12:45:18.791912: Orientation {'radio_id': 0
+439	12:45:18.813388: Position Data {'radio_id': 0
+440	12:45:18.961516: GPS Passthrough {'Latitude': 0.0
+441	12:45:19.148671: Position Data {'radio_id': 0
+442	12:45:19.166357: GPS Passthrough {'Latitude': 0.0
+443	12:45:19.369636: Position Data {'radio_id': 0
+444	12:45:19.383720: Orientation {'radio_id': 0
+445	12:45:19.454090: Position Data {'radio_id': 0
+446	12:45:19.478152: Alt Info & Cfg {'radio_id': 0
+447	12:45:19.547659: GPS Passthrough {'Latitude': 0.0
+448	12:45:19.600601: Orientation {'radio_id': 0
+449	12:45:19.633474: Position Data {'radio_id': 0
+450	12:45:19.677895: Pyro Info {'radio_id': 0
+451	12:45:19.691781: Line Cutter Data  {'radio_id': 0
+452	12:45:19.768375: Line Cutter Data  {'radio_id': 0
+453	12:45:19.769036: Groundstation Status {'gs_lat': 0.0
+454	12:45:19.783435: Orientation {'radio_id': 0
+455	12:45:19.835617: Position Data {'radio_id': 0
+456	12:45:19.951805: GPS Passthrough {'Latitude': 0.0
+457	12:45:20.002362: Orientation {'radio_id': 0
+458	12:45:20.155669: Position Data {'radio_id': 0
+459	12:45:20.158005: GPS Passthrough {'Latitude': 0.0
+460	12:45:20.175724: Orientation {'radio_id': 0
+461	12:45:20.364772: Position Data {'radio_id': 0
+462	12:45:20.395069: Orientation {'radio_id': 0
+463	12:45:20.503026: Position Data {'radio_id': 0
+464	12:45:20.504697: GPS Passthrough {'Latitude': 0.0
+465	12:45:20.564492: GPS Passthrough {'Latitude': 0.0
+466	12:45:20.602239: Orientation {'radio_id': 0
+467	12:45:20.628652: Position Data {'radio_id': 0
+468	12:45:20.700946: Pyro Info {'radio_id': 0
+469	12:45:20.708043: Line Cutter Data  {'radio_id': 0
+470	12:45:20.779743: Line Cutter Data  {'radio_id': 0
+471	12:45:20.802180: Orientation {'radio_id': 0
+472	12:45:20.854756: Position Data {'radio_id': 0
+473	12:45:20.863102: Alt Info & Cfg {'radio_id': 0
+474	12:45:20.942791: GPS Passthrough {'Latitude': 0.0
+475	12:45:20.992636: Orientation {'radio_id': 0
+476	12:45:21.146393: Position Data {'radio_id': 0
+477	12:45:21.147967: GPS Passthrough {'Latitude': 0.0
+478	12:45:21.220171: Orientation {'radio_id': 0
+479	12:45:21.370975: Position Data {'radio_id': 0
+480	12:45:21.384812: Orientation {'radio_id': 0
+481	12:45:21.477596: Position Data {'radio_id': 0
+482	12:45:21.546622: GPS Passthrough {'Latitude': 0.0
+483	12:45:21.598865: Orientation {'radio_id': 0
+484	12:45:21.640541: Position Data {'radio_id': 0
+485	12:45:21.679419: Pyro Info {'radio_id': 0
+486	12:45:21.682892: Line Cutter Data  {'radio_id': 0
+487	12:45:21.766204: Line Cutter Data  {'radio_id': 0
+488	12:45:21.768777: Orientation {'radio_id': 0
+489	12:45:21.782507: Groundstation Status {'gs_lat': 0.0
+490	12:45:21.830040: Position Data {'radio_id': 0
+491	12:45:21.934339: GPS Passthrough {'Latitude': 0.0
+492	12:45:21.969295: Orientation {'radio_id': 0
+493	12:45:22.025536: Position Data {'radio_id': 0
+494	12:45:22.140624: Alt Info & Cfg {'radio_id': 0
+495	12:45:22.143269: GPS Passthrough {'Latitude': 0.0
+496	12:45:22.196492: Orientation {'radio_id': 0
+497	12:45:22.339525: Position Data {'radio_id': 0
+498	12:45:22.373256: Orientation {'radio_id': 0
+499	12:45:22.472631: Position Data {'radio_id': 0
+500	12:45:22.545808: GPS Passthrough {'Latitude': 0.0
+501	12:45:22.595194: Orientation {'radio_id': 0
+502	12:45:22.652164: Position Data {'radio_id': 0
+503	12:45:22.665909: Pyro Info {'radio_id': 0
+504	12:45:22.728203: Line Cutter Data  {'radio_id': 0
+505	12:45:22.744841: Line Cutter Data  {'radio_id': 0
+506	12:45:22.768594: Orientation {'radio_id': 0
+507	12:45:22.823369: Position Data {'radio_id': 0
+508	12:45:22.967573: GPS Passthrough {'Latitude': 0.0
+509	12:45:22.980260: Orientation {'radio_id': 0
+510	12:45:23.136685: Position Data {'radio_id': 0
+511	12:45:23.152112: GPS Passthrough {'Latitude': 0.0
+512	12:45:23.204159: Orientation {'radio_id': 0
+513	12:45:23.336356: Alt Info & Cfg {'radio_id': 0
+514	12:45:23.359175: Orientation {'radio_id': 0
+515	12:45:23.522887: Position Data {'radio_id': 0
+516	12:45:23.537974: GPS Passthrough {'Latitude': 0.0
+517	12:45:23.589774: Orientation {'radio_id': 0
+518	12:45:23.747235: Position Data {'radio_id': 0
+519	12:45:23.748088: Orientation {'radio_id': 0
+520	12:45:23.761765: Groundstation Status {'gs_lat': 0.0
+521	12:45:23.823098: Position Data {'radio_id': 0
+522	12:45:23.826028: Pyro Info {'radio_id': 0
+523	12:45:23.837645: GPS Passthrough {'Latitude': 0.0
+524	12:45:23.848957: Line Cutter Data  {'radio_id': 0
+525	12:45:23.963630: Line Cutter Data  {'radio_id': 0
+526	12:45:23.964311: Orientation {'radio_id': 0
+527	12:45:24.137009: Position Data {'radio_id': 0
+528	12:45:24.138016: GPS Passthrough {'Latitude': 0.0
+529	12:45:24.177030: Orientation {'radio_id': 0
+530	12:45:24.343625: Position Data {'radio_id': 0
+531	12:45:24.419084: Position Data {'radio_id': 0
+532	12:45:24.481673: Alt Info & Cfg {'radio_id': 0
+533	12:45:24.544283: GPS Passthrough {'Latitude': 0.0
+534	12:45:24.564155: Orientation {'radio_id': 0
+535	12:45:24.733607: Position Data {'radio_id': 0
+536	12:45:24.773561: Orientation {'radio_id': 0
+537	12:45:24.786673: Position Data {'radio_id': 0
+538	12:45:24.838864: Pyro Info {'radio_id': 0
+539	12:45:24.850410: GPS Passthrough {'Latitude': 0.0
+540	12:45:24.862233: Line Cutter Data  {'radio_id': 0
+541	12:45:24.875621: Line Cutter Data  {'radio_id': 0
+542	12:45:24.939073: Line Cutter Vars  {'radio_id': 0
+543	12:45:24.940125: Line Cutter Vars  {'radio_id': 0
+544	12:45:24.965622: Orientation {'radio_id': 0
+545	12:45:25.151701: Position Data {'radio_id': 0
+546	12:45:25.153072: Orientation {'radio_id': 0
+547	12:45:25.169923: GPS Passthrough {'Latitude': 0.0
+548	12:45:25.327437: Position Data {'radio_id': 0
+549	12:45:25.371351: Orientation {'radio_id': 0
+550	12:45:25.509759: Position Data {'radio_id': 0
+551	12:45:25.512746: GPS Passthrough {'Latitude': 0.0
+552	12:45:25.532768: GPS Passthrough {'Latitude': 0.0
+553	12:45:25.588043: Orientation {'radio_id': 0
+554	12:45:25.741870: Position Data {'radio_id': 0
+555	12:45:25.781795: Orientation {'radio_id': 0
+556	12:45:25.784191: Groundstation Status {'gs_lat': 0.0
+557	12:45:25.797671: Position Data {'radio_id': 0
+558	12:45:25.801694: Alt Info & Cfg {'radio_id': 0
+559	12:45:25.815425: GPS Passthrough {'Latitude': 0.0
+560	12:45:25.866752: Pyro Info {'radio_id': 0
+561	12:45:25.898658: Line Cutter Data  {'radio_id': 0
+562	12:45:25.929192: Line Cutter Data  {'radio_id': 0
+563	12:45:25.968969: Orientation {'radio_id': 0
+564	12:45:26.120263: Position Data {'radio_id': 0
+565	12:45:26.135731: Orientation {'radio_id': 0
+566	12:45:26.174863: GPS Passthrough {'Latitude': 0.0
+567	12:45:26.331207: Position Data {'radio_id': 0
+568	12:45:26.344937: Orientation {'radio_id': 0
+569	12:45:26.472972: Position Data {'radio_id': 0
+570	12:45:26.529312: GPS Passthrough {'Latitude': 0.0
+571	12:45:26.541692: Orientation {'radio_id': 0
+572	12:45:26.722671: Position Data {'radio_id': 0
+573	12:45:26.785335: Orientation {'radio_id': 0
+574	12:45:26.786965: Position Data {'radio_id': 0
+575	12:45:26.804547: Pyro Info {'radio_id': 0
+576	12:45:26.863820: GPS Passthrough {'Latitude': 0.0
+577	12:45:26.864832: Line Cutter Data  {'radio_id': 0
+578	12:45:26.940926: Line Cutter Data  {'radio_id': 0
+579	12:45:26.963603: Orientation {'radio_id': 0
+580	12:45:26.995759: Position Data {'radio_id': 0
+581	12:45:27.131295: Alt Info & Cfg {'radio_id': 0
+582	12:45:27.134353: Orientation {'radio_id': 0
+583	12:45:27.151737: GPS Passthrough {'Latitude': 0.0
+584	12:45:27.324804: Position Data {'radio_id': 0
+585	12:45:27.337536: Orientation {'radio_id': 0
+586	12:45:27.472818: Position Data {'radio_id': 0
+587	12:45:27.516577: GPS Passthrough {'Latitude': 0.0
+588	12:45:27.569442: Orientation {'radio_id': 0
+589	12:45:27.723504: Position Data {'radio_id': 0
+590	12:45:27.782596: Orientation {'radio_id': 0
+591	12:45:27.783912: Position Data {'radio_id': 0
+592	12:45:27.784931: Groundstation Status {'gs_lat': 0.0
+593	12:45:27.806471: Pyro Info {'radio_id': 0
+594	12:45:27.809065: GPS Passthrough {'Latitude': 0.0
+595	12:45:27.924599: Line Cutter Data  {'radio_id': 0
+596	12:45:27.963652: Orientation {'radio_id': 0
+597	12:45:28.116695: Position Data {'radio_id': 0
+598	12:45:28.139789: Orientation {'radio_id': 0
+599	12:45:28.144065: GPS Passthrough {'Latitude': 0.0
+600	12:45:28.195122: Position Data {'radio_id': 0
+601	12:45:28.317530: Alt Info & Cfg {'radio_id': 0
+602	12:45:28.375476: Orientation {'radio_id': 0
+603	12:45:28.537280: Position Data {'radio_id': 0
+604	12:45:28.558201: GPS Passthrough {'Latitude': 0.0
+605	12:45:28.559784: Orientation {'radio_id': 0
+606	12:45:28.724399: Position Data {'radio_id': 0
+607	12:45:28.738844: Orientation {'radio_id': 0
+608	12:45:28.784418: Position Data {'radio_id': 0
+609	12:45:28.808243: Pyro Info {'radio_id': 0
+610	12:45:28.809786: GPS Passthrough {'Latitude': 0.0
+611	12:45:28.846836: Line Cutter Data  {'radio_id': 0
+612	12:45:28.906936: Line Cutter Data  {'radio_id': 0
+613	12:45:28.967923: Orientation {'radio_id': 0
+614	12:45:29.114298: Position Data {'radio_id': 0
+615	12:45:29.138027: Orientation {'radio_id': 0
+616	12:45:29.138963: GPS Passthrough {'Latitude': 0.0
+617	12:45:29.328350: Position Data {'radio_id': 0
+618	12:45:29.346709: Orientation {'radio_id': 0
+619	12:45:29.406564: Position Data {'radio_id': 0
+620	12:45:29.470735: Alt Info & Cfg {'radio_id': 0
+621	12:45:29.530445: GPS Passthrough {'Latitude': 0.0
+622	12:45:29.543033: Orientation {'radio_id': 0
+623	12:45:29.714044: Position Data {'radio_id': 0
+624	12:45:29.772146: Position Data {'radio_id': 0
+625	12:45:29.774233: Pyro Info {'radio_id': 0
+626	12:45:29.790400: Groundstation Status {'gs_lat': 0.0
+627	12:45:29.836600: Line Cutter Data  {'radio_id': 0
+628	12:45:29.848150: GPS Passthrough {'Latitude': 0.0
+629	12:45:29.935094: Line Cutter Data  {'radio_id': 0
+630	12:45:29.935880: Orientation {'radio_id': 0
+631	12:45:30.107733: Position Data {'radio_id': 0
+632	12:45:30.129552: Orientation {'radio_id': 0
+633	12:45:30.133340: GPS Passthrough {'Latitude': 0.0
+634	12:45:30.338845: Position Data {'radio_id': 0
+635	12:45:30.340108: Orientation {'radio_id': 0
+636	12:45:30.508695: Position Data {'radio_id': 0
+637	12:45:30.512796: GPS Passthrough {'Latitude': 0.0
+638	12:45:30.526801: GPS Passthrough {'Latitude': 0.0
+639	12:45:30.565555: Orientation {'radio_id': 0
+640	12:45:30.704306: Position Data {'radio_id': 0
+641	12:45:30.735985: Orientation {'radio_id': 0
+642	12:45:30.779862: Position Data {'radio_id': 0
+643	12:45:30.803205: Alt Info & Cfg {'radio_id': 0
+644	12:45:30.804486: Pyro Info {'radio_id': 0
+645	12:45:30.819456: GPS Passthrough {'Latitude': 0.0
+646	12:45:30.867163: Line Cutter Data  {'radio_id': 0
+647	12:45:30.900553: Line Cutter Data  {'radio_id': 0
+648	12:45:30.959565: Orientation {'radio_id': 0
+649	12:45:31.112560: Position Data {'radio_id': 0
+650	12:45:31.130243: Orientation {'radio_id': 0
+651	12:45:31.131137: Position Data {'radio_id': 0
+652	12:45:31.327886: GPS Passthrough {'Latitude': 0.0
+653	12:45:31.328618: Orientation {'radio_id': 0
+654	12:45:31.464746: Position Data {'radio_id': 0
+655	12:45:31.514347: GPS Passthrough {'Latitude': 0.0
+656	12:45:31.531761: Orientation {'radio_id': 0
+657	12:45:31.699955: Position Data {'radio_id': 0
+658	12:45:31.762296: Orientation {'radio_id': 0
+659	12:45:31.776293: Position Data {'radio_id': 0
+660	12:45:31.824065: Groundstation Status {'gs_lat': 0.0
+661	12:45:31.844417: GPS Passthrough {'Latitude': 0.0
+662	12:45:31.857414: Line Cutter Data  {'radio_id': 0
+663	12:45:31.906120: Line Cutter Data  {'radio_id': 0
+664	12:45:31.934869: Orientation {'radio_id': 0
+665	12:45:31.947982: Position Data {'radio_id': 0
+666	12:45:32.092918: Alt Info & Cfg {'radio_id': 0
+667	12:45:32.128611: Orientation {'radio_id': 0
+668	12:45:32.148105: Position Data {'radio_id': 0
+669	12:45:32.310123: GPS Passthrough {'Latitude': 0.0
+670	12:45:32.326668: Orientation {'radio_id': 0
+671	12:45:32.484358: Position Data {'radio_id': 0
+672	12:45:32.499864: GPS Passthrough {'Latitude': 0.0
+673	12:45:32.542734: Orientation {'radio_id': 0
+674	12:45:32.687042: Position Data {'radio_id': 0
+675	12:45:32.745287: Orientation {'radio_id': 0
+676	12:45:32.810247: Position Data {'radio_id': 0
+677	12:45:32.811339: Pyro Info {'radio_id': 0
+678	12:45:32.812014: GPS Passthrough {'Latitude': 0.0
+679	12:45:32.852330: Line Cutter Data  {'radio_id': 0
+680	12:45:32.888330: Line Cutter Data  {'radio_id': 0
+681	12:45:32.928908: Orientation {'radio_id': 0
+682	12:45:33.104504: Position Data {'radio_id': 0
+683	12:45:33.105660: Orientation {'radio_id': 0
+684	12:45:33.131117: Position Data {'radio_id': 0
+685	12:45:33.154944: GPS Passthrough {'Latitude': 0.0
+686	12:45:33.323279: Alt Info & Cfg {'radio_id': 0
+687	12:45:33.324182: Orientation {'radio_id': 0
+688	12:45:33.495298: Position Data {'radio_id': 0
+689	12:45:33.596080: GPS Passthrough {'Latitude': 0.0
+690	12:45:33.597114: Orientation {'radio_id': 0
+691	12:45:33.683591: Position Data {'radio_id': 0
+692	12:45:33.733268: Orientation {'radio_id': 0
+693	12:45:33.795737: Position Data {'radio_id': 0
+694	12:45:33.814183: Groundstation Status {'gs_lat': 0.0
+695	12:45:33.818670: GPS Passthrough {'Latitude': 0.0
+696	12:45:33.852259: Line Cutter Data  {'radio_id': 0
+697	12:45:33.884377: Line Cutter Data  {'radio_id': 0
+698	12:45:33.952026: Orientation {'radio_id': 0
+699	12:45:34.109413: Position Data {'radio_id': 0
+700	12:45:34.125096: Orientation {'radio_id': 0
+701	12:45:34.131203: Position Data {'radio_id': 0
+702	12:45:34.294168: GPS Passthrough {'Latitude': 0.0
+703	12:45:34.350815: Orientation {'radio_id': 0
+704	12:45:34.373947: Position Data {'radio_id': 0
+705	12:45:34.482056: Alt Info & Cfg {'radio_id': 0
+706	12:45:34.494102: GPS Passthrough {'Latitude': 0.0
+707	12:45:34.507185: Orientation {'radio_id': 0
+708	12:45:34.694039: Position Data {'radio_id': 0
+709	12:45:34.713240: Orientation {'radio_id': 0
+710	12:45:34.745828: Position Data {'radio_id': 0
+711	12:45:34.773270: Line Cutter Vars  {'radio_id': 0
+712	12:45:34.796016: Line Cutter Vars  {'radio_id': 0
+713	12:45:34.925712: GPS Passthrough {'Latitude': 0.0
+714	12:45:34.943403: Orientation {'radio_id': 0
+715	12:45:34.945239: Position Data {'radio_id': 0
+716	12:45:35.004755: Pyro Info {'radio_id': 0
+717	12:45:35.021421: Line Cutter Data  {'radio_id': 0
+718	12:45:35.089262: Line Cutter Data  {'radio_id': 0
+719	12:45:35.148193: Position Data {'radio_id': 0
+720	12:45:35.306623: GPS Passthrough {'Latitude': 0.0
+721	12:45:35.320177: Orientation {'radio_id': 0
+722	12:45:35.487935: Position Data {'radio_id': 0
+723	12:45:35.490278: Orientation {'radio_id': 0
+724	12:45:35.493462: GPS Passthrough {'Latitude': 0.0
+725	12:45:35.509121: GPS Passthrough {'Latitude': 0.0
+726	12:45:35.673903: Position Data {'radio_id': 0
+727	12:45:35.713066: Orientation {'radio_id': 0
+728	12:45:35.739308: Position Data {'radio_id': 0
+729	12:45:35.798972: Alt Info & Cfg {'radio_id': 0
+730	12:45:35.800190: Groundstation Status {'gs_lat': 0.0
+731	12:45:35.878702: GPS Passthrough {'Latitude': 0.0
+732	12:45:35.933132: Orientation {'radio_id': 0
+733	12:45:35.949217: Position Data {'radio_id': 0
+734	12:45:35.987050: Pyro Info {'radio_id': 0
+735	12:45:36.011973: Line Cutter Data  {'radio_id': 0
+736	12:45:36.097416: Line Cutter Data  {'radio_id': 0
+737	12:45:36.113220: Orientation {'radio_id': 0
+738	12:45:36.161771: Position Data {'radio_id': 0
+739	12:45:36.287933: GPS Passthrough {'Latitude': 0.0
+740	12:45:36.318437: Orientation {'radio_id': 0
+741	12:45:36.472978: Position Data {'radio_id': 0
+742	12:45:36.489851: GPS Passthrough {'Latitude': 0.0
+743	12:45:36.537137: Orientation {'radio_id': 0
+744	12:45:36.668817: Position Data {'radio_id': 0
+745	12:45:36.719033: Orientation {'radio_id': 0
+746	12:45:36.791783: Position Data {'radio_id': 0
+747	12:45:36.899053: GPS Passthrough {'Latitude': 0.0
+748	12:45:36.917996: Orientation {'radio_id': 0
+749	12:45:36.950555: Position Data {'radio_id': 0
+750	12:45:36.975833: Alt Info & Cfg {'radio_id': 0
+751	12:45:37.000276: Pyro Info {'radio_id': 0
+752	12:45:37.063054: Line Cutter Data  {'radio_id': 0
+753	12:45:37.078141: Line Cutter Data  {'radio_id': 0
+754	12:45:37.145370: Orientation {'radio_id': 0
+755	12:45:37.152942: Position Data {'radio_id': 0
+756	12:45:37.308654: GPS Passthrough {'Latitude': 0.0
+757	12:45:37.321219: Orientation {'radio_id': 0
+758	12:45:37.472988: Position Data {'radio_id': 0
+759	12:45:37.474414: GPS Passthrough {'Latitude': 0.0
+760	12:45:37.501432: Orientation {'radio_id': 0
+761	12:45:37.669846: Position Data {'radio_id': 0
+762	12:45:37.698924: Orientation {'radio_id': 0
+763	12:45:37.779984: Position Data {'radio_id': 0
+764	12:45:37.796367: Groundstation Status {'gs_lat': 0.0
+765	12:45:37.867290: GPS Passthrough {'Latitude': 0.0
+766	12:45:37.906768: Orientation {'radio_id': 0
+767	12:45:37.938327: Position Data {'radio_id': 0
+768	12:45:37.990523: Line Cutter Data  {'radio_id': 0
+769	12:45:38.085826: Line Cutter Data  {'radio_id': 0
+770	12:45:38.115075: Orientation {'radio_id': 0
+771	12:45:38.133393: Position Data {'radio_id': 0
+772	12:45:38.136663: GPS Passthrough {'Latitude': 0.0
+773	12:45:38.280195: Alt Info & Cfg {'radio_id': 0
+774	12:45:38.293450: Orientation {'radio_id': 0
+775	12:45:38.464286: Position Data {'radio_id': 0
+776	12:45:38.466965: GPS Passthrough {'Latitude': 0.0
+777	12:45:38.574720: Orientation {'radio_id': 0
+778	12:45:38.676680: Position Data {'radio_id': 0
+779	12:45:38.693105: Orientation {'radio_id': 0
+780	12:45:38.805026: Position Data {'radio_id': 0
+781	12:45:38.865053: GPS Passthrough {'Latitude': 0.0
+782	12:45:38.900660: Orientation {'radio_id': 0
+783	12:45:38.943102: Position Data {'radio_id': 0
+784	12:45:38.960131: Pyro Info {'radio_id': 0
+785	12:45:39.020754: Line Cutter Data  {'radio_id': 0
+786	12:45:39.080052: Line Cutter Data  {'radio_id': 0
+787	12:45:39.098685: Orientation {'radio_id': 0
+788	12:45:39.132777: Position Data {'radio_id': 0
+789	12:45:39.254576: GPS Passthrough {'Latitude': 0.0
+790	12:45:39.304851: Orientation {'radio_id': 0
+791	12:45:39.356590: Position Data {'radio_id': 0
+792	12:45:39.464620: Alt Info & Cfg {'radio_id': 0
+793	12:45:39.465038: Orientation {'radio_id': 0
+794	12:45:39.487482: GPS Passthrough {'Latitude': 0.0
+795	12:45:39.667696: Position Data {'radio_id': 0
+796	12:45:39.707697: Orientation {'radio_id': 0
+797	12:45:39.780120: Position Data {'radio_id': 0
+798	12:45:39.781708: GPS Passthrough {'Latitude': 0.0
+799	12:45:39.875532: Groundstation Status {'gs_lat': 0.0
+800	12:45:39.891304: Orientation {'radio_id': 0
+801	12:45:39.937470: Position Data {'radio_id': 0
+802	12:45:39.952273: Pyro Info {'radio_id': 0
+803	12:45:39.978024: Line Cutter Data  {'radio_id': 0
+804	12:45:40.073414: Line Cutter Data  {'radio_id': 0
+805	12:45:40.090851: Orientation {'radio_id': 0
+806	12:45:40.141465: Position Data {'radio_id': 0
+807	12:45:40.249930: GPS Passthrough {'Latitude': 0.0
+808	12:45:40.495444: Position Data {'radio_id': 0
+809	12:45:40.501771: Position Data {'radio_id': 0
+810	12:45:40.502574: GPS Passthrough {'Latitude': 0.0
+811	12:45:40.650768: GPS Passthrough {'Latitude': 0.0
+812	12:45:40.738278: Orientation {'radio_id': 0
+813	12:45:40.742400: Position Data {'radio_id': 0
+814	12:45:40.786402: Alt Info & Cfg {'radio_id': 0
+815	12:45:40.850351: GPS Passthrough {'Latitude': 0.0
+816	12:45:40.904479: Orientation {'radio_id': 0
+817	12:45:40.960661: Position Data {'radio_id': 0
+818	12:45:40.962781: Pyro Info {'radio_id': 0
+819	12:45:40.976635: Line Cutter Data  {'radio_id': 0
+820	12:45:41.059958: Line Cutter Data  {'radio_id': 0
+821	12:45:41.101284: Orientation {'radio_id': 0
+822	12:45:41.147714: Position Data {'radio_id': 0
+823	12:45:41.251471: GPS Passthrough {'Latitude': 0.0
+824	12:45:41.276069: Orientation {'radio_id': 0
+825	12:45:41.467557: Position Data {'radio_id': 0
+826	12:45:41.468788: GPS Passthrough {'Latitude': 0.0
+827	12:45:41.485120: Orientation {'radio_id': 0
+828	12:45:41.645603: Position Data {'radio_id': 0
+829	12:45:41.696565: Orientation {'radio_id': 0
+830	12:45:41.806491: Position Data {'radio_id': 0
+831	12:45:41.809014: GPS Passthrough {'Latitude': 0.0
+832	12:45:41.867481: Groundstation Status {'gs_lat': 0.0
+833	12:45:41.889219: Orientation {'radio_id': 0
+834	12:45:41.912089: Position Data {'radio_id': 0
+835	12:45:41.950169: Alt Info & Cfg {'radio_id': 0
+836	12:45:41.973998: Pyro Info {'radio_id': 0
+837	12:45:42.007200: Line Cutter Data  {'radio_id': 0
+838	12:45:42.060326: Line Cutter Data  {'radio_id': 0
+839	12:45:42.141880: Position Data {'radio_id': 0
+840	12:45:42.253467: GPS Passthrough {'Latitude': 0.0
+841	12:45:42.271482: Orientation {'radio_id': 0
+842	12:45:42.451785: Position Data {'radio_id': 0
+843	12:45:42.479057: GPS Passthrough {'Latitude': 0.0
+844	12:45:42.511992: Orientation {'radio_id': 0
+845	12:45:42.648787: Position Data {'radio_id': 0
+846	12:45:42.696118: Orientation {'radio_id': 0
+847	12:45:42.796594: Position Data {'radio_id': 0
+848	12:45:42.839302: GPS Passthrough {'Latitude': 0.0
+849	12:45:42.893315: Orientation {'radio_id': 0
+850	12:45:42.910031: Position Data {'radio_id': 0
+851	12:45:42.957846: Pyro Info {'radio_id': 0
+852	12:45:42.977513: Line Cutter Data  {'radio_id': 0
+853	12:45:43.052540: Line Cutter Data  {'radio_id': 0
+854	12:45:43.070873: Orientation {'radio_id': 0
+855	12:45:43.133594: Position Data {'radio_id': 0
+856	12:45:43.151373: Alt Info & Cfg {'radio_id': 0
+857	12:45:43.236435: GPS Passthrough {'Latitude': 0.0
+858	12:45:43.283621: Orientation {'radio_id': 0
+859	12:45:43.444413: Position Data {'radio_id': 0
+860	12:45:43.461784: Orientation {'radio_id': 0
+861	12:45:43.493232: GPS Passthrough {'Latitude': 0.0
+862	12:45:43.701880: Position Data {'radio_id': 0
+863	12:45:43.736365: Orientation {'radio_id': 0
+864	12:45:43.799990: Position Data {'radio_id': 0
+865	12:45:43.801054: GPS Passthrough {'Latitude': 0.0
+866	12:45:43.863488: Groundstation Status {'gs_lat': 0.0
+867	12:45:43.876722: Orientation {'radio_id': 0
+868	12:45:43.941576: Position Data {'radio_id': 0
+869	12:45:43.949327: Pyro Info {'radio_id': 0
+870	12:45:43.968793: Line Cutter Data  {'radio_id': 0
+871	12:45:44.036174: Line Cutter Data  {'radio_id': 0
+872	12:45:44.090749: Orientation {'radio_id': 0
+873	12:45:44.119044: Position Data {'radio_id': 0
+874	12:45:44.244956: GPS Passthrough {'Latitude': 0.0
+875	12:45:44.271179: Orientation {'radio_id': 0
+876	12:45:44.311677: Position Data {'radio_id': 0
+877	12:45:44.444967: Alt Info & Cfg {'radio_id': 0
+878	12:45:44.445685: Orientation {'radio_id': 0
+879	12:45:44.492697: GPS Passthrough {'Latitude': 0.0
+880	12:45:44.638693: Position Data {'radio_id': 0
+881	12:45:44.689979: Orientation {'radio_id': 0
+882	12:45:44.690897: Position Data {'radio_id': 0
+883	12:45:44.761879: Line Cutter Vars  {'radio_id': 0
+884	12:45:44.785199: Line Cutter Vars  {'radio_id': 0
+885	12:45:44.857468: GPS Passthrough {'Latitude': 0.0
+886	12:45:44.861319: Orientation {'radio_id': 0
+887	12:45:44.928473: Position Data {'radio_id': 0
+888	12:45:44.941319: Pyro Info {'radio_id': 0
+889	12:45:44.995647: Line Cutter Data  {'radio_id': 0
+890	12:45:45.027524: Line Cutter Data  {'radio_id': 0
+891	12:45:45.082633: Orientation {'radio_id': 0
+892	12:45:45.112210: Position Data {'radio_id': 0
+893	12:45:45.265577: GPS Passthrough {'Latitude': 0.0
+894	12:45:45.266518: Orientation {'radio_id': 0
+895	12:45:45.435551: Position Data {'radio_id': 0
+896	12:45:45.489131: Orientation {'radio_id': 0
+897	12:45:45.489809: Position Data {'radio_id': 0
+898	12:45:45.500985: GPS Passthrough {'Latitude': 0.0
+899	12:45:45.633586: GPS Passthrough {'Latitude': 0.0
+900	12:45:45.682063: Position Data {'radio_id': 0
+901	12:45:45.796132: Alt Info & Cfg {'radio_id': 0
+902	12:45:45.798032: GPS Passthrough {'Latitude': 0.0
+903	12:45:45.851462: Groundstation Status {'gs_lat': 0.0
+904	12:45:45.875081: Orientation {'radio_id': 0
+905	12:45:45.940927: Position Data {'radio_id': 0
+906	12:45:45.951401: Pyro Info {'radio_id': 0
+907	12:45:45.966919: Line Cutter Data  {'radio_id': 0
+908	12:45:46.024916: Line Cutter Data  {'radio_id': 0
+909	12:45:46.070017: Orientation {'radio_id': 0
+910	12:45:46.118253: Position Data {'radio_id': 0
+911	12:45:46.237463: GPS Passthrough {'Latitude': 0.0
+912	12:45:46.276901: Orientation {'radio_id': 0
+913	12:45:46.454329: Position Data {'radio_id': 0
+914	12:45:46.471121: Orientation {'radio_id': 0
+915	12:45:46.473025: GPS Passthrough {'Latitude': 0.0
+916	12:45:46.625181: Position Data {'radio_id': 0
+917	12:45:46.684417: Orientation {'radio_id': 0
+918	12:45:46.789178: Position Data {'radio_id': 0
+919	12:45:46.829459: GPS Passthrough {'Latitude': 0.0
+920	12:45:46.866552: Orientation {'radio_id': 0
+921	12:45:46.883198: Position Data {'radio_id': 0
+922	12:45:46.919183: Alt Info & Cfg {'radio_id': 0
+923	12:45:46.948005: Pyro Info {'radio_id': 0
+924	12:45:46.987415: Line Cutter Data  {'radio_id': 0
+925	12:45:47.026489: Line Cutter Data  {'radio_id': 0
+926	12:45:47.088314: Orientation {'radio_id': 0
+927	12:45:47.110278: Position Data {'radio_id': 0
+928	12:45:47.227410: GPS Passthrough {'Latitude': 0.0
+929	12:45:47.276541: Orientation {'radio_id': 0
+930	12:45:47.432033: Position Data {'radio_id': 0
+931	12:45:47.443796: Orientation {'radio_id': 0
+932	12:45:47.469488: GPS Passthrough {'Latitude': 0.0
+933	12:45:47.613791: Position Data {'radio_id': 0
+934	12:45:47.663091: Orientation {'radio_id': 0
+935	12:45:47.814810: Position Data {'radio_id': 0
+936	12:45:47.817530: GPS Passthrough {'Latitude': 0.0
+937	12:45:47.818114: Groundstation Status {'gs_lat': 0.0
+938	12:45:47.863851: Orientation {'radio_id': 0
+939	12:45:47.910071: Position Data {'radio_id': 0
+940	12:45:47.952018: Pyro Info {'radio_id': 0
+941	12:45:47.973731: Line Cutter Data  {'radio_id': 0
+942	12:45:48.022719: Line Cutter Data  {'radio_id': 0
+943	12:45:48.057145: Orientation {'radio_id': 0
+944	12:45:48.070607: Position Data {'radio_id': 0
+945	12:45:48.136816: Alt Info & Cfg {'radio_id': 0
+946	12:45:48.229293: GPS Passthrough {'Latitude': 0.0
+947	12:45:48.252484: Orientation {'radio_id': 0
+948	12:45:48.439236: Position Data {'radio_id': 0
+949	12:45:48.454030: Orientation {'radio_id': 0
+950	12:45:48.458682: GPS Passthrough {'Latitude': 0.0
+951	12:45:48.625689: Position Data {'radio_id': 0
+952	12:45:48.640349: Orientation {'radio_id': 0
+953	12:45:48.790562: Position Data {'radio_id': 0
+954	12:45:48.807537: GPS Passthrough {'Latitude': 0.0
+955	12:45:48.860325: Orientation {'radio_id': 0
+956	12:45:49.028648: Position Data {'radio_id': 0
+957	12:45:49.052803: Orientation {'radio_id': 0
+958	12:45:49.074984: Position Data {'radio_id': 0
+959	12:45:49.133786: Pyro Info {'radio_id': 0
+960	12:45:49.136461: Line Cutter Data  {'radio_id': 0
+961	12:45:49.222412: GPS Passthrough {'Latitude': 0.0
+962	12:45:49.235027: Orientation {'radio_id': 0
+963	12:45:49.309401: Position Data {'radio_id': 0
+964	12:45:49.413082: Alt Info & Cfg {'radio_id': 0
+965	12:45:49.458528: Orientation {'radio_id': 0
+966	12:45:49.470169: Position Data {'radio_id': 0
+967	12:45:49.603609: GPS Passthrough {'Latitude': 0.0
+968	12:45:49.647201: Orientation {'radio_id': 0
+969	12:45:49.773931: Position Data {'radio_id': 0
+970	12:45:49.806737: GPS Passthrough {'Latitude': 0.0
+971	12:45:49.850028: Groundstation Status {'gs_lat': 0.0
+972	12:45:50.005678: Position Data {'radio_id': 0
+973	12:45:50.054190: Orientation {'radio_id': 0
+974	12:45:50.084520: Position Data {'radio_id': 0
+975	12:45:50.102701: Pyro Info {'radio_id': 0
+976	12:45:50.146033: Line Cutter Data  {'radio_id': 0
+977	12:45:50.152281: GPS Passthrough {'Latitude': 0.0
+978	12:45:50.244047: Line Cutter Data  {'radio_id': 0
+979	12:45:50.245326: Orientation {'radio_id': 0
+980	12:45:50.414563: Position Data {'radio_id': 0
+981	12:45:50.429083: Orientation {'radio_id': 0
+982	12:45:50.484582: Position Data {'radio_id': 0
+983	12:45:50.487198: GPS Passthrough {'Latitude': 0.0
+984	12:45:50.600094: GPS Passthrough {'Latitude': 0.0
+985	12:45:50.664318: Orientation {'radio_id': 0
+986	12:45:50.664797: Position Data {'radio_id': 0
+987	12:45:50.803590: Alt Info & Cfg {'radio_id': 0
+988	12:45:50.822933: GPS Passthrough {'Latitude': 0.0
+989	12:45:50.838116: Orientation {'radio_id': 0
+990	12:45:51.010050: Position Data {'radio_id': 0
+991	12:45:51.067934: Position Data {'radio_id': 0
+992	12:45:51.083749: Pyro Info {'radio_id': 0
+993	12:45:51.134010: Line Cutter Data  {'radio_id': 0
+994	12:45:51.151385: GPS Passthrough {'Latitude': 0.0
+995	12:45:51.214801: Line Cutter Data  {'radio_id': 0
+996	12:45:51.226651: Orientation {'radio_id': 0
+997	12:45:51.388350: Position Data {'radio_id': 0
+998	12:45:51.439345: Orientation {'radio_id': 0
+999	12:45:51.452445: Position Data {'radio_id': 0
+1000	12:45:51.584771: GPS Passthrough {'Latitude': 0.0
+1001	12:45:51.633671: Orientation {'radio_id': 0
+1002	12:45:51.787038: Position Data {'radio_id': 0
+1003	12:45:51.801401: GPS Passthrough {'Latitude': 0.0
+1004	12:45:51.858243: Groundstation Status {'gs_lat': 0.0
+1005	12:45:51.870575: Position Data {'radio_id': 0
+1006	12:45:51.993092: Alt Info & Cfg {'radio_id': 0
+1007	12:45:52.054048: Orientation {'radio_id': 0
+1008	12:45:52.056484: Position Data {'radio_id': 0
+1009	12:45:52.114702: Pyro Info {'radio_id': 0
+1010	12:45:52.133231: Line Cutter Data  {'radio_id': 0
+1011	12:45:52.134112: GPS Passthrough {'Latitude': 0.0
+1012	12:45:52.214347: Line Cutter Data  {'radio_id': 0
+1013	12:45:52.234266: Orientation {'radio_id': 0
+1014	12:45:52.393038: Position Data {'radio_id': 0
+1015	12:45:52.450275: Orientation {'radio_id': 0
+1016	12:45:52.452253: Position Data {'radio_id': 0
+1017	12:45:52.582396: GPS Passthrough {'Latitude': 0.0
+1018	12:45:52.781537: Position Data {'radio_id': 0
+1019	12:45:52.798854: GPS Passthrough {'Latitude': 0.0
+1020	12:45:52.857603: Orientation {'radio_id': 0
+1021	12:45:52.999790: Position Data {'radio_id': 0
+1022	12:45:53.057888: Position Data {'radio_id': 0
+1023	12:45:53.103382: Pyro Info {'radio_id': 0
+1024	12:45:53.117641: Line Cutter Data  {'radio_id': 0
+1025	12:45:53.120387: GPS Passthrough {'Latitude': 0.0
+1026	12:45:53.191049: Line Cutter Data  {'radio_id': 0
+1027	12:45:53.215365: Orientation {'radio_id': 0
+1028	12:45:53.413339: Position Data {'radio_id': 0
+1029	12:45:53.415987: Orientation {'radio_id': 0
+1030	12:45:53.462776: Position Data {'radio_id': 0
+1031	12:45:53.610060: GPS Passthrough {'Latitude': 0.0
+1032	12:45:53.638922: Orientation {'radio_id': 0
+1033	12:45:53.798583: Position Data {'radio_id': 0
+1034	12:45:53.800956: GPS Passthrough {'Latitude': 0.0
+1035	12:45:53.817001: Orientation {'radio_id': 0
+1036	12:45:53.853741: Groundstation Status {'gs_lat': 0.0
+1037	12:45:53.984898: Position Data {'radio_id': 0
+1038	12:45:54.062787: Position Data {'radio_id': 0
+1039	12:45:54.087078: Line Cutter Data  {'radio_id': 0
+1040	12:45:54.126623: Line Cutter Data  {'radio_id': 0
+1041	12:45:54.206907: GPS Passthrough {'Latitude': 0.0
+1042	12:45:54.222482: Orientation {'radio_id': 0
+1043	12:45:54.263085: Position Data {'radio_id': 0
+1044	12:45:54.411821: Alt Info & Cfg {'radio_id': 0
+1045	12:45:54.431342: Orientation {'radio_id': 0
+1046	12:45:54.461039: Position Data {'radio_id': 0
+1047	12:45:54.583078: GPS Passthrough {'Latitude': 0.0
+1048	12:45:54.595521: Orientation {'radio_id': 0
+1049	12:45:54.645929: Position Data {'radio_id': 0
+1050	12:45:54.659924: Line Cutter Vars  {'radio_id': 0
+1051	12:45:54.780301: Line Cutter Vars  {'radio_id': 0
+1052	12:45:54.801213: GPS Passthrough {'Latitude': 0.0
+1053	12:45:54.985457: Position Data {'radio_id': 0
+1054	12:45:55.043599: Orientation {'radio_id': 0
+1055	12:45:55.071367: Pyro Info {'radio_id': 0
+1056	12:45:55.129466: Line Cutter Data  {'radio_id': 0
+1057	12:45:55.130720: Line Cutter Data  {'radio_id': 0
+1058	12:45:55.190988: GPS Passthrough {'Latitude': 0.0
+1059	12:45:55.387344: Position Data {'radio_id': 0
+1060	12:45:55.419771: Orientation {'radio_id': 0
+1061	12:45:55.489316: Position Data {'radio_id': 0
+1062	12:45:55.490737: Alt Info & Cfg {'radio_id': 0
+1063	12:45:55.491555: GPS Passthrough {'Latitude': 0.0
+1064	12:45:55.577451: GPS Passthrough {'Latitude': 0.0
+1065	12:45:55.631735: Orientation {'radio_id': 0
+1066	12:45:55.806080: Position Data {'radio_id': 0
+1067	12:45:55.830478: GPS Passthrough {'Latitude': 0.0
+1068	12:45:55.856089: Position Data {'radio_id': 0
+1069	12:45:56.003340: Groundstation Status {'gs_lat': 0.0
+1070	12:45:56.034113: Orientation {'radio_id': 0
+1071	12:45:56.047681: Position Data {'radio_id': 0
+1072	12:45:56.090712: Pyro Info {'radio_id': 0
+1073	12:45:56.143827: Line Cutter Data  {'radio_id': 0
+1074	12:45:56.150159: GPS Passthrough {'Latitude': 0.0
+1075	12:45:56.163645: Line Cutter Data  {'radio_id': 0
+1076	12:45:56.215004: Orientation {'radio_id': 0
+1077	12:45:56.404471: Position Data {'radio_id': 0
+1078	12:45:56.435824: Position Data {'radio_id': 0
+1079	12:45:56.581281: GPS Passthrough {'Latitude': 0.0
+1080	12:45:56.593683: Orientation {'radio_id': 0
+1081	12:45:56.667163: Position Data {'radio_id': 0
+1082	12:45:56.774588: Alt Info & Cfg {'radio_id': 0
+1083	12:45:56.775101: GPS Passthrough {'Latitude': 0.0
+1084	12:45:56.826758: Orientation {'radio_id': 0
+1085	12:45:56.985121: Position Data {'radio_id': 0
+1086	12:45:57.055341: Position Data {'radio_id': 0
+1087	12:45:57.056212: Pyro Info {'radio_id': 0
+1088	12:45:57.106198: Line Cutter Data  {'radio_id': 0
+1089	12:45:57.134268: Line Cutter Data  {'radio_id': 0
+1090	12:45:57.184653: GPS Passthrough {'Latitude': 0.0
+1091	12:45:57.206315: Orientation {'radio_id': 0
+1092	12:45:57.374461: Position Data {'radio_id': 0
+1093	12:45:57.433299: Orientation {'radio_id': 0
+1094	12:45:57.445547: Position Data {'radio_id': 0
+1095	12:45:57.574887: GPS Passthrough {'Latitude': 0.0
+1096	12:45:57.775300: Position Data {'radio_id': 0
+1097	12:45:57.776677: GPS Passthrough {'Latitude': 0.0
+1098	12:45:57.835426: Orientation {'radio_id': 0
+1099	12:45:57.849734: Position Data {'radio_id': 0
+1100	12:45:57.962354: Groundstation Status {'gs_lat': 0.0
+1101	12:45:58.020183: Position Data {'radio_id': 0
+1102	12:45:58.038559: Alt Info & Cfg {'radio_id': 0
+1103	12:45:58.116119: Pyro Info {'radio_id': 0
+1104	12:45:58.117054: Line Cutter Data  {'radio_id': 0
+1105	12:45:58.120298: Line Cutter Data  {'radio_id': 0
+1106	12:45:58.200670: GPS Passthrough {'Latitude': 0.0
+1107	12:45:58.358685: Position Data {'radio_id': 0
+1108	12:45:58.419218: Orientation {'radio_id': 0
+1109	12:45:58.434216: Position Data {'radio_id': 0
+1110	12:45:58.595058: GPS Passthrough {'Latitude': 0.0
+1111	12:45:58.778672: Position Data {'radio_id': 0
+1112	12:45:58.795969: GPS Passthrough {'Latitude': 0.0
+1113	12:45:58.985370: Position Data {'radio_id': 0
+1114	12:45:59.063857: Position Data {'radio_id': 0
+1115	12:45:59.124437: Line Cutter Data  {'radio_id': 0
+1116	12:45:59.145898: GPS Passthrough {'Latitude': 0.0
+1117	12:45:59.190901: Invalid message type 10 Could not parse message
+1118	12:45:59.213793: Position Data {'radio_id': 0
+1119	12:45:59.366114: Alt Info & Cfg {'radio_id': 0
+1120	12:45:59.463361: Alt Info & Cfg {'radio_id': 0
+1121	12:45:59.757366: GPS Passthrough {'Latitude': 0.0
+1122	12:45:59.775029: Position Data {'radio_id': 0
+1123	12:45:59.833209: GPS Passthrough {'Latitude': 0.0
+1124	12:45:59.991829: Groundstation Status {'gs_lat': 0.0
+1125	12:46:00.112938: Position Data {'radio_id': 0
+1126	12:46:00.114933: CLI Data {'radio_id': 0
+1127	12:46:00.454208: GPS Passthrough {'Latitude': 0.0
+1128	12:46:00.455144: GPS Passthrough {'Latitude': 0.0
+1129	12:46:00.772205: GPS Passthrough {'Latitude': 0.0
+1130	12:46:01.103133: GPS Passthrough {'Latitude': 0.0
+1131	12:46:01.439500: GPS Passthrough {'Latitude': 0.0
+1132	12:46:01.774620: GPS Passthrough {'Latitude': 0.0
+1133	12:46:01.834220: GPS Passthrough {'Latitude': 0.0
+1134	12:46:02.098792: Groundstation Status {'gs_lat': 0.0
+1135	12:46:02.430614: GPS Passthrough {'Latitude': 0.0
+1136	12:46:02.770298: GPS Passthrough {'Latitude': 0.0
+1137	12:46:03.105143: GPS Passthrough {'Latitude': 0.0
+1138	12:46:03.364356: GPS Passthrough {'Latitude': 0.0
+1139	12:46:03.439161: Invalid message type 131 Could not parse message
+1140	12:46:03.570786: GPS Passthrough {'Latitude': 0.0
+1141	12:46:03.571984: Orientation {'radio_id': 0
+1142	12:46:03.744114: Invalid message type 67 Could not parse message
+1143	12:46:03.796284: Invalid message type 1 Could not parse message
+1144	12:46:03.806522: GPS Passthrough {'Latitude': 0.0
+1145	12:46:03.831301: Position Data {'radio_id': 0
+1146	12:46:03.960705: Groundstation Status {'gs_lat': 0.0
+1147	12:46:03.973720: Orientation {'radio_id': 0
+1148	12:46:04.103297: Position Data {'radio_id': 0
+1149	12:46:04.147269: GPS Passthrough {'Latitude': 0.0
+1150	12:46:04.185900: Position Data {'radio_id': 0
+1151	12:46:04.244173: Alt Info & Cfg {'radio_id': 0
+1152	12:46:04.257529: Pyro Info {'radio_id': 0
+1153	12:46:04.274413: Line Cutter Data  {'radio_id': 0
+1154	12:46:04.422455: Invalid message type 68 Could not parse message
+1155	12:46:04.439163: Orientation {'radio_id': 0
+1156	12:46:04.440230: GPS Passthrough {'Latitude': 0.0
+1157	12:46:04.566473: Position Data {'radio_id': 0
+1158	12:46:04.620688: Position Data {'radio_id': 0
+1159	12:46:04.645468: Line Cutter Vars  {'radio_id': 0
+1160	12:46:04.750265: Line Cutter Vars  {'radio_id': 0
+1161	12:46:04.770731: Orientation {'radio_id': 0
+1162	12:46:04.774603: GPS Passthrough {'Latitude': 0.0
+1163	12:46:04.935220: Position Data {'radio_id': 0
+1164	12:46:04.998903: Orientation {'radio_id': 0
+1165	12:46:05.169818: Position Data {'radio_id': 0
+1166	12:46:05.183047: GPS Passthrough {'Latitude': 0.0
+1167	12:46:05.183456: Orientation {'radio_id': 0
+1168	12:46:05.186331: Position Data {'radio_id': 0
+1169	12:46:05.233636: Pyro Info {'radio_id': 0
+1170	12:46:05.260971: Line Cutter Data  {'radio_id': 0
+1171	12:46:05.332322: Line Cutter Data  {'radio_id': 0
+1172	12:46:05.386554: Orientation {'radio_id': 0
+1173	12:46:05.400894: Position Data {'radio_id': 0
+1174	12:46:05.462413: Alt Info & Cfg {'radio_id': 0
+1175	12:46:05.466717: GPS Passthrough {'Latitude': 0.0
+1176	12:46:05.546907: GPS Passthrough {'Latitude': 0.0
+1177	12:46:05.736962: Position Data {'radio_id': 0
+1178	12:46:05.777185: Position Data {'radio_id': 0
+1179	12:46:05.879668: GPS Passthrough {'Latitude': 0.0
+1180	12:46:05.939863: Groundstation Status {'gs_lat': 0.0
+1181	12:46:05.975143: Orientation {'radio_id': 0
+1182	12:46:06.124523: Position Data {'radio_id': 0
+1183	12:46:06.153564: GPS Passthrough {'Latitude': 0.0
+1184	12:46:06.176357: Position Data {'radio_id': 0
+1185	12:46:06.224330: Pyro Info {'radio_id': 0
+1186	12:46:06.256970: Line Cutter Data  {'radio_id': 0
+1187	12:46:06.366963: Line Cutter Data  {'radio_id': 0
+1188	12:46:06.427331: Position Data {'radio_id': 0
+1189	12:46:06.545207: GPS Passthrough {'Latitude': 0.0
+1190	12:46:06.569702: Orientation {'radio_id': 0
+1191	12:46:06.596387: Position Data {'radio_id': 0
+1192	12:46:06.754813: Alt Info & Cfg {'radio_id': 0
+1193	12:46:06.771718: Position Data {'radio_id': 0
+1194	12:46:06.940755: GPS Passthrough {'Latitude': 0.0
+1195	12:46:06.953960: Orientation {'radio_id': 0
+1196	12:46:07.108801: Position Data {'radio_id': 0
+1197	12:46:07.137441: GPS Passthrough {'Latitude': 0.0
+1198	12:46:07.175993: Orientation {'radio_id': 0
+1199	12:46:07.218626: Position Data {'radio_id': 0
+1200	12:46:07.220469: Pyro Info {'radio_id': 0
+1201	12:46:07.280762: Line Cutter Data  {'radio_id': 0
+1202	12:46:07.320421: Line Cutter Data  {'radio_id': 0
+1203	12:46:07.455592: Position Data {'radio_id': 0
+1204	12:46:07.547911: GPS Passthrough {'Latitude': 0.0
+1205	12:46:07.722515: Position Data {'radio_id': 0
+1206	12:46:07.775062: Orientation {'radio_id': 0
+1207	12:46:07.779508: Position Data {'radio_id': 0
+1208	12:46:07.793469: GPS Passthrough {'Latitude': 0.0
+1209	12:46:07.851232: Alt Info & Cfg {'radio_id': 0
+1210	12:46:07.927059: Groundstation Status {'gs_lat': 0.0
+1211	12:46:08.091414: Position Data {'radio_id': 0
+1212	12:46:08.109879: GPS Passthrough {'Latitude': 0.0
+1213	12:46:08.169297: Orientation {'radio_id': 0
+1214	12:46:08.184768: Position Data {'radio_id': 0
+1215	12:46:08.232780: Pyro Info {'radio_id': 0
+1216	12:46:08.252284: Line Cutter Data  {'radio_id': 0
+1217	12:46:08.336361: Line Cutter Data  {'radio_id': 0
+1218	12:46:08.354593: Orientation {'radio_id': 0
+1219	12:46:08.427427: Position Data {'radio_id': 0
+1220	12:46:08.530687: GPS Passthrough {'Latitude': 0.0
+1221	12:46:08.568677: Orientation {'radio_id': 0
+1222	12:46:08.708105: Position Data {'radio_id': 0
+1223	12:46:08.758996: Orientation {'radio_id': 0
+1224	12:46:08.760109: Position Data {'radio_id': 0
+1225	12:46:08.932316: GPS Passthrough {'Latitude': 0.0
+1226	12:46:09.004418: Orientation {'radio_id': 0
+1227	12:46:09.007448: Position Data {'radio_id': 0
+1228	12:46:09.097923: Alt Info & Cfg {'radio_id': 0
+1229	12:46:09.144512: GPS Passthrough {'Latitude': 0.0
+1230	12:46:09.159162: Position Data {'radio_id': 0
+1231	12:46:09.226476: Pyro Info {'radio_id': 0
+1232	12:46:09.240551: Line Cutter Data  {'radio_id': 0
+1233	12:46:09.341350: Line Cutter Data  {'radio_id': 0
+1234	12:46:09.431800: Position Data {'radio_id': 0
+1235	12:46:09.541815: GPS Passthrough {'Latitude': 0.0
+1236	12:46:09.542693: Orientation {'radio_id': 0
+1237	12:46:09.735126: Position Data {'radio_id': 0
+1238	12:46:09.761130: Position Data {'radio_id': 0
+1239	12:46:09.835980: GPS Passthrough {'Latitude': 0.0
+1240	12:46:09.924395: Groundstation Status {'gs_lat': 0.0
+1241	12:46:09.955626: Orientation {'radio_id': 0
+1242	12:46:10.107967: Position Data {'radio_id': 0
+1243	12:46:10.126630: GPS Passthrough {'Latitude': 0.0
+1244	12:46:10.141730: Orientation {'radio_id': 0
+1245	12:46:10.196018: Position Data {'radio_id': 0
+1246	12:46:10.231045: Line Cutter Data  {'radio_id': 0
+1247	12:46:10.316312: Line Cutter Data  {'radio_id': 0
+1248	12:46:10.375546: Position Data {'radio_id': 0
+1249	12:46:10.462177: Alt Info & Cfg {'radio_id': 0
+1250	12:46:10.464130: GPS Passthrough {'Latitude': 0.0
+1251	12:46:10.540934: GPS Passthrough {'Latitude': 0.0
+1252	12:46:10.541390: Orientation {'radio_id': 0
+1253	12:46:10.702897: Position Data {'radio_id': 0
+1254	12:46:10.781634: Position Data {'radio_id': 0
+1255	12:46:10.966673: GPS Passthrough {'Latitude': 0.0
+1256	12:46:11.090630: Position Data {'radio_id': 0
+1257	12:46:11.125385: GPS Passthrough {'Latitude': 0.0
+1258	12:46:11.186963: Position Data {'radio_id': 0
+1259	12:46:11.232549: Line Cutter Data  {'radio_id': 0
+1260	12:46:11.358743: Line Cutter Data  {'radio_id': 0
+1261	12:46:11.370444: Orientation {'radio_id': 0
+1262	12:46:11.432025: Position Data {'radio_id': 0
+1263	12:46:11.522360: GPS Passthrough {'Latitude': 0.0
+1264	12:46:11.568906: Position Data {'radio_id': 0
+1265	12:46:11.706092: Alt Info & Cfg {'radio_id': 0
+1266	12:46:11.730146: Orientation {'radio_id': 0
+1267	12:46:11.783265: Position Data {'radio_id': 0
+1268	12:46:11.850167: GPS Passthrough {'Latitude': 0.0
+1269	12:46:11.915809: Groundstation Status {'gs_lat': 0.0
+1270	12:46:11.936095: Orientation {'radio_id': 0
+1271	12:46:12.091943: Position Data {'radio_id': 0
+1272	12:46:12.108390: GPS Passthrough {'Latitude': 0.0
+1273	12:46:12.166466: Position Data {'radio_id': 0
+1274	12:46:12.197284: Line Cutter Data  {'radio_id': 0
+1275	12:46:12.331500: Line Cutter Data  {'radio_id': 0
+1276	12:46:12.348298: Orientation {'radio_id': 0
+1277	12:46:12.429723: Position Data {'radio_id': 0
+1278	12:46:12.501739: GPS Passthrough {'Latitude': 0.0
+1279	12:46:12.703436: Position Data {'radio_id': 0
+1280	12:46:12.777614: Position Data {'radio_id': 0
+1281	12:46:12.785273: Alt Info & Cfg {'radio_id': 0
+1282	12:46:12.911581: GPS Passthrough {'Latitude': 0.0
+1283	12:46:12.924479: Orientation {'radio_id': 0
+1284	12:46:13.088810: Position Data {'radio_id': 0
+1285	12:46:13.106029: GPS Passthrough {'Latitude': 0.0
+1286	12:46:13.160663: Orientation {'radio_id': 0
+1287	12:46:13.178866: Pyro Info {'radio_id': 0
+1288	12:46:13.218595: Line Cutter Data  {'radio_id': 0
+1289	12:46:13.307011: Line Cutter Data  {'radio_id': 0
+1290	12:46:13.323919: Orientation {'radio_id': 0
+1291	12:46:13.435532: Position Data {'radio_id': 0
+1292	12:46:13.498362: GPS Passthrough {'Latitude': 0.0
+1293	12:46:13.522629: Orientation {'radio_id': 0
+1294	12:46:13.698847: Position Data {'radio_id': 0
+1295	12:46:13.728225: Orientation {'radio_id': 0
+1296	12:46:13.757047: Position Data {'radio_id': 0
+1297	12:46:13.841879: GPS Passthrough {'Latitude': 0.0
+1298	12:46:13.893759: Groundstation Status {'gs_lat': 0.0
+1299	12:46:13.955579: Position Data {'radio_id': 0
+1300	12:46:14.114683: Alt Info & Cfg {'radio_id': 0
+1301	12:46:14.118916: GPS Passthrough {'Latitude': 0.0
+1302	12:46:14.135317: Orientation {'radio_id': 0
+1303	12:46:14.188002: Position Data {'radio_id': 0
+1304	12:46:14.208692: Pyro Info {'radio_id': 0
+1305	12:46:14.220206: Line Cutter Data  {'radio_id': 0
+1306	12:46:14.293146: Line Cutter Data  {'radio_id': 0
+1307	12:46:14.429286: Position Data {'radio_id': 0
+1308	12:46:14.490088: GPS Passthrough {'Latitude': 0.0
+1309	12:46:14.550813: Position Data {'radio_id': 0
+1310	12:46:14.574665: Line Cutter Vars  {'radio_id': 0
+1311	12:46:14.701249: Line Cutter Vars  {'radio_id': 0
+1312	12:46:14.714289: Orientation {'radio_id': 0
+1313	12:46:14.779935: Position Data {'radio_id': 0
+1314	12:46:14.889655: GPS Passthrough {'Latitude': 0.0
+1315	12:46:14.904836: Orientation {'radio_id': 0
+1316	12:46:15.109140: Position Data {'radio_id': 0
+1317	12:46:15.110237: Orientation {'radio_id': 0
+1318	12:46:15.110942: GPS Passthrough {'Latitude': 0.0
+1319	12:46:15.166054: Position Data {'radio_id': 0
+1320	12:46:15.191010: Pyro Info {'radio_id': 0
+1321	12:46:15.210126: Line Cutter Data  {'radio_id': 0
+1322	12:46:15.284887: Alt Info & Cfg {'radio_id': 0
+1323	12:46:15.333863: Orientation {'radio_id': 0
+1324	12:46:15.444468: Position Data {'radio_id': 0
+1325	12:46:15.448014: GPS Passthrough {'Latitude': 0.0
+1326	12:46:15.474085: GPS Passthrough {'Latitude': 0.0
+1327	12:46:15.683304: Position Data {'radio_id': 0
+1328	12:46:15.760771: Position Data {'radio_id': 0
+1329	12:46:15.863358: GPS Passthrough {'Latitude': 0.0
+1330	12:46:15.884413: Groundstation Status {'gs_lat': 0.0
+1331	12:46:16.105928: Position Data {'radio_id': 0
+1332	12:46:16.106655: Position Data {'radio_id': 0
+1333	12:46:16.175738: GPS Passthrough {'Latitude': 0.0
+1334	12:46:16.189181: Pyro Info {'radio_id': 0
+1335	12:46:16.201694: Line Cutter Data  {'radio_id': 0
+1336	12:46:16.290736: Line Cutter Data  {'radio_id': 0
+1337	12:46:16.473499: Position Data {'radio_id': 0
+1338	12:46:16.487415: GPS Passthrough {'Latitude': 0.0
+1339	12:46:16.528881: Position Data {'radio_id': 0
+1340	12:46:16.690866: Alt Info & Cfg {'radio_id': 0
+1341	12:46:16.760238: Position Data {'radio_id': 0
+1342	12:46:16.882696: GPS Passthrough {'Latitude': 0.0
+1343	12:46:17.090362: Invalid message type 130 Could not parse message
+1344	12:46:17.427360: GPS Passthrough {'Latitude': 0.0
+1345	12:46:17.779359: GPS Passthrough {'Latitude': 0.0
+1346	12:46:17.857018: GPS Passthrough {'Latitude': 0.0
+1347	12:46:18.083756: Groundstation Status {'gs_lat': 0.0
+1348	12:46:18.436521: GPS Passthrough {'Latitude': 0.0
+1349	12:46:18.766140: GPS Passthrough {'Latitude': 0.0
+1350	12:46:19.088279: GPS Passthrough {'Latitude': 0.0
+1351	12:46:19.417167: GPS Passthrough {'Latitude': 0.0
+1352	12:46:19.768405: GPS Passthrough {'Latitude': 0.0
+1353	12:46:19.849107: GPS Passthrough {'Latitude': 0.0
+1354	12:46:20.093588: Groundstation Status {'gs_lat': 0.0
+1355	12:46:20.435613: GPS Passthrough {'Latitude': 0.0
+1356	12:46:20.436358: GPS Passthrough {'Latitude': 0.0
+1357	12:46:20.744308: GPS Passthrough {'Latitude': 0.0
+1358	12:46:21.104371: GPS Passthrough {'Latitude': 0.0
+1359	12:46:21.485226: GPS Passthrough {'Latitude': 0.0
+1360	12:46:21.744965: GPS Passthrough {'Latitude': 0.0
+1361	12:46:21.853979: GPS Passthrough {'Latitude': 0.0
+1362	12:46:22.096742: Groundstation Status {'gs_lat': 0.0
+1363	12:46:22.411515: GPS Passthrough {'Latitude': 0.0
+1364	12:46:22.751534: GPS Passthrough {'Latitude': 0.0
+1365	12:46:23.088906: GPS Passthrough {'Latitude': 0.0
+1366	12:46:23.426631: GPS Passthrough {'Latitude': 0.0
+1367	12:46:23.743584: GPS Passthrough {'Latitude': 0.0
+1368	12:46:23.847063: GPS Passthrough {'Latitude': 0.0
+1369	12:46:24.091000: Groundstation Status {'gs_lat': 0.0
+1370	12:46:24.434888: GPS Passthrough {'Latitude': 0.0
+1371	12:46:24.753906: GPS Passthrough {'Latitude': 0.0
+1372	12:46:25.075407: GPS Passthrough {'Latitude': 0.0
+1373	12:46:25.445859: GPS Passthrough {'Latitude': 0.0
+1374	12:46:25.446666: GPS Passthrough {'Latitude': 0.0
+1375	12:46:25.739897: GPS Passthrough {'Latitude': 0.0
+1376	12:46:25.852234: GPS Passthrough {'Latitude': 0.0
+1377	12:46:26.071070: Groundstation Status {'gs_lat': 0.0
+1378	12:46:26.430995: GPS Passthrough {'Latitude': 0.0
+1379	12:46:26.757953: GPS Passthrough {'Latitude': 0.0
+1380	12:46:27.094784: GPS Passthrough {'Latitude': 0.0
+1381	12:46:27.406167: GPS Passthrough {'Latitude': 0.0
+1382	12:46:27.741946: GPS Passthrough {'Latitude': 0.0
+1383	12:46:27.853052: GPS Passthrough {'Latitude': 0.0
+1384	12:46:28.101242: Groundstation Status {'gs_lat': 0.0
+1385	12:46:28.406839: GPS Passthrough {'Latitude': 0.0
+1386	12:46:28.739565: GPS Passthrough {'Latitude': 0.0
+1387	12:46:29.071563: GPS Passthrough {'Latitude': 0.0
+1388	12:46:29.405920: GPS Passthrough {'Latitude': 0.0
+1389	12:46:29.738345: GPS Passthrough {'Latitude': 0.0
+1390	12:46:29.854845: GPS Passthrough {'Latitude': 0.0
+1391	12:46:30.095312: Groundstation Status {'gs_lat': 0.0
+1392	12:46:30.432167: GPS Passthrough {'Latitude': 0.0
+1393	12:46:30.432758: GPS Passthrough {'Latitude': 0.0
+1394	12:46:30.737208: GPS Passthrough {'Latitude': 0.0
+1395	12:46:31.095618: GPS Passthrough {'Latitude': 0.0
+1396	12:46:31.410687: GPS Passthrough {'Latitude': 0.0
+1397	12:46:31.742304: GPS Passthrough {'Latitude': 0.0
+1398	12:46:31.873594: GPS Passthrough {'Latitude': 0.0
+1399	12:46:32.079356: Groundstation Status {'gs_lat': 0.0
+1400	12:46:32.400075: GPS Passthrough {'Latitude': 0.0
+1401	12:46:32.749683: GPS Passthrough {'Latitude': 0.0
+1402	12:46:33.060486: GPS Passthrough {'Latitude': 0.0
+1403	12:46:33.408786: GPS Passthrough {'Latitude': 0.0
+1404	12:46:33.752061: GPS Passthrough {'Latitude': 0.0
+1405	12:46:33.851209: GPS Passthrough {'Latitude': 0.0
+1406	12:46:34.076151: Groundstation Status {'gs_lat': 0.0
+1407	12:46:34.422010: GPS Passthrough {'Latitude': 0.0
+1408	12:46:34.752752: GPS Passthrough {'Latitude': 0.0
+1409	12:46:35.067678: GPS Passthrough {'Latitude': 0.0
+1410	12:46:35.466762: GPS Passthrough {'Latitude': 0.0
+1411	12:46:35.467271: GPS Passthrough {'Latitude': 0.0
+1412	12:46:35.760526: GPS Passthrough {'Latitude': 0.0
+1413	12:46:35.853471: GPS Passthrough {'Latitude': 0.0
+1414	12:46:36.066270: Groundstation Status {'gs_lat': 0.0
+1415	12:46:36.404226: GPS Passthrough {'Latitude': 0.0
+1416	12:46:36.746317: GPS Passthrough {'Latitude': 0.0
+1417	12:46:37.078966: GPS Passthrough {'Latitude': 0.0
+1418	12:46:37.415810: GPS Passthrough {'Latitude': 0.0
+1419	12:46:37.759077: GPS Passthrough {'Latitude': 0.0
+1420	12:46:37.854315: GPS Passthrough {'Latitude': 0.0
+1421	12:46:38.064313: Groundstation Status {'gs_lat': 0.0
+1422	12:46:38.404967: GPS Passthrough {'Latitude': 0.0
+1423	12:46:38.743429: GPS Passthrough {'Latitude': 0.0
+1424	12:46:39.084125: GPS Passthrough {'Latitude': 0.0
+1425	12:46:39.413775: GPS Passthrough {'Latitude': 0.0
+1426	12:46:39.733364: GPS Passthrough {'Latitude': 0.0
+1427	12:46:39.874007: GPS Passthrough {'Latitude': 0.0
+1428	12:46:40.072381: Groundstation Status {'gs_lat': 0.0
+1429	12:46:40.452201: GPS Passthrough {'Latitude': 0.0
+1430	12:46:40.455870: GPS Passthrough {'Latitude': 0.0
+1431	12:46:40.731611: GPS Passthrough {'Latitude': 0.0
+1432	12:46:41.095184: GPS Passthrough {'Latitude': 0.0
+1433	12:46:41.397170: GPS Passthrough {'Latitude': 0.0
+1434	12:46:41.749404: GPS Passthrough {'Latitude': 0.0
+1435	12:46:41.875596: GPS Passthrough {'Latitude': 0.0
+1436	12:46:42.071717: Groundstation Status {'gs_lat': 0.0
+1437	12:46:42.397438: GPS Passthrough {'Latitude': 0.0
+1438	12:46:42.745371: GPS Passthrough {'Latitude': 0.0
+1439	12:46:43.052243: GPS Passthrough {'Latitude': 0.0
+1440	12:46:43.403668: GPS Passthrough {'Latitude': 0.0
+1441	12:46:43.750492: GPS Passthrough {'Latitude': 0.0
+1442	12:46:43.857543: GPS Passthrough {'Latitude': 0.0
+1443	12:46:44.070620: Groundstation Status {'gs_lat': 0.0
+1444	12:46:44.401454: GPS Passthrough {'Latitude': 0.0
+1445	12:46:44.730523: GPS Passthrough {'Latitude': 0.0
+1446	12:46:45.057570: GPS Passthrough {'Latitude': 0.0
+1447	12:46:45.438327: GPS Passthrough {'Latitude': 0.0
+1448	12:46:45.443701: GPS Passthrough {'Latitude': 0.0
+1449	12:46:45.723198: GPS Passthrough {'Latitude': 0.0
+1450	12:46:45.865229: GPS Passthrough {'Latitude': 0.0
+1451	12:46:46.057390: Groundstation Status {'gs_lat': 0.0
+1452	12:46:46.424432: GPS Passthrough {'Latitude': 0.0
+1453	12:46:46.736902: GPS Passthrough {'Latitude': 0.0
+1454	12:46:47.085557: GPS Passthrough {'Latitude': 0.0
+1455	12:46:47.388483: GPS Passthrough {'Latitude': 0.0
+1456	12:46:47.728351: GPS Passthrough {'Latitude': 0.0
+1457	12:46:47.868608: GPS Passthrough {'Latitude': 0.0
+1458	12:46:48.089309: Groundstation Status {'gs_lat': 0.0
+1459	12:46:48.392254: GPS Passthrough {'Latitude': 0.0
+1460	12:46:48.734685: GPS Passthrough {'Latitude': 0.0
+1461	12:46:49.082007: GPS Passthrough {'Latitude': 0.0
+1462	12:46:49.384806: GPS Passthrough {'Latitude': 0.0
+1463	12:46:49.726099: GPS Passthrough {'Latitude': 0.0
+1464	12:46:49.866698: GPS Passthrough {'Latitude': 0.0
+1465	12:46:50.055605: Groundstation Status {'gs_lat': 0.0
+1466	12:46:50.420186: GPS Passthrough {'Latitude': 0.0
+1467	12:46:50.420713: GPS Passthrough {'Latitude': 0.0
+1468	12:46:50.747614: GPS Passthrough {'Latitude': 0.0
+1469	12:46:51.065195: GPS Passthrough {'Latitude': 0.0

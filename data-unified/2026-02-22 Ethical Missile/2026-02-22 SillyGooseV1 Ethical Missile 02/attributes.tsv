@@ -1,0 +1,10 @@
+key	value	source
+altimeter.board	SillyGooseV1	derived
+altimeter.source_folder	root-EthicalMissile-EasyMini-primary	derived
+data.has_parsed_timeseries	true	derived
+data.row_count	2197	derived
+data.source_file	EthicalMissile-EasyMini-primary.csv	derived
+data.synthetic_time_added	false	derived
+data.time_column	time	derived
+flight.date	2026-02-22	derived
+flight.name	Ethical Missile	derived

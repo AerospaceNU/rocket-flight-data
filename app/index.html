@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-eval'; style-src 'self'; img-src 'self' data:;" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Rocket Flight Data Viewer</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="app">
+      <aside class="sidebar">
+        <div class="sidebar-head">
+          <h1>Flights</h1>
+          <button id="run-index-btn" class="btn btn-accent">Run Index</button>
+          <div id="index-status" class="muted"></div>
+        </div>
+        <input id="filter-search" type="text" placeholder="Search flights..." />
+        <div id="list-summary" class="muted"></div>
+        <div id="flight-list" class="flight-list"></div>
+      </aside>
+
+      <main class="main">
+        <header class="main-header">
+          <div>
+            <h2 id="flight-title">Select a flight</h2>
+            <div id="flight-subtitle" class="muted"></div>
+          </div>
+          <button id="refresh-btn" class="btn">Reload</button>
+        </header>
+
+        <section id="welcome" class="welcome">
+          <h3>No indexed flights found</h3>
+          <p>Run indexing to build altimeter views.</p>
+        </section>
+
+        <section id="details" class="hidden">
+          <div class="toolbar">
+            <label for="altimeter-select">Altimeter</label>
+            <select id="altimeter-select"></select>
+            <label class="checkbox-line"><input id="trim-toggle" type="checkbox" checked /> Trim launch/landing</label>
+          </div>
+
+          <nav class="tab-bar">
+            <button class="tab active" data-tab="plot">Plot</button>
+            <button class="tab" data-tab="attributes">Attributes</button>
+          </nav>
+
+          <div class="tab-content">
+            <section id="tab-plot" class="tab-pane active">
+              <div class="plot-controls">
+                <button id="plot-select-series-btn" class="btn">Select Series</button>
+                <button id="plot-reset-series-btn" class="btn">Reset Series</button>
+                <button id="plot-fit-trim-btn" class="btn">Fit Trim</button>
+                <button id="plot-fit-full-btn" class="btn">Fit Full</button>
+                <button id="plot-reset-view-btn" class="btn">Reset View</button>
+              </div>
+              <div class="plot-nav-controls">
+                <button id="plot-pan-left-btn" class="btn btn-ghost">Pan Left</button>
+                <button id="plot-pan-right-btn" class="btn btn-ghost">Pan Right</button>
+                <button id="plot-zoom-in-btn" class="btn btn-ghost">Zoom In</button>
+                <button id="plot-zoom-out-btn" class="btn btn-ghost">Zoom Out</button>
+              </div>
+              <div id="plot-series-active" class="series-chip-row"></div>
+              <div id="plot-hover-dashboard" class="hover-dashboard"></div>
+              <div id="plot2d" class="plot"></div>
+            </section>
+
+            <section id="tab-attributes" class="tab-pane">
+              <div class="attributes-toolbar">
+                <button id="add-attribute-btn" class="btn">Add Field</button>
+                <button id="save-attributes-btn" class="btn btn-accent">Save Attributes</button>
+                <div id="attributes-status" class="muted"></div>
+              </div>
+              <div class="table-wrap">
+                <table id="attributes-table">
+                  <thead>
+                    <tr>
+                      <th>Key</th>
+                      <th>Value</th>
+                      <th></th>
+                    </tr>
+                  </thead>
+                  <tbody id="attributes-body"></tbody>
+                </table>
+              </div>
+            </section>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <div id="plot-series-modal" class="modal hidden">
+      <div class="modal-card">
+        <h3>Select Graph Series</h3>
+        <input id="plot-series-search" type="text" placeholder="Filter columns..." />
+        <div id="plot-series-options" class="series-option-grid"></div>
+        <div class="modal-actions">
+          <button id="plot-series-cancel-btn" class="btn">Cancel</button>
+          <button id="plot-series-apply-btn" class="btn btn-accent">Apply</button>
+        </div>
+      </div>
+    </div>
+
+    <script src="../node_modules/plotly.js-dist-min/plotly.min.js"></script>
+    <script src="./app.js"></script>
+  </body>
+</html>

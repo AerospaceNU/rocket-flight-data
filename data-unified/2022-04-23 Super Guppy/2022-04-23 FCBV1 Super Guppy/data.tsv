@@ -1,0 +1,2021 @@
+generated_time_s	RUN START 2022-04-23 14:59:08
+0	14:59:25: Ground Station GPS {'gs_lat': 0.0
+1	14:59:27: Ground Station GPS {'gs_lat': 0.0
+2	14:59:29: Ground Station GPS {'gs_lat': 0.0
+3	14:59:31: Ground Station GPS {'gs_lat': 0.0
+4	14:59:33: Ground Station GPS {'gs_lat': 0.0
+5	14:59:35: Ground Station GPS {'gs_lat': 0.0
+6	14:59:37: Ground Station GPS {'gs_lat': 0.0
+7	14:59:39: Ground Station GPS {'gs_lat': 0.0
+8	14:59:41: Ground Station GPS {'gs_lat': 0.0
+9	14:59:43: Ground Station GPS {'gs_lat': 0.0
+10	14:59:43: Position Data {'radio_id': 1
+11	14:59:44: Orientation {'radio_id': 1
+12	14:59:44: Pyro Info {'radio_id': 1
+13	14:59:44: Line Cutter 3 {'radio_id': 1
+14	14:59:44: Line Cutter 1 {'radio_id': 1
+15	14:59:44: Position Data {'radio_id': 1
+16	14:59:44: Position Data {'radio_id': 1
+17	14:59:44: Position Data {'radio_id': 1
+18	14:59:44: Position Data {'radio_id': 1
+19	14:59:44: Position Data {'radio_id': 1
+20	14:59:44: Position Data {'radio_id': 1
+21	14:59:44: Position Data {'radio_id': 1
+22	14:59:44: Position Data {'radio_id': 1
+23	14:59:44: Position Data {'radio_id': 1
+24	14:59:44: Position Data {'radio_id': 1
+25	14:59:45: Orientation {'radio_id': 1
+26	14:59:45: Pyro Info {'radio_id': 1
+27	14:59:45: Line Cutter 3 {'radio_id': 1
+28	14:59:45: Line Cutter 1 {'radio_id': 1
+29	14:59:45: Alt Info & Cfg {'radio_id': 1
+30	14:59:45: Position Data {'radio_id': 1
+31	14:59:45: Position Data {'radio_id': 1
+32	14:59:45: Position Data {'radio_id': 1
+33	14:59:45: Ground Station GPS {'gs_lat': 0.0
+34	14:59:45: Position Data {'radio_id': 1
+35	14:59:45: Position Data {'radio_id': 1
+36	14:59:45: Position Data {'radio_id': 1
+37	14:59:45: Position Data {'radio_id': 1
+38	14:59:45: Position Data {'radio_id': 1
+39	14:59:46: Orientation {'radio_id': 1
+40	14:59:46: Pyro Info {'radio_id': 1
+41	14:59:46: Line Cutter 3 {'radio_id': 1
+42	14:59:46: Line Cutter 1 {'radio_id': 1
+43	14:59:46: Position Data {'radio_id': 1
+44	14:59:46: Position Data {'radio_id': 1
+45	14:59:46: Position Data {'radio_id': 1
+46	14:59:46: Alt Info & Cfg {'radio_id': 1
+47	14:59:46: Position Data {'radio_id': 1
+48	14:59:46: Position Data {'radio_id': 1
+49	14:59:46: Position Data {'radio_id': 1
+50	14:59:46: Position Data {'radio_id': 1
+51	14:59:46: Position Data {'radio_id': 1
+52	14:59:46: Position Data {'radio_id': 1
+53	14:59:46: Position Data {'radio_id': 1
+54	14:59:47: Orientation {'radio_id': 1
+55	14:59:47: Pyro Info {'radio_id': 1
+56	14:59:47: Line Cutter 3 {'radio_id': 1
+57	14:59:47: Line Cutter 1 {'radio_id': 1
+58	14:59:47: Position Data {'radio_id': 1
+59	14:59:47: Position Data {'radio_id': 1
+60	14:59:47: Position Data {'radio_id': 1
+61	14:59:47: Position Data {'radio_id': 1
+62	14:59:47: Ground Station GPS {'gs_lat': 0.0
+63	14:59:47: Alt Info & Cfg {'radio_id': 1
+64	14:59:47: Position Data {'radio_id': 1
+65	14:59:47: Position Data {'radio_id': 1
+66	14:59:47: Position Data {'radio_id': 1
+67	14:59:47: Position Data {'radio_id': 1
+68	14:59:47: Position Data {'radio_id': 1
+69	14:59:48: Orientation {'radio_id': 1
+70	14:59:48: Position Data {'radio_id': 1
+71	14:59:48: Pyro Info {'radio_id': 1
+72	14:59:48: Line Cutter 3 {'radio_id': 1
+73	14:59:48: Line Cutter 1 {'radio_id': 1
+74	14:59:48: Position Data {'radio_id': 1
+75	14:59:48: Position Data {'radio_id': 1
+76	14:59:48: Position Data {'radio_id': 1
+77	14:59:48: Position Data {'radio_id': 1
+78	14:59:48: Position Data {'radio_id': 1
+79	14:59:48: Position Data {'radio_id': 1
+80	14:59:48: Alt Info & Cfg {'radio_id': 1
+81	14:59:48: Position Data {'radio_id': 1
+82	14:59:48: Position Data {'radio_id': 1
+83	14:59:48: Position Data {'radio_id': 1
+84	14:59:49: Orientation {'radio_id': 1
+85	14:59:49: Pyro Info {'radio_id': 1
+86	14:59:49: Line Cutter 3 {'radio_id': 1
+87	14:59:49: Position Data {'radio_id': 1
+88	14:59:49: Position Data {'radio_id': 1
+89	14:59:49: Position Data {'radio_id': 1
+90	14:59:49: Position Data {'radio_id': 1
+91	14:59:49: Ground Station GPS {'gs_lat': 0.0
+92	14:59:49: Position Data {'radio_id': 1
+93	14:59:49: Position Data {'radio_id': 1
+94	14:59:49: Position Data {'radio_id': 1
+95	14:59:49: Position Data {'radio_id': 1
+96	14:59:49: Position Data {'radio_id': 1
+97	14:59:49: Alt Info & Cfg {'radio_id': 1
+98	14:59:50: Position Data {'radio_id': 1
+99	14:59:50: Orientation {'radio_id': 1
+100	14:59:50: Pyro Info {'radio_id': 1
+101	14:59:50: Line Cutter 3 {'radio_id': 1
+102	14:59:50: Position Data {'radio_id': 1
+103	14:59:50: Position Data {'radio_id': 1
+104	14:59:50: Position Data {'radio_id': 1
+105	14:59:50: Position Data {'radio_id': 1
+106	14:59:50: Position Data {'radio_id': 1
+107	14:59:50: Position Data {'radio_id': 1
+108	14:59:50: Position Data {'radio_id': 1
+109	14:59:50: Position Data {'radio_id': 1
+110	14:59:50: Position Data {'radio_id': 1
+111	14:59:51: Orientation {'radio_id': 1
+112	14:59:51: Pyro Info {'radio_id': 1
+113	14:59:51: Line Cutter 3 {'radio_id': 1
+114	14:59:51: Line Cutter 1 {'radio_id': 1
+115	14:59:51: Position Data {'radio_id': 1
+116	14:59:51: Alt Info & Cfg {'radio_id': 1
+117	14:59:51: Position Data {'radio_id': 1
+118	14:59:51: Position Data {'radio_id': 1
+119	14:59:51: Position Data {'radio_id': 1
+120	14:59:51: Ground Station GPS {'gs_lat': 0.0
+121	14:59:51: Position Data {'radio_id': 1
+122	14:59:51: Position Data {'radio_id': 1
+123	14:59:51: Position Data {'radio_id': 1
+124	14:59:51: Position Data {'radio_id': 1
+125	14:59:51: Position Data {'radio_id': 1
+126	14:59:52: Position Data {'radio_id': 1
+127	14:59:52: Orientation {'radio_id': 1
+128	14:59:52: Pyro Info {'radio_id': 1
+129	14:59:52: Line Cutter 3 {'radio_id': 1
+130	14:59:52: Line Cutter 1 {'radio_id': 1
+131	14:59:52: Position Data {'radio_id': 1
+132	14:59:52: Position Data {'radio_id': 1
+133	14:59:52: Alt Info & Cfg {'radio_id': 1
+134	14:59:52: Position Data {'radio_id': 1
+135	14:59:52: Position Data {'radio_id': 1
+136	14:59:52: Position Data {'radio_id': 1
+137	14:59:52: Position Data {'radio_id': 1
+138	14:59:52: Position Data {'radio_id': 1
+139	14:59:52: Position Data {'radio_id': 1
+140	14:59:53: Orientation {'radio_id': 1
+141	14:59:53: Position Data {'radio_id': 1
+142	14:59:53: Pyro Info {'radio_id': 1
+143	14:59:53: Line Cutter 3 {'radio_id': 1
+144	14:59:53: Line Cutter 1 {'radio_id': 1
+145	14:59:53: Position Data {'radio_id': 1
+146	14:59:53: Position Data {'radio_id': 1
+147	14:59:53: Position Data {'radio_id': 1
+148	14:59:53: Position Data {'radio_id': 1
+149	14:59:53: Alt Info & Cfg {'radio_id': 1
+150	14:59:53: Position Data {'radio_id': 1
+151	14:59:53: Position Data {'radio_id': 1
+152	14:59:53: Position Data {'radio_id': 1
+153	14:59:53: Position Data {'radio_id': 1
+154	14:59:54: Position Data {'radio_id': 1
+155	14:59:54: Orientation {'radio_id': 1
+156	14:59:54: Pyro Info {'radio_id': 1
+157	14:59:54: Line Cutter 3 {'radio_id': 1
+158	14:59:54: Line Cutter 1 {'radio_id': 1
+159	14:59:54: Position Data {'radio_id': 1
+160	14:59:54: Position Data {'radio_id': 1
+161	14:59:54: Position Data {'radio_id': 1
+162	14:59:54: Position Data {'radio_id': 1
+163	14:59:54: Position Data {'radio_id': 1
+164	14:59:54: Position Data {'radio_id': 1
+165	14:59:54: Position Data {'radio_id': 1
+166	14:59:54: Alt Info & Cfg {'radio_id': 1
+167	14:59:54: Position Data {'radio_id': 1
+168	14:59:54: Position Data {'radio_id': 1
+169	14:59:55: Orientation {'radio_id': 1
+170	14:59:55: Position Data {'radio_id': 1
+171	14:59:55: Pyro Info {'radio_id': 1
+172	14:59:55: Line Cutter 3 {'radio_id': 1
+173	14:59:55: Line Cutter 1 {'radio_id': 1
+174	14:59:55: Position Data {'radio_id': 1
+175	14:59:55: Position Data {'radio_id': 1
+176	14:59:55: Position Data {'radio_id': 1
+177	14:59:55: Position Data {'radio_id': 1
+178	14:59:55: Position Data {'radio_id': 1
+179	14:59:55: Position Data {'radio_id': 1
+180	14:59:55: Position Data {'radio_id': 1
+181	14:59:55: Position Data {'radio_id': 1
+182	14:59:56: Alt Info & Cfg {'radio_id': 1
+183	14:59:56: Orientation {'radio_id': 1
+184	14:59:56: Pyro Info {'radio_id': 1
+185	14:59:56: Line Cutter 3 {'radio_id': 1
+186	14:59:56: Position Data {'radio_id': 1
+187	14:59:56: Position Data {'radio_id': 1
+188	14:59:56: Position Data {'radio_id': 1
+189	14:59:56: Position Data {'radio_id': 1
+190	14:59:56: Position Data {'radio_id': 1
+191	14:59:56: Position Data {'radio_id': 1
+192	14:59:56: Position Data {'radio_id': 1
+193	14:59:56: Position Data {'radio_id': 1
+194	14:59:56: Position Data {'radio_id': 1
+195	14:59:57: Position Data {'radio_id': 1
+196	14:59:57: Orientation {'radio_id': 1
+197	14:59:57: Pyro Info {'radio_id': 1
+198	14:59:57: Line Cutter 3 {'radio_id': 1
+199	14:59:57: Line Cutter 1 {'radio_id': 1
+200	14:59:57: Position Data {'radio_id': 1
+201	14:59:57: Alt Info & Cfg {'radio_id': 1
+202	14:59:57: Position Data {'radio_id': 1
+203	14:59:57: Position Data {'radio_id': 1
+204	14:59:57: Position Data {'radio_id': 1
+205	14:59:57: Position Data {'radio_id': 1
+206	14:59:57: Position Data {'radio_id': 1
+207	14:59:57: Position Data {'radio_id': 1
+208	14:59:57: Position Data {'radio_id': 1
+209	14:59:58: Position Data {'radio_id': 1
+210	14:59:58: Orientation {'radio_id': 1
+211	14:59:58: Pyro Info {'radio_id': 1
+212	14:59:58: Line Cutter 3 {'radio_id': 1
+213	14:59:58: Line Cutter 1 {'radio_id': 1
+214	14:59:58: Position Data {'radio_id': 1
+215	14:59:58: Position Data {'radio_id': 1
+216	14:59:58: Position Data {'radio_id': 1
+217	14:59:58: Alt Info & Cfg {'radio_id': 1
+218	14:59:58: Position Data {'radio_id': 1
+219	14:59:58: Position Data {'radio_id': 1
+220	14:59:58: Position Data {'radio_id': 1
+221	14:59:58: Position Data {'radio_id': 1
+222	14:59:58: Position Data {'radio_id': 1
+223	14:59:58: Position Data {'radio_id': 1
+224	14:59:59: Position Data {'radio_id': 1
+225	14:59:59: Orientation {'radio_id': 1
+226	14:59:59: Pyro Info {'radio_id': 1
+227	14:59:59: Line Cutter 3 {'radio_id': 1
+228	14:59:59: Position Data {'radio_id': 1
+229	14:59:59: Position Data {'radio_id': 1
+230	14:59:59: Position Data {'radio_id': 1
+231	14:59:59: Position Data {'radio_id': 1
+232	14:59:59: Ground Station GPS {'gs_lat': 0.0
+233	14:59:59: Position Data {'radio_id': 1
+234	14:59:59: Alt Info & Cfg {'radio_id': 1
+235	14:59:59: Position Data {'radio_id': 1
+236	14:59:59: Position Data {'radio_id': 1
+237	14:59:59: Position Data {'radio_id': 1
+238	15:00:00: Position Data {'radio_id': 1
+239	15:00:00: Orientation {'radio_id': 1
+240	15:00:00: Pyro Info {'radio_id': 1
+241	15:00:00: Line Cutter 1 {'radio_id': 1
+242	15:00:00: Position Data {'radio_id': 1
+243	15:00:00: Position Data {'radio_id': 1
+244	15:00:00: Position Data {'radio_id': 1
+245	15:00:00: Position Data {'radio_id': 1
+246	15:00:00: Position Data {'radio_id': 1
+247	15:00:00: Position Data {'radio_id': 1
+248	15:00:00: Position Data {'radio_id': 1
+249	15:00:00: Alt Info & Cfg {'radio_id': 1
+250	15:00:00: Position Data {'radio_id': 1
+251	15:00:01: Position Data {'radio_id': 1
+252	15:00:01: Orientation {'radio_id': 1
+253	15:00:01: Pyro Info {'radio_id': 1
+254	15:00:01: Line Cutter 3 {'radio_id': 1
+255	15:00:01: Line Cutter 1 {'radio_id': 1
+256	15:00:01: Position Data {'radio_id': 1
+257	15:00:01: Position Data {'radio_id': 1
+258	15:00:01: Position Data {'radio_id': 1
+259	15:00:01: Position Data {'radio_id': 1
+260	15:00:01: Ground Station GPS {'gs_lat': 0.0
+261	15:00:01: Position Data {'radio_id': 1
+262	15:00:01: Position Data {'radio_id': 1
+263	15:00:01: Position Data {'radio_id': 1
+264	15:00:01: Position Data {'radio_id': 1
+265	15:00:02: Position Data {'radio_id': 1
+266	15:00:02: Alt Info & Cfg {'radio_id': 1
+267	15:00:02: Orientation {'radio_id': 1
+268	15:00:02: Position Data {'radio_id': 1
+269	15:00:02: Pyro Info {'radio_id': 1
+270	15:00:02: Line Cutter 3 {'radio_id': 1
+271	15:00:02: Line Cutter 1 {'radio_id': 1
+272	15:00:02: Position Data {'radio_id': 1
+273	15:00:02: Position Data {'radio_id': 1
+274	15:00:02: Position Data {'radio_id': 1
+275	15:00:02: Position Data {'radio_id': 1
+276	15:00:02: Position Data {'radio_id': 1
+277	15:00:02: Position Data {'radio_id': 1
+278	15:00:02: Position Data {'radio_id': 1
+279	15:00:02: Position Data {'radio_id': 1
+280	15:00:03: Position Data {'radio_id': 1
+281	15:00:03: Orientation {'radio_id': 1
+282	15:00:03: Pyro Info {'radio_id': 1
+283	15:00:03: Line Cutter 3 {'radio_id': 1
+284	15:00:03: Line Cutter 1 {'radio_id': 1
+285	15:00:03: Position Data {'radio_id': 1
+286	15:00:03: Position Data {'radio_id': 1
+287	15:00:03: Alt Info & Cfg {'radio_id': 1
+288	15:00:03: Position Data {'radio_id': 1
+289	15:00:03: Position Data {'radio_id': 1
+290	15:00:03: Ground Station GPS {'gs_lat': 0.0
+291	15:00:03: Position Data {'radio_id': 1
+292	15:00:03: Position Data {'radio_id': 1
+293	15:00:03: Position Data {'radio_id': 1
+294	15:00:03: Position Data {'radio_id': 1
+295	15:00:04: Position Data {'radio_id': 1
+296	15:00:04: Position Data {'radio_id': 1
+297	15:00:04: Orientation {'radio_id': 1
+298	15:00:04: Pyro Info {'radio_id': 1
+299	15:00:04: Line Cutter 1 {'radio_id': 1
+300	15:00:04: Position Data {'radio_id': 1
+301	15:00:04: Position Data {'radio_id': 1
+302	15:00:04: Alt Info & Cfg {'radio_id': 1
+303	15:00:04: Position Data {'radio_id': 1
+304	15:00:04: Position Data {'radio_id': 1
+305	15:00:04: Position Data {'radio_id': 1
+306	15:00:04: Position Data {'radio_id': 1
+307	15:00:04: Position Data {'radio_id': 1
+308	15:00:05: Position Data {'radio_id': 1
+309	15:00:05: Orientation {'radio_id': 1
+310	15:00:05: Pyro Info {'radio_id': 1
+311	15:00:05: Line Cutter 3 {'radio_id': 1
+312	15:00:05: Position Data {'radio_id': 1
+313	15:00:05: Position Data {'radio_id': 1
+314	15:00:05: Position Data {'radio_id': 1
+315	15:00:05: Position Data {'radio_id': 1
+316	15:00:05: Ground Station GPS {'gs_lat': 0.0
+317	15:00:05: Position Data {'radio_id': 1
+318	15:00:05: Position Data {'radio_id': 1
+319	15:00:05: Alt Info & Cfg {'radio_id': 1
+320	15:00:05: Position Data {'radio_id': 1
+321	15:00:05: Position Data {'radio_id': 1
+322	15:00:06: Position Data {'radio_id': 1
+323	15:00:06: Position Data {'radio_id': 1
+324	15:00:06: Orientation {'radio_id': 1
+325	15:00:06: Pyro Info {'radio_id': 1
+326	15:00:06: Line Cutter 3 {'radio_id': 1
+327	15:00:06: Line Cutter 1 {'radio_id': 1
+328	15:00:06: Position Data {'radio_id': 1
+329	15:00:06: Position Data {'radio_id': 1
+330	15:00:06: Position Data {'radio_id': 1
+331	15:00:06: Position Data {'radio_id': 1
+332	15:00:06: Position Data {'radio_id': 1
+333	15:00:06: Position Data {'radio_id': 1
+334	15:00:06: Position Data {'radio_id': 1
+335	15:00:06: Alt Info & Cfg {'radio_id': 1
+336	15:00:06: Position Data {'radio_id': 1
+337	15:00:07: Position Data {'radio_id': 1
+338	15:00:07: Orientation {'radio_id': 1
+339	15:00:07: Pyro Info {'radio_id': 1
+340	15:00:07: Line Cutter 3 {'radio_id': 1
+341	15:00:07: Line Cutter 1 {'radio_id': 1
+342	15:00:07: Position Data {'radio_id': 1
+343	15:00:07: Position Data {'radio_id': 1
+344	15:00:07: Position Data {'radio_id': 1
+345	15:00:07: Position Data {'radio_id': 1
+346	15:00:07: Ground Station GPS {'gs_lat': 0.0
+347	15:00:07: Position Data {'radio_id': 1
+348	15:00:07: Position Data {'radio_id': 1
+349	15:00:07: Position Data {'radio_id': 1
+350	15:00:07: Position Data {'radio_id': 1
+351	15:00:07: Position Data {'radio_id': 1
+352	15:00:08: Position Data {'radio_id': 1
+353	15:00:08: Orientation {'radio_id': 1
+354	15:00:08: Alt Info & Cfg {'radio_id': 1
+355	15:00:08: Pyro Info {'radio_id': 1
+356	15:00:08: Line Cutter 3 {'radio_id': 1
+357	15:00:08: Line Cutter 1 {'radio_id': 1
+358	15:00:08: Position Data {'radio_id': 1
+359	15:00:08: Position Data {'radio_id': 1
+360	15:00:08: Position Data {'radio_id': 1
+361	15:00:08: Position Data {'radio_id': 1
+362	15:00:08: Position Data {'radio_id': 1
+363	15:00:08: Position Data {'radio_id': 1
+364	15:00:08: Position Data {'radio_id': 1
+365	15:00:08: Position Data {'radio_id': 1
+366	15:00:09: Position Data {'radio_id': 1
+367	15:00:09: Orientation {'radio_id': 1
+368	15:00:09: Position Data {'radio_id': 1
+369	15:00:09: Pyro Info {'radio_id': 1
+370	15:00:09: Line Cutter 3 {'radio_id': 1
+371	15:00:09: Line Cutter 1 {'radio_id': 1
+372	15:00:09: Position Data {'radio_id': 1
+373	15:00:09: Position Data {'radio_id': 1
+374	15:00:09: Alt Info & Cfg {'radio_id': 1
+375	15:00:09: Position Data {'radio_id': 1
+376	15:00:09: Ground Station GPS {'gs_lat': 0.0
+377	15:00:09: Position Data {'radio_id': 1
+378	15:00:09: Position Data {'radio_id': 1
+379	15:00:09: Position Data {'radio_id': 1
+380	15:00:09: Position Data {'radio_id': 1
+381	15:00:09: Position Data {'radio_id': 1
+382	15:00:10: Position Data {'radio_id': 1
+383	15:00:10: Orientation {'radio_id': 1
+384	15:00:10: Pyro Info {'radio_id': 1
+385	15:00:10: Line Cutter 3 {'radio_id': 1
+386	15:00:10: Line Cutter 1 {'radio_id': 1
+387	15:00:10: Position Data {'radio_id': 1
+388	15:00:10: Position Data {'radio_id': 1
+389	15:00:10: Position Data {'radio_id': 1
+390	15:00:10: Position Data {'radio_id': 1
+391	15:00:10: Alt Info & Cfg {'radio_id': 1
+392	15:00:10: Position Data {'radio_id': 1
+393	15:00:10: Position Data {'radio_id': 1
+394	15:00:10: Position Data {'radio_id': 1
+395	15:00:10: Position Data {'radio_id': 1
+396	15:00:11: Position Data {'radio_id': 1
+397	15:00:11: Position Data {'radio_id': 1
+398	15:00:11: Orientation {'radio_id': 1
+399	15:00:11: Pyro Info {'radio_id': 1
+400	15:00:11: Line Cutter 3 {'radio_id': 1
+401	15:00:11: Line Cutter 1 {'radio_id': 1
+402	15:00:11: Position Data {'radio_id': 1
+403	15:00:11: Position Data {'radio_id': 1
+404	15:00:11: Position Data {'radio_id': 1
+405	15:00:11: Position Data {'radio_id': 1
+406	15:00:11: Position Data {'radio_id': 1
+407	15:00:11: Position Data {'radio_id': 1
+408	15:00:11: Alt Info & Cfg {'radio_id': 1
+409	15:00:11: Position Data {'radio_id': 1
+410	15:00:12: Position Data {'radio_id': 1
+411	15:00:12: Position Data {'radio_id': 1
+412	15:00:12: Orientation {'radio_id': 1
+413	15:00:12: Pyro Info {'radio_id': 1
+414	15:00:12: Line Cutter 3 {'radio_id': 1
+415	15:00:12: Line Cutter 1 {'radio_id': 1
+416	15:00:12: Position Data {'radio_id': 1
+417	15:00:12: Position Data {'radio_id': 1
+418	15:00:12: Position Data {'radio_id': 1
+419	15:00:12: Position Data {'radio_id': 1
+420	15:00:12: Position Data {'radio_id': 1
+421	15:00:12: Position Data {'radio_id': 1
+422	15:00:12: Position Data {'radio_id': 1
+423	15:00:13: Alt Info & Cfg {'radio_id': 1
+424	15:00:13: Position Data {'radio_id': 1
+425	15:00:13: Position Data {'radio_id': 1
+426	15:00:13: Orientation {'radio_id': 1
+427	15:00:13: Pyro Info {'radio_id': 1
+428	15:00:13: Line Cutter 3 {'radio_id': 1
+429	15:00:13: Line Cutter 1 {'radio_id': 1
+430	15:00:13: Position Data {'radio_id': 1
+431	15:00:13: Position Data {'radio_id': 1
+432	15:00:13: Position Data {'radio_id': 1
+433	15:00:13: Position Data {'radio_id': 1
+434	15:00:13: Position Data {'radio_id': 1
+435	15:00:13: Position Data {'radio_id': 1
+436	15:00:13: Position Data {'radio_id': 1
+437	15:00:13: Position Data {'radio_id': 1
+438	15:00:14: Position Data {'radio_id': 1
+439	15:00:14: Orientation {'radio_id': 1
+440	15:00:14: Pyro Info {'radio_id': 1
+441	15:00:14: Line Cutter 1 {'radio_id': 1
+442	15:00:14: Position Data {'radio_id': 1
+443	15:00:14: Alt Info & Cfg {'radio_id': 1
+444	15:00:14: Position Data {'radio_id': 1
+445	15:00:14: Position Data {'radio_id': 1
+446	15:00:14: Position Data {'radio_id': 1
+447	15:00:14: Position Data {'radio_id': 1
+448	15:00:14: Position Data {'radio_id': 1
+449	15:00:14: Position Data {'radio_id': 1
+450	15:00:15: Position Data {'radio_id': 1
+451	15:00:15: Position Data {'radio_id': 1
+452	15:00:15: Orientation {'radio_id': 1
+453	15:00:15: Pyro Info {'radio_id': 1
+454	15:00:15: Line Cutter 3 {'radio_id': 1
+455	15:00:15: Line Cutter 1 {'radio_id': 1
+456	15:00:15: Position Data {'radio_id': 1
+457	15:00:15: Position Data {'radio_id': 1
+458	15:00:15: Alt Info & Cfg {'radio_id': 1
+459	15:00:15: Position Data {'radio_id': 1
+460	15:00:15: Position Data {'radio_id': 1
+461	15:00:15: Ground Station GPS {'gs_lat': 0.0
+462	15:00:15: Position Data {'radio_id': 1
+463	15:00:15: Position Data {'radio_id': 1
+464	15:00:15: Position Data {'radio_id': 1
+465	15:00:15: Position Data {'radio_id': 1
+466	15:00:16: Position Data {'radio_id': 1
+467	15:00:16: Orientation {'radio_id': 1
+468	15:00:16: Position Data {'radio_id': 1
+469	15:00:16: Pyro Info {'radio_id': 1
+470	15:00:16: Line Cutter 3 {'radio_id': 1
+471	15:00:16: Line Cutter 1 {'radio_id': 1
+472	15:00:16: Position Data {'radio_id': 1
+473	15:00:16: Position Data {'radio_id': 1
+474	15:00:16: Position Data {'radio_id': 1
+475	15:00:16: Position Data {'radio_id': 1
+476	15:00:16: Alt Info & Cfg {'radio_id': 1
+477	15:00:16: Position Data {'radio_id': 1
+478	15:00:16: Position Data {'radio_id': 1
+479	15:00:16: Position Data {'radio_id': 1
+480	15:00:17: Position Data {'radio_id': 1
+481	15:00:17: Position Data {'radio_id': 1
+482	15:00:17: Orientation {'radio_id': 1
+483	15:00:17: Pyro Info {'radio_id': 1
+484	15:00:17: Line Cutter 3 {'radio_id': 1
+485	15:00:17: Line Cutter 1 {'radio_id': 1
+486	15:00:17: Position Data {'radio_id': 1
+487	15:00:17: Position Data {'radio_id': 1
+488	15:00:17: Position Data {'radio_id': 1
+489	15:00:17: Ground Station GPS {'gs_lat': 0.0
+490	15:00:17: Position Data {'radio_id': 1
+491	15:00:17: Position Data {'radio_id': 1
+492	15:00:17: Position Data {'radio_id': 1
+493	15:00:17: Alt Info & Cfg {'radio_id': 1
+494	15:00:17: Position Data {'radio_id': 1
+495	15:00:18: Position Data {'radio_id': 1
+496	15:00:18: Position Data {'radio_id': 1
+497	15:00:18: Orientation {'radio_id': 1
+498	15:00:18: Pyro Info {'radio_id': 1
+499	15:00:18: Line Cutter 3 {'radio_id': 1
+500	15:00:18: Line Cutter 1 {'radio_id': 1
+501	15:00:18: Position Data {'radio_id': 1
+502	15:00:18: Position Data {'radio_id': 1
+503	15:00:18: Position Data {'radio_id': 1
+504	15:00:18: Position Data {'radio_id': 1
+505	15:00:18: Position Data {'radio_id': 1
+506	15:00:18: Position Data {'radio_id': 1
+507	15:00:19: Position Data {'radio_id': 1
+508	15:00:19: Alt Info & Cfg {'radio_id': 1
+509	15:00:19: Position Data {'radio_id': 1
+510	15:00:19: Orientation {'radio_id': 1
+511	15:00:19: Line Cutter 3 {'radio_id': 1
+512	15:00:19: Line Cutter 1 {'radio_id': 1
+513	15:00:19: Ground Station GPS {'gs_lat': 0.0
+514	15:00:19: Position Data {'radio_id': 1
+515	15:00:19: Position Data {'radio_id': 1
+516	15:00:19: Position Data {'radio_id': 1
+517	15:00:19: Position Data {'radio_id': 1
+518	15:00:20: Position Data {'radio_id': 1
+519	15:00:20: Position Data {'radio_id': 1
+520	15:00:20: Orientation {'radio_id': 1
+521	15:00:20: Position Data {'radio_id': 1
+522	15:00:20: Pyro Info {'radio_id': 1
+523	15:00:20: Line Cutter 3 {'radio_id': 1
+524	15:00:20: Line Cutter 1 {'radio_id': 1
+525	15:00:20: Alt Info & Cfg {'radio_id': 1
+526	15:00:20: Position Data {'radio_id': 1
+527	15:00:20: Position Data {'radio_id': 1
+528	15:00:20: Position Data {'radio_id': 1
+529	15:00:20: Position Data {'radio_id': 1
+530	15:00:20: Position Data {'radio_id': 1
+531	15:00:20: Position Data {'radio_id': 1
+532	15:00:20: Position Data {'radio_id': 1
+533	15:00:21: Position Data {'radio_id': 1
+534	15:00:21: Position Data {'radio_id': 1
+535	15:00:21: Orientation {'radio_id': 1
+536	15:00:21: Pyro Info {'radio_id': 1
+537	15:00:21: Line Cutter 1 {'radio_id': 1
+538	15:00:21: Position Data {'radio_id': 1
+539	15:00:21: Position Data {'radio_id': 1
+540	15:00:21: Alt Info & Cfg {'radio_id': 1
+541	15:00:21: Position Data {'radio_id': 1
+542	15:00:21: Ground Station GPS {'gs_lat': 0.0
+543	15:00:21: Position Data {'radio_id': 1
+544	15:00:21: Position Data {'radio_id': 1
+545	15:00:21: Position Data {'radio_id': 1
+546	15:00:22: Position Data {'radio_id': 1
+547	15:00:22: Position Data {'radio_id': 1
+548	15:00:22: Orientation {'radio_id': 1
+549	15:00:22: Position Data {'radio_id': 1
+550	15:00:22: Line Cutter 3 {'radio_id': 1
+551	15:00:22: Line Cutter 1 {'radio_id': 1
+552	15:00:22: Position Data {'radio_id': 1
+553	15:00:22: Position Data {'radio_id': 1
+554	15:00:22: Position Data {'radio_id': 1
+555	15:00:22: Alt Info & Cfg {'radio_id': 1
+556	15:00:22: Position Data {'radio_id': 1
+557	15:00:22: Position Data {'radio_id': 1
+558	15:00:22: Position Data {'radio_id': 1
+559	15:00:23: Position Data {'radio_id': 1
+560	15:00:23: Position Data {'radio_id': 1
+561	15:00:23: Orientation {'radio_id': 1
+562	15:00:23: Pyro Info {'radio_id': 1
+563	15:00:23: Line Cutter 3 {'radio_id': 1
+564	15:00:23: Line Cutter 1 {'radio_id': 1
+565	15:00:23: Position Data {'radio_id': 1
+566	15:00:23: Position Data {'radio_id': 1
+567	15:00:23: Position Data {'radio_id': 1
+568	15:00:23: Position Data {'radio_id': 1
+569	15:00:23: Ground Station GPS {'gs_lat': 0.0
+570	15:00:23: Position Data {'radio_id': 1
+571	15:00:23: Position Data {'radio_id': 1
+572	15:00:23: Position Data {'radio_id': 1
+573	15:00:23: Alt Info & Cfg {'radio_id': 1
+574	15:00:24: Position Data {'radio_id': 1
+575	15:00:24: Position Data {'radio_id': 1
+576	15:00:24: Position Data {'radio_id': 1
+577	15:00:24: Orientation {'radio_id': 1
+578	15:00:24: Pyro Info {'radio_id': 1
+579	15:00:24: Line Cutter 3 {'radio_id': 1
+580	15:00:24: Line Cutter 1 {'radio_id': 1
+581	15:00:24: Position Data {'radio_id': 1
+582	15:00:24: Position Data {'radio_id': 1
+583	15:00:24: Position Data {'radio_id': 1
+584	15:00:24: Position Data {'radio_id': 1
+585	15:00:24: Position Data {'radio_id': 1
+586	15:00:24: Position Data {'radio_id': 1
+587	15:00:24: Position Data {'radio_id': 1
+588	15:00:25: Position Data {'radio_id': 1
+589	15:00:25: Alt Info & Cfg {'radio_id': 1
+590	15:00:25: Position Data {'radio_id': 1
+591	15:00:25: Orientation {'radio_id': 1
+592	15:00:25: Pyro Info {'radio_id': 1
+593	15:00:25: Line Cutter 3 {'radio_id': 1
+594	15:00:25: Line Cutter 1 {'radio_id': 1
+595	15:00:25: Position Data {'radio_id': 1
+596	15:00:25: Position Data {'radio_id': 1
+597	15:00:25: Position Data {'radio_id': 1
+598	15:00:25: Position Data {'radio_id': 1
+599	15:00:25: Ground Station GPS {'gs_lat': 0.0
+600	15:00:25: Position Data {'radio_id': 1
+601	15:00:25: Position Data {'radio_id': 1
+602	15:00:25: Position Data {'radio_id': 1
+603	15:00:26: Position Data {'radio_id': 1
+604	15:00:26: Position Data {'radio_id': 1
+605	15:00:26: Position Data {'radio_id': 1
+606	15:00:26: Orientation {'radio_id': 1
+607	15:00:26: Pyro Info {'radio_id': 1
+608	15:00:26: Line Cutter 3 {'radio_id': 1
+609	15:00:26: Line Cutter 1 {'radio_id': 1
+610	15:00:26: Position Data {'radio_id': 1
+611	15:00:26: Alt Info & Cfg {'radio_id': 1
+612	15:00:26: Position Data {'radio_id': 1
+613	15:00:26: Position Data {'radio_id': 1
+614	15:00:26: Position Data {'radio_id': 1
+615	15:00:26: Position Data {'radio_id': 1
+616	15:00:26: Position Data {'radio_id': 1
+617	15:00:26: Position Data {'radio_id': 1
+618	15:00:27: Position Data {'radio_id': 1
+619	15:00:27: Position Data {'radio_id': 1
+620	15:00:27: Orientation {'radio_id': 1
+621	15:00:27: Pyro Info {'radio_id': 1
+622	15:00:27: Line Cutter 3 {'radio_id': 1
+623	15:00:27: Line Cutter 1 {'radio_id': 1
+624	15:00:27: Position Data {'radio_id': 1
+625	15:00:27: Position Data {'radio_id': 1
+626	15:00:27: Position Data {'radio_id': 1
+627	15:00:27: Ground Station GPS {'gs_lat': 0.0
+628	15:00:27: Alt Info & Cfg {'radio_id': 1
+629	15:00:27: Position Data {'radio_id': 1
+630	15:00:27: Position Data {'radio_id': 1
+631	15:00:27: Position Data {'radio_id': 1
+632	15:00:28: Position Data {'radio_id': 1
+633	15:00:28: Position Data {'radio_id': 1
+634	15:00:28: Position Data {'radio_id': 1
+635	15:00:28: Pyro Info {'radio_id': 1
+636	15:00:28: Line Cutter 3 {'radio_id': 1
+637	15:00:28: Line Cutter 1 {'radio_id': 1
+638	15:00:28: Position Data {'radio_id': 1
+639	15:00:28: Position Data {'radio_id': 1
+640	15:00:28: Position Data {'radio_id': 1
+641	15:00:28: Position Data {'radio_id': 1
+642	15:00:28: Position Data {'radio_id': 1
+643	15:00:28: Alt Info & Cfg {'radio_id': 1
+644	15:00:28: Position Data {'radio_id': 1
+645	15:00:29: Position Data {'radio_id': 1
+646	15:00:29: Position Data {'radio_id': 1
+647	15:00:29: Orientation {'radio_id': 1
+648	15:00:29: Pyro Info {'radio_id': 1
+649	15:00:29: Line Cutter 3 {'radio_id': 1
+650	15:00:29: Line Cutter 1 {'radio_id': 1
+651	15:00:29: Position Data {'radio_id': 1
+652	15:00:29: Position Data {'radio_id': 1
+653	15:00:29: Position Data {'radio_id': 1
+654	15:00:29: Position Data {'radio_id': 1
+655	15:00:29: Ground Station GPS {'gs_lat': 0.0
+656	15:00:29: Position Data {'radio_id': 1
+657	15:00:29: Position Data {'radio_id': 1
+658	15:00:29: Position Data {'radio_id': 1
+659	15:00:30: Position Data {'radio_id': 1
+660	15:00:30: Alt Info & Cfg {'radio_id': 1
+661	15:00:30: Position Data {'radio_id': 1
+662	15:00:30: Position Data {'radio_id': 1
+663	15:00:30: Orientation {'radio_id': 1
+664	15:00:30: Pyro Info {'radio_id': 1
+665	15:00:30: Line Cutter 3 {'radio_id': 1
+666	15:00:30: Line Cutter 1 {'radio_id': 1
+667	15:00:30: Position Data {'radio_id': 1
+668	15:00:30: Position Data {'radio_id': 1
+669	15:00:30: Position Data {'radio_id': 1
+670	15:00:30: Position Data {'radio_id': 1
+671	15:00:30: Position Data {'radio_id': 1
+672	15:00:30: Position Data {'radio_id': 1
+673	15:00:30: Position Data {'radio_id': 1
+674	15:00:31: Position Data {'radio_id': 1
+675	15:00:31: Position Data {'radio_id': 1
+676	15:00:31: Alt Info & Cfg {'radio_id': 1
+677	15:00:31: Orientation {'radio_id': 1
+678	15:00:31: Position Data {'radio_id': 1
+679	15:00:31: Pyro Info {'radio_id': 1
+680	15:00:31: Line Cutter 3 {'radio_id': 1
+681	15:00:31: Line Cutter 1 {'radio_id': 1
+682	15:00:31: Position Data {'radio_id': 1
+683	15:00:31: Position Data {'radio_id': 1
+684	15:00:31: Position Data {'radio_id': 1
+685	15:00:31: Ground Station GPS {'gs_lat': 0.0
+686	15:00:31: Position Data {'radio_id': 1
+687	15:00:31: Position Data {'radio_id': 1
+688	15:00:31: Position Data {'radio_id': 1
+689	15:00:32: Position Data {'radio_id': 1
+690	15:00:32: Position Data {'radio_id': 1
+691	15:00:32: Position Data {'radio_id': 1
+692	15:00:32: Orientation {'radio_id': 1
+693	15:00:32: Pyro Info {'radio_id': 1
+694	15:00:32: Line Cutter 3 {'radio_id': 1
+695	15:00:32: Line Cutter 1 {'radio_id': 1
+696	15:00:32: Position Data {'radio_id': 1
+697	15:00:32: Position Data {'radio_id': 1
+698	15:00:32: Alt Info & Cfg {'radio_id': 1
+699	15:00:32: Position Data {'radio_id': 1
+700	15:00:32: Position Data {'radio_id': 1
+701	15:00:32: Position Data {'radio_id': 1
+702	15:00:32: Position Data {'radio_id': 1
+703	15:00:33: Position Data {'radio_id': 1
+704	15:00:33: Position Data {'radio_id': 1
+705	15:00:33: Position Data {'radio_id': 1
+706	15:00:33: Orientation {'radio_id': 1
+707	15:00:33: Pyro Info {'radio_id': 1
+708	15:00:33: Line Cutter 3 {'radio_id': 1
+709	15:00:33: Line Cutter 1 {'radio_id': 1
+710	15:00:33: Position Data {'radio_id': 1
+711	15:00:33: Position Data {'radio_id': 1
+712	15:00:33: Position Data {'radio_id': 1
+713	15:00:33: Ground Station GPS {'gs_lat': 0.0
+714	15:00:33: Alt Info & Cfg {'radio_id': 1
+715	15:00:33: Position Data {'radio_id': 1
+716	15:00:33: Position Data {'radio_id': 1
+717	15:00:33: Position Data {'radio_id': 1
+718	15:00:34: Position Data {'radio_id': 1
+719	15:00:34: Position Data {'radio_id': 1
+720	15:00:34: Position Data {'radio_id': 1
+721	15:00:34: Orientation {'radio_id': 1
+722	15:00:34: Pyro Info {'radio_id': 1
+723	15:00:34: Line Cutter 3 {'radio_id': 1
+724	15:00:34: Line Cutter 1 {'radio_id': 1
+725	15:00:34: Position Data {'radio_id': 1
+726	15:00:34: Position Data {'radio_id': 1
+727	15:00:34: Position Data {'radio_id': 1
+728	15:00:34: Position Data {'radio_id': 1
+729	15:00:34: Position Data {'radio_id': 1
+730	15:00:34: Position Data {'radio_id': 1
+731	15:00:34: Position Data {'radio_id': 1
+732	15:00:35: Position Data {'radio_id': 1
+733	15:00:35: Position Data {'radio_id': 1
+734	15:00:35: Position Data {'radio_id': 1
+735	15:00:35: Pyro Info {'radio_id': 1
+736	15:00:35: Line Cutter 3 {'radio_id': 1
+737	15:00:35: Line Cutter 1 {'radio_id': 1
+738	15:00:35: Position Data {'radio_id': 1
+739	15:00:35: Position Data {'radio_id': 1
+740	15:00:35: Ground Station GPS {'gs_lat': 0.0
+741	15:00:35: Position Data {'radio_id': 1
+742	15:00:35: Position Data {'radio_id': 1
+743	15:00:35: Position Data {'radio_id': 1
+744	15:00:36: Position Data {'radio_id': 1
+745	15:00:36: Alt Info & Cfg {'radio_id': 1
+746	15:00:36: Position Data {'radio_id': 1
+747	15:00:36: Position Data {'radio_id': 1
+748	15:00:36: Orientation {'radio_id': 1
+749	15:00:36: Pyro Info {'radio_id': 1
+750	15:00:36: Line Cutter 3 {'radio_id': 1
+751	15:00:36: Line Cutter 1 {'radio_id': 1
+752	15:00:36: Position Data {'radio_id': 1
+753	15:00:36: Position Data {'radio_id': 1
+754	15:00:36: Position Data {'radio_id': 1
+755	15:00:36: Position Data {'radio_id': 1
+756	15:00:36: Position Data {'radio_id': 1
+757	15:00:36: Position Data {'radio_id': 1
+758	15:00:37: Position Data {'radio_id': 1
+759	15:00:37: Position Data {'radio_id': 1
+760	15:00:37: Position Data {'radio_id': 1
+761	15:00:37: Orientation {'radio_id': 1
+762	15:00:37: Pyro Info {'radio_id': 1
+763	15:00:37: Line Cutter 3 {'radio_id': 1
+764	15:00:37: Line Cutter 1 {'radio_id': 1
+765	15:00:37: Alt Info & Cfg {'radio_id': 1
+766	15:00:37: Position Data {'radio_id': 1
+767	15:00:37: Position Data {'radio_id': 1
+768	15:00:37: Position Data {'radio_id': 1
+769	15:00:37: Ground Station GPS {'gs_lat': 0.0
+770	15:00:37: Position Data {'radio_id': 1
+771	15:00:37: Position Data {'radio_id': 1
+772	15:00:37: Position Data {'radio_id': 1
+773	15:00:38: Position Data {'radio_id': 1
+774	15:00:38: Position Data {'radio_id': 1
+775	15:00:38: Position Data {'radio_id': 1
+776	15:00:38: Orientation {'radio_id': 1
+777	15:00:38: Pyro Info {'radio_id': 1
+778	15:00:38: Line Cutter 3 {'radio_id': 1
+779	15:00:38: Line Cutter 1 {'radio_id': 1
+780	15:00:38: Position Data {'radio_id': 1
+781	15:00:38: Position Data {'radio_id': 1
+782	15:00:38: Position Data {'radio_id': 1
+783	15:00:38: Alt Info & Cfg {'radio_id': 1
+784	15:00:38: Position Data {'radio_id': 1
+785	15:00:38: Position Data {'radio_id': 1
+786	15:00:38: Position Data {'radio_id': 1
+787	15:00:38: Position Data {'radio_id': 1
+788	15:00:39: Position Data {'radio_id': 1
+789	15:00:39: Position Data {'radio_id': 1
+790	15:00:39: Position Data {'radio_id': 1
+791	15:00:39: Orientation {'radio_id': 1
+792	15:00:39: Pyro Info {'radio_id': 1
+793	15:00:39: Line Cutter 3 {'radio_id': 1
+794	15:00:39: Line Cutter 1 {'radio_id': 1
+795	15:00:39: Position Data {'radio_id': 1
+796	15:00:39: Position Data {'radio_id': 1
+797	15:00:39: Position Data {'radio_id': 1
+798	15:00:39: Ground Station GPS {'gs_lat': 0.0
+799	15:00:39: Position Data {'radio_id': 1
+800	15:00:39: Alt Info & Cfg {'radio_id': 1
+801	15:00:39: Position Data {'radio_id': 1
+802	15:00:39: Position Data {'radio_id': 1
+803	15:00:40: Position Data {'radio_id': 1
+804	15:00:40: Position Data {'radio_id': 1
+805	15:00:40: Position Data {'radio_id': 1
+806	15:00:40: Orientation {'radio_id': 1
+807	15:00:40: Position Data {'radio_id': 1
+808	15:00:40: Pyro Info {'radio_id': 1
+809	15:00:40: Line Cutter 3 {'radio_id': 1
+810	15:00:40: Line Cutter 1 {'radio_id': 1
+811	15:00:40: Position Data {'radio_id': 1
+812	15:00:40: Position Data {'radio_id': 1
+813	15:00:40: Position Data {'radio_id': 1
+814	15:00:40: Position Data {'radio_id': 1
+815	15:00:40: Position Data {'radio_id': 1
+816	15:00:41: Alt Info & Cfg {'radio_id': 1
+817	15:00:41: Position Data {'radio_id': 1
+818	15:00:41: Position Data {'radio_id': 1
+819	15:00:41: Position Data {'radio_id': 1
+820	15:00:41: Orientation {'radio_id': 1
+821	15:00:41: Pyro Info {'radio_id': 1
+822	15:00:41: Line Cutter 3 {'radio_id': 1
+823	15:00:41: Line Cutter 1 {'radio_id': 1
+824	15:00:41: Position Data {'radio_id': 1
+825	15:00:41: Position Data {'radio_id': 1
+826	15:00:41: Position Data {'radio_id': 1
+827	15:00:41: Ground Station GPS {'gs_lat': 0.0
+828	15:00:41: Position Data {'radio_id': 1
+829	15:00:41: Position Data {'radio_id': 1
+830	15:00:41: Position Data {'radio_id': 1
+831	15:00:42: Position Data {'radio_id': 1
+832	15:00:42: Position Data {'radio_id': 1
+833	15:00:42: Alt Info & Cfg {'radio_id': 1
+834	15:00:42: Position Data {'radio_id': 1
+835	15:00:42: Position Data {'radio_id': 1
+836	15:00:42: Orientation {'radio_id': 1
+837	15:00:42: Pyro Info {'radio_id': 1
+838	15:00:42: Line Cutter 3 {'radio_id': 1
+839	15:00:42: Line Cutter 1 {'radio_id': 1
+840	15:00:42: Position Data {'radio_id': 1
+841	15:00:42: Position Data {'radio_id': 1
+842	15:00:42: Position Data {'radio_id': 1
+843	15:00:42: Position Data {'radio_id': 1
+844	15:00:42: Position Data {'radio_id': 1
+845	15:00:42: Position Data {'radio_id': 1
+846	15:00:43: Position Data {'radio_id': 1
+847	15:00:43: Position Data {'radio_id': 1
+848	15:00:43: Position Data {'radio_id': 1
+849	15:00:43: Orientation {'radio_id': 1
+850	15:00:43: Pyro Info {'radio_id': 1
+851	15:00:43: Line Cutter 3 {'radio_id': 1
+852	15:00:43: Line Cutter 1 {'radio_id': 1
+853	15:00:43: Position Data {'radio_id': 1
+854	15:00:43: Alt Info & Cfg {'radio_id': 1
+855	15:00:43: Position Data {'radio_id': 1
+856	15:00:43: Position Data {'radio_id': 1
+857	15:00:43: Ground Station GPS {'gs_lat': 0.0
+858	15:00:43: Position Data {'radio_id': 1
+859	15:00:43: Position Data {'radio_id': 1
+860	15:00:43: Position Data {'radio_id': 1
+861	15:00:44: Position Data {'radio_id': 1
+862	15:00:44: Position Data {'radio_id': 1
+863	15:00:44: Position Data {'radio_id': 1
+864	15:00:44: Position Data {'radio_id': 1
+865	15:00:44: Orientation {'radio_id': 1
+866	15:00:44: Pyro Info {'radio_id': 1
+867	15:00:44: Line Cutter 3 {'radio_id': 1
+868	15:00:44: Line Cutter 1 {'radio_id': 1
+869	15:00:44: Position Data {'radio_id': 1
+870	15:00:44: Position Data {'radio_id': 1
+871	15:00:44: Alt Info & Cfg {'radio_id': 1
+872	15:00:44: Position Data {'radio_id': 1
+873	15:00:44: Position Data {'radio_id': 1
+874	15:00:44: Position Data {'radio_id': 1
+875	15:00:44: Position Data {'radio_id': 1
+876	15:00:45: Position Data {'radio_id': 1
+877	15:00:45: Position Data {'radio_id': 1
+878	15:00:45: Position Data {'radio_id': 1
+879	15:00:45: Orientation {'radio_id': 1
+880	15:00:45: Pyro Info {'radio_id': 1
+881	15:00:45: Line Cutter 3 {'radio_id': 1
+882	15:00:45: Line Cutter 1 {'radio_id': 1
+883	15:00:45: Position Data {'radio_id': 1
+884	15:00:45: Position Data {'radio_id': 1
+885	15:00:45: Position Data {'radio_id': 1
+886	15:00:45: Ground Station GPS {'gs_lat': 0.0
+887	15:00:45: Position Data {'radio_id': 1
+888	15:00:45: Alt Info & Cfg {'radio_id': 1
+889	15:00:45: Position Data {'radio_id': 1
+890	15:00:45: Position Data {'radio_id': 1
+891	15:00:46: Position Data {'radio_id': 1
+892	15:00:46: Position Data {'radio_id': 1
+893	15:00:46: Position Data {'radio_id': 1
+894	15:00:46: Orientation {'radio_id': 1
+895	15:00:46: Pyro Info {'radio_id': 1
+896	15:00:46: Line Cutter 3 {'radio_id': 1
+897	15:00:46: Line Cutter 1 {'radio_id': 1
+898	15:00:46: Position Data {'radio_id': 1
+899	15:00:46: Position Data {'radio_id': 1
+900	15:00:46: Position Data {'radio_id': 1
+901	15:00:46: Position Data {'radio_id': 1
+902	15:00:46: Position Data {'radio_id': 1
+903	15:00:46: Position Data {'radio_id': 1
+904	15:00:47: Position Data {'radio_id': 1
+905	15:00:47: Position Data {'radio_id': 1
+906	15:00:47: Position Data {'radio_id': 1
+907	15:00:47: Orientation {'radio_id': 1
+908	15:00:47: Position Data {'radio_id': 1
+909	15:00:47: Pyro Info {'radio_id': 1
+910	15:00:47: Line Cutter 1 {'radio_id': 1
+911	15:00:47: Position Data {'radio_id': 1
+912	15:00:47: Position Data {'radio_id': 1
+913	15:00:47: Ground Station GPS {'gs_lat': 0.0
+914	15:00:47: Position Data {'radio_id': 1
+915	15:00:47: Position Data {'radio_id': 1
+916	15:00:47: Position Data {'radio_id': 1
+917	15:00:48: Position Data {'radio_id': 1
+918	15:00:48: Position Data {'radio_id': 1
+919	15:00:48: Alt Info & Cfg {'radio_id': 1
+920	15:00:48: Position Data {'radio_id': 1
+921	15:00:48: Orientation {'radio_id': 1
+922	15:00:48: Pyro Info {'radio_id': 1
+923	15:00:48: Line Cutter 3 {'radio_id': 1
+924	15:00:48: Line Cutter 1 {'radio_id': 1
+925	15:00:48: Position Data {'radio_id': 1
+926	15:00:48: Position Data {'radio_id': 1
+927	15:00:48: Position Data {'radio_id': 1
+928	15:00:48: Position Data {'radio_id': 1
+929	15:00:48: Position Data {'radio_id': 1
+930	15:00:48: Position Data {'radio_id': 1
+931	15:00:49: Position Data {'radio_id': 1
+932	15:00:49: Position Data {'radio_id': 1
+933	15:00:49: Position Data {'radio_id': 1
+934	15:00:49: Position Data {'radio_id': 1
+935	15:00:49: Orientation {'radio_id': 1
+936	15:00:49: Pyro Info {'radio_id': 1
+937	15:00:49: Line Cutter 3 {'radio_id': 1
+938	15:00:49: Line Cutter 1 {'radio_id': 1
+939	15:00:49: Position Data {'radio_id': 1
+940	15:00:49: Alt Info & Cfg {'radio_id': 1
+941	15:00:49: Position Data {'radio_id': 1
+942	15:00:49: Position Data {'radio_id': 1
+943	15:00:49: Position Data {'radio_id': 1
+944	15:00:49: Position Data {'radio_id': 1
+945	15:00:50: Position Data {'radio_id': 1
+946	15:00:50: Position Data {'radio_id': 1
+947	15:00:50: Position Data {'radio_id': 1
+948	15:00:50: Position Data {'radio_id': 1
+949	15:00:50: Orientation {'radio_id': 1
+950	15:00:50: Pyro Info {'radio_id': 1
+951	15:00:50: Line Cutter 3 {'radio_id': 1
+952	15:00:50: Line Cutter 1 {'radio_id': 1
+953	15:00:50: Position Data {'radio_id': 1
+954	15:00:50: Position Data {'radio_id': 1
+955	15:00:50: Position Data {'radio_id': 1
+956	15:00:50: Alt Info & Cfg {'radio_id': 1
+957	15:00:50: Position Data {'radio_id': 1
+958	15:00:50: Position Data {'radio_id': 1
+959	15:00:50: Position Data {'radio_id': 1
+960	15:00:51: Position Data {'radio_id': 1
+961	15:00:51: Position Data {'radio_id': 1
+962	15:00:51: Position Data {'radio_id': 1
+963	15:00:51: Position Data {'radio_id': 1
+964	15:00:51: Orientation {'radio_id': 1
+965	15:00:51: Pyro Info {'radio_id': 1
+966	15:00:51: Line Cutter 3 {'radio_id': 1
+967	15:00:51: Line Cutter 1 {'radio_id': 1
+968	15:00:51: Position Data {'radio_id': 1
+969	15:00:51: Position Data {'radio_id': 1
+970	15:00:51: Ground Station GPS {'gs_lat': 0.0
+971	15:00:51: Position Data {'radio_id': 1
+972	15:00:51: Position Data {'radio_id': 1
+973	15:00:51: Alt Info & Cfg {'radio_id': 1
+974	15:00:52: Position Data {'radio_id': 1
+975	15:00:52: Position Data {'radio_id': 1
+976	15:00:52: Position Data {'radio_id': 1
+977	15:00:52: Position Data {'radio_id': 1
+978	15:00:52: Orientation {'radio_id': 1
+979	15:00:52: Pyro Info {'radio_id': 1
+980	15:00:52: Line Cutter 3 {'radio_id': 1
+981	15:00:52: Line Cutter 1 {'radio_id': 1
+982	15:00:52: Position Data {'radio_id': 1
+983	15:00:52: Position Data {'radio_id': 1
+984	15:00:52: Position Data {'radio_id': 1
+985	15:00:52: Position Data {'radio_id': 1
+986	15:00:52: Position Data {'radio_id': 1
+987	15:00:53: Position Data {'radio_id': 1
+988	15:00:53: Alt Info & Cfg {'radio_id': 1
+989	15:00:53: Position Data {'radio_id': 1
+990	15:00:53: Position Data {'radio_id': 1
+991	15:00:53: Position Data {'radio_id': 1
+992	15:00:53: Orientation {'radio_id': 1
+993	15:00:53: Pyro Info {'radio_id': 1
+994	15:00:53: Line Cutter 3 {'radio_id': 1
+995	15:00:53: Line Cutter 1 {'radio_id': 1
+996	15:00:53: Position Data {'radio_id': 1
+997	15:00:53: Position Data {'radio_id': 1
+998	15:00:53: Position Data {'radio_id': 1
+999	15:00:53: Ground Station GPS {'gs_lat': 0.0
+1000	15:00:53: Position Data {'radio_id': 1
+1001	15:00:53: Position Data {'radio_id': 1
+1002	15:00:53: Position Data {'radio_id': 1
+1003	15:00:54: Position Data {'radio_id': 1
+1004	15:00:54: Position Data {'radio_id': 1
+1005	15:00:54: Position Data {'radio_id': 1
+1006	15:00:54: Alt Info & Cfg {'radio_id': 1
+1007	15:00:54: Orientation {'radio_id': 1
+1008	15:00:54: Position Data {'radio_id': 1
+1009	15:00:54: Pyro Info {'radio_id': 1
+1010	15:00:54: Line Cutter 3 {'radio_id': 1
+1011	15:00:54: Line Cutter 1 {'radio_id': 1
+1012	15:00:54: Position Data {'radio_id': 1
+1013	15:00:54: Position Data {'radio_id': 1
+1014	15:00:54: Position Data {'radio_id': 1
+1015	15:00:54: Position Data {'radio_id': 1
+1016	15:00:54: Position Data {'radio_id': 1
+1017	15:00:55: Position Data {'radio_id': 1
+1018	15:00:55: Position Data {'radio_id': 1
+1019	15:00:55: Position Data {'radio_id': 1
+1020	15:00:55: Position Data {'radio_id': 1
+1021	15:00:55: Orientation {'radio_id': 1
+1022	15:00:55: Pyro Info {'radio_id': 1
+1023	15:00:55: Line Cutter 3 {'radio_id': 1
+1024	15:00:55: Line Cutter 1 {'radio_id': 1
+1025	15:00:55: Position Data {'radio_id': 1
+1026	15:00:55: Position Data {'radio_id': 1
+1027	15:00:55: Alt Info & Cfg {'radio_id': 1
+1028	15:00:55: Position Data {'radio_id': 1
+1029	15:00:55: Position Data {'radio_id': 1
+1030	15:00:55: Position Data {'radio_id': 1
+1031	15:00:55: Position Data {'radio_id': 1
+1032	15:00:56: Position Data {'radio_id': 1
+1033	15:00:56: Position Data {'radio_id': 1
+1034	15:00:56: Position Data {'radio_id': 1
+1035	15:00:56: Position Data {'radio_id': 1
+1036	15:00:56: Orientation {'radio_id': 1
+1037	15:00:56: Pyro Info {'radio_id': 1
+1038	15:00:56: Line Cutter 3 {'radio_id': 1
+1039	15:00:56: Line Cutter 1 {'radio_id': 1
+1040	15:00:56: Position Data {'radio_id': 1
+1041	15:00:56: Position Data {'radio_id': 1
+1042	15:00:56: Position Data {'radio_id': 1
+1043	15:00:56: Alt Info & Cfg {'radio_id': 1
+1044	15:00:56: Position Data {'radio_id': 1
+1045	15:00:56: Position Data {'radio_id': 1
+1046	15:00:57: Position Data {'radio_id': 1
+1047	15:00:57: Position Data {'radio_id': 1
+1048	15:00:57: Position Data {'radio_id': 1
+1049	15:00:57: Position Data {'radio_id': 1
+1050	15:00:57: Orientation {'radio_id': 1
+1051	15:00:57: Pyro Info {'radio_id': 1
+1052	15:00:57: Line Cutter 3 {'radio_id': 1
+1053	15:00:57: Line Cutter 1 {'radio_id': 1
+1054	15:00:57: Position Data {'radio_id': 1
+1055	15:00:57: Position Data {'radio_id': 1
+1056	15:00:57: Position Data {'radio_id': 1
+1057	15:00:57: Position Data {'radio_id': 1
+1058	15:00:57: Ground Station GPS {'gs_lat': 0.0
+1059	15:00:57: Position Data {'radio_id': 1
+1060	15:00:57: Position Data {'radio_id': 1
+1061	15:00:58: Alt Info & Cfg {'radio_id': 1
+1062	15:00:58: Position Data {'radio_id': 1
+1063	15:00:58: Position Data {'radio_id': 1
+1064	15:00:58: Position Data {'radio_id': 1
+1065	15:00:58: Position Data {'radio_id': 1
+1066	15:00:58: Orientation {'radio_id': 1
+1067	15:00:58: Pyro Info {'radio_id': 1
+1068	15:00:58: Line Cutter 3 {'radio_id': 1
+1069	15:00:58: Line Cutter 1 {'radio_id': 1
+1070	15:00:58: Position Data {'radio_id': 1
+1071	15:00:58: Position Data {'radio_id': 1
+1072	15:00:58: Position Data {'radio_id': 1
+1073	15:00:58: Position Data {'radio_id': 1
+1074	15:00:58: Position Data {'radio_id': 1
+1075	15:00:59: Position Data {'radio_id': 1
+1076	15:00:59: Position Data {'radio_id': 1
+1077	15:00:59: Alt Info & Cfg {'radio_id': 1
+1078	15:00:59: Position Data {'radio_id': 1
+1079	15:00:59: Orientation {'radio_id': 1
+1080	15:00:59: Pyro Info {'radio_id': 1
+1081	15:00:59: Line Cutter 3 {'radio_id': 1
+1082	15:00:59: Line Cutter 1 {'radio_id': 1
+1083	15:00:59: Position Data {'radio_id': 1
+1084	15:00:59: Position Data {'radio_id': 1
+1085	15:00:59: Position Data {'radio_id': 1
+1086	15:00:59: Position Data {'radio_id': 1
+1087	15:00:59: Position Data {'radio_id': 1
+1088	15:01:00: Position Data {'radio_id': 1
+1089	15:01:00: Position Data {'radio_id': 1
+1090	15:01:00: Position Data {'radio_id': 1
+1091	15:01:00: Position Data {'radio_id': 1
+1092	15:01:00: Position Data {'radio_id': 1
+1093	15:01:00: Alt Info & Cfg {'radio_id': 1
+1094	15:01:00: Orientation {'radio_id': 1
+1095	15:01:00: Pyro Info {'radio_id': 1
+1096	15:01:00: Line Cutter 3 {'radio_id': 1
+1097	15:01:00: Line Cutter 1 {'radio_id': 1
+1098	15:01:00: Position Data {'radio_id': 1
+1099	15:01:00: Position Data {'radio_id': 1
+1100	15:01:00: Position Data {'radio_id': 1
+1101	15:01:00: Position Data {'radio_id': 1
+1102	15:01:00: Position Data {'radio_id': 1
+1103	15:01:01: Position Data {'radio_id': 1
+1104	15:01:01: Position Data {'radio_id': 1
+1105	15:01:01: Position Data {'radio_id': 1
+1106	15:01:01: Position Data {'radio_id': 1
+1107	15:01:01: Orientation {'radio_id': 1
+1108	15:01:01: Pyro Info {'radio_id': 1
+1109	15:01:01: Line Cutter 3 {'radio_id': 1
+1110	15:01:01: Line Cutter 1 {'radio_id': 1
+1111	15:01:01: Position Data {'radio_id': 1
+1112	15:01:01: Position Data {'radio_id': 1
+1113	15:01:01: Alt Info & Cfg {'radio_id': 1
+1114	15:01:01: Position Data {'radio_id': 1
+1115	15:01:01: Position Data {'radio_id': 1
+1116	15:01:01: Position Data {'radio_id': 1
+1117	15:01:01: Position Data {'radio_id': 1
+1118	15:01:02: Position Data {'radio_id': 1
+1119	15:01:02: Position Data {'radio_id': 1
+1120	15:01:02: Position Data {'radio_id': 1
+1121	15:01:02: Position Data {'radio_id': 1
+1122	15:01:02: Orientation {'radio_id': 1
+1123	15:01:02: Line Cutter 3 {'radio_id': 1
+1124	15:01:02: Line Cutter 1 {'radio_id': 1
+1125	15:01:02: Position Data {'radio_id': 1
+1126	15:01:02: Position Data {'radio_id': 1
+1127	15:01:02: Position Data {'radio_id': 1
+1128	15:01:02: Position Data {'radio_id': 1
+1129	15:01:03: Position Data {'radio_id': 1
+1130	15:01:03: Position Data {'radio_id': 1
+1131	15:01:03: Position Data {'radio_id': 1
+1132	15:01:03: Position Data {'radio_id': 1
+1133	15:01:03: Orientation {'radio_id': 1
+1134	15:01:03: Position Data {'radio_id': 1
+1135	15:01:03: Pyro Info {'radio_id': 1
+1136	15:01:03: Line Cutter 3 {'radio_id': 1
+1137	15:01:03: Line Cutter 1 {'radio_id': 1
+1138	15:01:03: Position Data {'radio_id': 1
+1139	15:01:03: Position Data {'radio_id': 1
+1140	15:01:03: Position Data {'radio_id': 1
+1141	15:01:03: Ground Station GPS {'gs_lat': 0.0
+1142	15:01:03: Position Data {'radio_id': 1
+1143	15:01:03: Position Data {'radio_id': 1
+1144	15:01:04: Alt Info & Cfg {'radio_id': 1
+1145	15:01:04: Position Data {'radio_id': 1
+1146	15:01:04: Position Data {'radio_id': 1
+1147	15:01:04: Position Data {'radio_id': 1
+1148	15:01:04: Position Data {'radio_id': 1
+1149	15:01:04: Orientation {'radio_id': 1
+1150	15:01:04: Pyro Info {'radio_id': 1
+1151	15:01:04: Line Cutter 3 {'radio_id': 1
+1152	15:01:04: Line Cutter 1 {'radio_id': 1
+1153	15:01:04: Position Data {'radio_id': 1
+1154	15:01:04: Position Data {'radio_id': 1
+1155	15:01:04: Position Data {'radio_id': 1
+1156	15:01:04: Position Data {'radio_id': 1
+1157	15:01:04: Position Data {'radio_id': 1
+1158	15:01:05: Position Data {'radio_id': 1
+1159	15:01:05: Position Data {'radio_id': 1
+1160	15:01:05: Position Data {'radio_id': 1
+1161	15:01:05: Alt Info & Cfg {'radio_id': 1
+1162	15:01:05: Position Data {'radio_id': 1
+1163	15:01:05: Position Data {'radio_id': 1
+1164	15:01:05: Orientation {'radio_id': 1
+1165	15:01:05: Pyro Info {'radio_id': 1
+1166	15:01:05: Line Cutter 3 {'radio_id': 1
+1167	15:01:05: Line Cutter 1 {'radio_id': 1
+1168	15:01:05: Position Data {'radio_id': 1
+1169	15:01:05: Position Data {'radio_id': 1
+1170	15:01:05: Position Data {'radio_id': 1
+1171	15:01:05: Ground Station GPS {'gs_lat': 0.0
+1172	15:01:05: Position Data {'radio_id': 1
+1173	15:01:05: Position Data {'radio_id': 1
+1174	15:01:06: Position Data {'radio_id': 1
+1175	15:01:06: Position Data {'radio_id': 1
+1176	15:01:06: Position Data {'radio_id': 1
+1177	15:01:06: Position Data {'radio_id': 1
+1178	15:01:06: Orientation {'radio_id': 1
+1179	15:01:06: Pyro Info {'radio_id': 1
+1180	15:01:06: Line Cutter 0 {'radio_id': 1
+1181	15:01:06: Line Cutter 1 {'radio_id': 1
+1182	15:01:06: Position Data {'radio_id': 1
+1183	15:01:06: Alt Info & Cfg {'radio_id': 1
+1184	15:01:06: Position Data {'radio_id': 1
+1185	15:01:06: Position Data {'radio_id': 1
+1186	15:01:06: Position Data {'radio_id': 1
+1187	15:01:07: Position Data {'radio_id': 1
+1188	15:01:07: Position Data {'radio_id': 1
+1189	15:01:07: Position Data {'radio_id': 1
+1190	15:01:07: Position Data {'radio_id': 1
+1191	15:01:07: Position Data {'radio_id': 1
+1192	15:01:07: Orientation {'radio_id': 1
+1193	15:01:07: Pyro Info {'radio_id': 1
+1194	15:01:07: Line Cutter 3 {'radio_id': 1
+1195	15:01:07: Line Cutter 1 {'radio_id': 1
+1196	15:01:07: Position Data {'radio_id': 1
+1197	15:01:07: Position Data {'radio_id': 1
+1198	15:01:07: Alt Info & Cfg {'radio_id': 1
+1199	15:01:07: Position Data {'radio_id': 1
+1200	15:01:07: Ground Station GPS {'gs_lat': 0.0
+1201	15:01:07: Position Data {'radio_id': 1
+1202	15:01:07: Position Data {'radio_id': 1
+1203	15:01:08: Position Data {'radio_id': 1
+1204	15:01:08: Position Data {'radio_id': 1
+1205	15:01:08: Position Data {'radio_id': 1
+1206	15:01:08: Position Data {'radio_id': 1
+1207	15:01:08: Orientation {'radio_id': 1
+1208	15:01:08: Pyro Info {'radio_id': 1
+1209	15:01:08: Line Cutter 3 {'radio_id': 1
+1210	15:01:08: Line Cutter 1 {'radio_id': 1
+1211	15:01:08: Position Data {'radio_id': 1
+1212	15:01:08: Position Data {'radio_id': 1
+1213	15:01:08: Position Data {'radio_id': 1
+1214	15:01:08: Position Data {'radio_id': 1
+1215	15:01:08: Position Data {'radio_id': 1
+1216	15:01:08: Alt Info & Cfg {'radio_id': 1
+1217	15:01:09: Position Data {'radio_id': 1
+1218	15:01:09: Position Data {'radio_id': 1
+1219	15:01:09: Position Data {'radio_id': 1
+1220	15:01:09: Position Data {'radio_id': 1
+1221	15:01:09: Position Data {'radio_id': 1
+1222	15:01:09: Orientation {'radio_id': 1
+1223	15:01:09: Pyro Info {'radio_id': 1
+1224	15:01:09: Line Cutter 3 {'radio_id': 1
+1225	15:01:09: Line Cutter 1 {'radio_id': 1
+1226	15:01:09: Position Data {'radio_id': 1
+1227	15:01:09: Position Data {'radio_id': 1
+1228	15:01:09: Position Data {'radio_id': 1
+1229	15:01:09: Ground Station GPS {'gs_lat': 0.0
+1230	15:01:09: Position Data {'radio_id': 1
+1231	15:01:09: Position Data {'radio_id': 1
+1232	15:01:10: Position Data {'radio_id': 1
+1233	15:01:10: Alt Info & Cfg {'radio_id': 1
+1234	15:01:10: Position Data {'radio_id': 1
+1235	15:01:10: Position Data {'radio_id': 1
+1236	15:01:10: Position Data {'radio_id': 1
+1237	15:01:10: Orientation {'radio_id': 1
+1238	15:01:10: Position Data {'radio_id': 1
+1239	15:01:10: Pyro Info {'radio_id': 1
+1240	15:01:10: Line Cutter 3 {'radio_id': 1
+1241	15:01:10: Line Cutter 1 {'radio_id': 1
+1242	15:01:10: Position Data {'radio_id': 1
+1243	15:01:10: Position Data {'radio_id': 1
+1244	15:01:10: Position Data {'radio_id': 1
+1245	15:01:10: Position Data {'radio_id': 1
+1246	15:01:11: Position Data {'radio_id': 1
+1247	15:01:11: Position Data {'radio_id': 1
+1248	15:01:11: Position Data {'radio_id': 1
+1249	15:01:11: Position Data {'radio_id': 1
+1250	15:01:11: Alt Info & Cfg {'radio_id': 1
+1251	15:01:11: Position Data {'radio_id': 1
+1252	15:01:11: Orientation {'radio_id': 1
+1253	15:01:11: Line Cutter 3 {'radio_id': 1
+1254	15:01:11: Line Cutter 1 {'radio_id': 1
+1255	15:01:11: Position Data {'radio_id': 1
+1256	15:01:11: Position Data {'radio_id': 1
+1257	15:01:11: Ground Station GPS {'gs_lat': 0.0
+1258	15:01:11: Position Data {'radio_id': 1
+1259	15:01:11: Position Data {'radio_id': 1
+1260	15:01:12: Position Data {'radio_id': 1
+1261	15:01:12: Position Data {'radio_id': 1
+1262	15:01:12: Position Data {'radio_id': 1
+1263	15:01:12: Position Data {'radio_id': 1
+1264	15:01:12: Position Data {'radio_id': 1
+1265	15:01:12: Orientation {'radio_id': 1
+1266	15:01:12: Line Cutter 3 {'radio_id': 1
+1267	15:01:12: Line Cutter 1 {'radio_id': 1
+1268	15:01:12: Alt Info & Cfg {'radio_id': 1
+1269	15:01:12: Position Data {'radio_id': 1
+1270	15:01:12: Position Data {'radio_id': 1
+1271	15:01:12: Position Data {'radio_id': 1
+1272	15:01:13: Position Data {'radio_id': 1
+1273	15:01:13: Position Data {'radio_id': 1
+1274	15:01:13: Position Data {'radio_id': 1
+1275	15:01:13: Position Data {'radio_id': 1
+1276	15:01:13: Position Data {'radio_id': 1
+1277	15:01:13: Orientation {'radio_id': 1
+1278	15:01:13: Pyro Info {'radio_id': 1
+1279	15:01:13: Line Cutter 1 {'radio_id': 1
+1280	15:01:13: Position Data {'radio_id': 1
+1281	15:01:13: Position Data {'radio_id': 1
+1282	15:01:13: Alt Info & Cfg {'radio_id': 1
+1283	15:01:13: Ground Station GPS {'gs_lat': 0.0
+1284	15:01:13: Position Data {'radio_id': 1
+1285	15:01:13: Position Data {'radio_id': 1
+1286	15:01:14: Position Data {'radio_id': 1
+1287	15:01:14: Position Data {'radio_id': 1
+1288	15:01:14: Position Data {'radio_id': 1
+1289	15:01:14: Position Data {'radio_id': 1
+1290	15:01:14: Position Data {'radio_id': 1
+1291	15:01:14: Orientation {'radio_id': 1
+1292	15:01:14: Pyro Info {'radio_id': 1
+1293	15:01:14: Line Cutter 1 {'radio_id': 1
+1294	15:01:14: Position Data {'radio_id': 1
+1295	15:01:14: Position Data {'radio_id': 1
+1296	15:01:14: Position Data {'radio_id': 1
+1297	15:01:15: Position Data {'radio_id': 1
+1298	15:01:15: Alt Info & Cfg {'radio_id': 1
+1299	15:01:15: Position Data {'radio_id': 1
+1300	15:01:15: Position Data {'radio_id': 1
+1301	15:01:15: Position Data {'radio_id': 1
+1302	15:01:15: Position Data {'radio_id': 1
+1303	15:01:15: Orientation {'radio_id': 1
+1304	15:01:15: Pyro Info {'radio_id': 1
+1305	15:01:15: Line Cutter 3 {'radio_id': 1
+1306	15:01:15: Line Cutter 1 {'radio_id': 1
+1307	15:01:15: Position Data {'radio_id': 1
+1308	15:01:15: Position Data {'radio_id': 1
+1309	15:01:15: Position Data {'radio_id': 1
+1310	15:01:15: Ground Station GPS {'gs_lat': 0.0
+1311	15:01:15: Position Data {'radio_id': 1
+1312	15:01:15: Position Data {'radio_id': 1
+1313	15:01:16: Position Data {'radio_id': 1
+1314	15:01:16: Position Data {'radio_id': 1
+1315	15:01:16: Alt Info & Cfg {'radio_id': 1
+1316	15:01:16: Position Data {'radio_id': 1
+1317	15:01:16: Position Data {'radio_id': 1
+1318	15:01:16: Position Data {'radio_id': 1
+1319	15:01:16: Orientation {'radio_id': 1
+1320	15:01:16: Pyro Info {'radio_id': 1
+1321	15:01:16: Line Cutter 3 {'radio_id': 1
+1322	15:01:16: Line Cutter 1 {'radio_id': 1
+1323	15:01:16: Position Data {'radio_id': 1
+1324	15:01:16: Position Data {'radio_id': 1
+1325	15:01:16: Position Data {'radio_id': 1
+1326	15:01:16: Position Data {'radio_id': 1
+1327	15:01:17: Position Data {'radio_id': 1
+1328	15:01:17: Position Data {'radio_id': 1
+1329	15:01:17: Position Data {'radio_id': 1
+1330	15:01:17: Position Data {'radio_id': 1
+1331	15:01:17: Position Data {'radio_id': 1
+1332	15:01:17: Alt Info & Cfg {'radio_id': 1
+1333	15:01:17: Orientation {'radio_id': 1
+1334	15:01:17: Position Data {'radio_id': 1
+1335	15:01:17: Pyro Info {'radio_id': 1
+1336	15:01:17: Line Cutter 3 {'radio_id': 1
+1337	15:01:17: Position Data {'radio_id': 1
+1338	15:01:17: Position Data {'radio_id': 1
+1339	15:01:17: Ground Station GPS {'gs_lat': 0.0
+1340	15:01:17: Position Data {'radio_id': 1
+1341	15:01:17: Position Data {'radio_id': 1
+1342	15:01:18: Position Data {'radio_id': 1
+1343	15:01:18: Position Data {'radio_id': 1
+1344	15:01:18: Position Data {'radio_id': 1
+1345	15:01:18: Position Data {'radio_id': 1
+1346	15:01:18: Position Data {'radio_id': 1
+1347	15:01:18: Orientation {'radio_id': 1
+1348	15:01:18: Pyro Info {'radio_id': 1
+1349	15:01:18: Line Cutter 3 {'radio_id': 1
+1350	15:01:18: Line Cutter 1 {'radio_id': 1
+1351	15:01:18: Position Data {'radio_id': 1
+1352	15:01:18: Alt Info & Cfg {'radio_id': 1
+1353	15:01:18: Position Data {'radio_id': 1
+1354	15:01:18: Position Data {'radio_id': 1
+1355	15:01:18: Position Data {'radio_id': 1
+1356	15:01:19: Position Data {'radio_id': 1
+1357	15:01:19: Position Data {'radio_id': 1
+1358	15:01:19: Position Data {'radio_id': 1
+1359	15:01:19: Position Data {'radio_id': 1
+1360	15:01:19: Position Data {'radio_id': 1
+1361	15:01:19: Position Data {'radio_id': 1
+1362	15:01:19: Orientation {'radio_id': 1
+1363	15:01:19: Pyro Info {'radio_id': 1
+1364	15:01:19: Line Cutter 3 {'radio_id': 1
+1365	15:01:19: Line Cutter 1 {'radio_id': 1
+1366	15:01:19: Position Data {'radio_id': 1
+1367	15:01:19: Position Data {'radio_id': 1
+1368	15:01:19: Position Data {'radio_id': 1
+1369	15:01:19: Ground Station GPS {'gs_lat': 0.0
+1370	15:01:19: Alt Info & Cfg {'radio_id': 1
+1371	15:01:19: Position Data {'radio_id': 1
+1372	15:01:20: Position Data {'radio_id': 1
+1373	15:01:20: Position Data {'radio_id': 1
+1374	15:01:20: Position Data {'radio_id': 1
+1375	15:01:20: Position Data {'radio_id': 1
+1376	15:01:20: Position Data {'radio_id': 1
+1377	15:01:20: Orientation {'radio_id': 1
+1378	15:01:20: Pyro Info {'radio_id': 1
+1379	15:01:20: Line Cutter 1 {'radio_id': 1
+1380	15:01:20: Position Data {'radio_id': 1
+1381	15:01:20: Position Data {'radio_id': 1
+1382	15:01:20: Position Data {'radio_id': 1
+1383	15:01:21: Position Data {'radio_id': 1
+1384	15:01:21: Alt Info & Cfg {'radio_id': 1
+1385	15:01:21: Position Data {'radio_id': 1
+1386	15:01:21: Position Data {'radio_id': 1
+1387	15:01:21: Position Data {'radio_id': 1
+1388	15:01:21: Position Data {'radio_id': 1
+1389	15:01:21: Position Data {'radio_id': 1
+1390	15:01:21: Orientation {'radio_id': 1
+1391	15:01:21: Pyro Info {'radio_id': 1
+1392	15:01:21: Line Cutter 1 {'radio_id': 1
+1393	15:01:21: Position Data {'radio_id': 1
+1394	15:01:21: Position Data {'radio_id': 1
+1395	15:01:21: Ground Station GPS {'gs_lat': 0.0
+1396	15:01:21: Position Data {'radio_id': 1
+1397	15:01:22: Position Data {'radio_id': 1
+1398	15:01:22: Position Data {'radio_id': 1
+1399	15:01:22: Position Data {'radio_id': 1
+1400	15:01:22: Alt Info & Cfg {'radio_id': 1
+1401	15:01:22: Position Data {'radio_id': 1
+1402	15:01:22: Position Data {'radio_id': 1
+1403	15:01:22: Orientation {'radio_id': 1
+1404	15:01:22: Pyro Info {'radio_id': 1
+1405	15:01:22: Line Cutter 3 {'radio_id': 1
+1406	15:01:22: Line Cutter 1 {'radio_id': 1
+1407	15:01:22: Position Data {'radio_id': 1
+1408	15:01:22: Position Data {'radio_id': 1
+1409	15:01:22: Position Data {'radio_id': 1
+1410	15:01:22: Position Data {'radio_id': 1
+1411	15:01:23: Position Data {'radio_id': 1
+1412	15:01:23: Position Data {'radio_id': 1
+1413	15:01:23: Position Data {'radio_id': 1
+1414	15:01:23: Position Data {'radio_id': 1
+1415	15:01:23: Position Data {'radio_id': 1
+1416	15:01:23: Position Data {'radio_id': 1
+1417	15:01:23: Alt Info & Cfg {'radio_id': 1
+1418	15:01:23: Orientation {'radio_id': 1
+1419	15:01:23: Pyro Info {'radio_id': 1
+1420	15:01:23: Line Cutter 3 {'radio_id': 1
+1421	15:01:23: Line Cutter 1 {'radio_id': 1
+1422	15:01:23: Position Data {'radio_id': 1
+1423	15:01:23: Position Data {'radio_id': 1
+1424	15:01:23: Position Data {'radio_id': 1
+1425	15:01:24: Position Data {'radio_id': 1
+1426	15:01:24: Position Data {'radio_id': 1
+1427	15:01:24: Position Data {'radio_id': 1
+1428	15:01:24: Position Data {'radio_id': 1
+1429	15:01:24: Position Data {'radio_id': 1
+1430	15:01:24: Orientation {'radio_id': 1
+1431	15:01:24: Position Data {'radio_id': 1
+1432	15:01:24: Pyro Info {'radio_id': 1
+1433	15:01:24: Line Cutter 3 {'radio_id': 1
+1434	15:01:24: Line Cutter 1 {'radio_id': 1
+1435	15:01:24: Position Data {'radio_id': 1
+1436	15:01:24: Alt Info & Cfg {'radio_id': 1
+1437	15:01:24: Position Data {'radio_id': 1
+1438	15:01:24: Position Data {'radio_id': 1
+1439	15:01:24: Position Data {'radio_id': 1
+1440	15:01:25: Position Data {'radio_id': 1
+1441	15:01:25: Position Data {'radio_id': 1
+1442	15:01:25: Position Data {'radio_id': 1
+1443	15:01:25: Position Data {'radio_id': 1
+1444	15:01:25: Position Data {'radio_id': 1
+1445	15:01:25: Orientation {'radio_id': 1
+1446	15:01:25: Pyro Info {'radio_id': 1
+1447	15:01:25: Line Cutter 3 {'radio_id': 1
+1448	15:01:25: Line Cutter 1 {'radio_id': 1
+1449	15:01:25: Position Data {'radio_id': 1
+1450	15:01:25: Position Data {'radio_id': 1
+1451	15:01:25: Position Data {'radio_id': 1
+1452	15:01:25: Ground Station GPS {'gs_lat': 0.0
+1453	15:01:25: Position Data {'radio_id': 1
+1454	15:01:25: Alt Info & Cfg {'radio_id': 1
+1455	15:01:26: Position Data {'radio_id': 1
+1456	15:01:26: Position Data {'radio_id': 1
+1457	15:01:26: Position Data {'radio_id': 1
+1458	15:01:26: Position Data {'radio_id': 1
+1459	15:01:26: Position Data {'radio_id': 1
+1460	15:01:26: Position Data {'radio_id': 1
+1461	15:01:26: Orientation {'radio_id': 1
+1462	15:01:26: Pyro Info {'radio_id': 1
+1463	15:01:26: Line Cutter 3 {'radio_id': 1
+1464	15:01:26: Line Cutter 1 {'radio_id': 1
+1465	15:01:26: Position Data {'radio_id': 1
+1466	15:01:26: Position Data {'radio_id': 1
+1467	15:01:27: Position Data {'radio_id': 1
+1468	15:01:27: Position Data {'radio_id': 1
+1469	15:01:27: Alt Info & Cfg {'radio_id': 1
+1470	15:01:27: Position Data {'radio_id': 1
+1471	15:01:27: Position Data {'radio_id': 1
+1472	15:01:27: Position Data {'radio_id': 1
+1473	15:01:27: Position Data {'radio_id': 1
+1474	15:01:27: Orientation {'radio_id': 1
+1475	15:01:27: Pyro Info {'radio_id': 1
+1476	15:01:27: Line Cutter 1 {'radio_id': 1
+1477	15:01:27: Position Data {'radio_id': 1
+1478	15:01:27: Position Data {'radio_id': 1
+1479	15:01:27: Ground Station GPS {'gs_lat': 0.0
+1480	15:01:27: Position Data {'radio_id': 1
+1481	15:01:28: Position Data {'radio_id': 1
+1482	15:01:28: Position Data {'radio_id': 1
+1483	15:01:28: Position Data {'radio_id': 1
+1484	15:01:28: Position Data {'radio_id': 1
+1485	15:01:28: Alt Info & Cfg {'radio_id': 1
+1486	15:01:28: Position Data {'radio_id': 1
+1487	15:01:28: Position Data {'radio_id': 1
+1488	15:01:28: Orientation {'radio_id': 1
+1489	15:01:28: Pyro Info {'radio_id': 1
+1490	15:01:28: Line Cutter 1 {'radio_id': 1
+1491	15:01:28: Position Data {'radio_id': 1
+1492	15:01:28: Position Data {'radio_id': 1
+1493	15:01:28: Position Data {'radio_id': 1
+1494	15:01:28: Position Data {'radio_id': 1
+1495	15:01:29: Position Data {'radio_id': 1
+1496	15:01:29: Position Data {'radio_id': 1
+1497	15:01:29: Position Data {'radio_id': 1
+1498	15:01:29: Position Data {'radio_id': 1
+1499	15:01:29: Position Data {'radio_id': 1
+1500	15:01:29: Orientation {'radio_id': 1
+1501	15:01:29: Alt Info & Cfg {'radio_id': 1
+1502	15:01:29: Pyro Info {'radio_id': 1
+1503	15:01:29: Line Cutter 3 {'radio_id': 1
+1504	15:01:29: Line Cutter 1 {'radio_id': 1
+1505	15:01:29: Position Data {'radio_id': 1
+1506	15:01:29: Position Data {'radio_id': 1
+1507	15:01:29: Position Data {'radio_id': 1
+1508	15:01:29: Position Data {'radio_id': 1
+1509	15:01:30: Position Data {'radio_id': 1
+1510	15:01:30: Position Data {'radio_id': 1
+1511	15:01:30: Position Data {'radio_id': 1
+1512	15:01:30: Position Data {'radio_id': 1
+1513	15:01:30: Position Data {'radio_id': 1
+1514	15:01:30: Position Data {'radio_id': 1
+1515	15:01:30: Orientation {'radio_id': 1
+1516	15:01:30: Pyro Info {'radio_id': 1
+1517	15:01:30: Line Cutter 3 {'radio_id': 1
+1518	15:01:30: Line Cutter 1 {'radio_id': 1
+1519	15:01:30: Position Data {'radio_id': 1
+1520	15:01:30: Alt Info & Cfg {'radio_id': 1
+1521	15:01:30: Position Data {'radio_id': 1
+1522	15:01:30: Position Data {'radio_id': 1
+1523	15:01:31: Position Data {'radio_id': 1
+1524	15:01:31: Position Data {'radio_id': 1
+1525	15:01:31: Position Data {'radio_id': 1
+1526	15:01:31: Position Data {'radio_id': 1
+1527	15:01:31: Position Data {'radio_id': 1
+1528	15:01:31: Orientation {'radio_id': 1
+1529	15:01:31: Position Data {'radio_id': 1
+1530	15:01:31: Pyro Info {'radio_id': 1
+1531	15:01:31: Line Cutter 3 {'radio_id': 1
+1532	15:01:31: Line Cutter 1 {'radio_id': 1
+1533	15:01:31: Position Data {'radio_id': 1
+1534	15:01:31: Position Data {'radio_id': 1
+1535	15:01:31: Position Data {'radio_id': 1
+1536	15:01:32: Position Data {'radio_id': 1
+1537	15:01:32: Alt Info & Cfg {'radio_id': 1
+1538	15:01:32: Position Data {'radio_id': 1
+1539	15:01:32: Position Data {'radio_id': 1
+1540	15:01:32: Position Data {'radio_id': 1
+1541	15:01:32: Position Data {'radio_id': 1
+1542	15:01:32: Position Data {'radio_id': 1
+1543	15:01:32: Orientation {'radio_id': 1
+1544	15:01:32: Pyro Info {'radio_id': 1
+1545	15:01:32: Line Cutter 3 {'radio_id': 1
+1546	15:01:32: Line Cutter 1 {'radio_id': 1
+1547	15:01:32: Position Data {'radio_id': 1
+1548	15:01:32: Position Data {'radio_id': 1
+1549	15:01:32: Position Data {'radio_id': 1
+1550	15:01:32: Position Data {'radio_id': 1
+1551	15:01:33: Position Data {'radio_id': 1
+1552	15:01:33: Position Data {'radio_id': 1
+1553	15:01:33: Alt Info & Cfg {'radio_id': 1
+1554	15:01:33: Position Data {'radio_id': 1
+1555	15:01:33: Position Data {'radio_id': 1
+1556	15:01:33: Position Data {'radio_id': 1
+1557	15:01:33: Position Data {'radio_id': 1
+1558	15:01:33: Orientation {'radio_id': 1
+1559	15:01:33: Pyro Info {'radio_id': 1
+1560	15:01:33: Line Cutter 3 {'radio_id': 1
+1561	15:01:33: Line Cutter 1 {'radio_id': 1
+1562	15:01:33: Position Data {'radio_id': 1
+1563	15:01:33: Position Data {'radio_id': 1
+1564	15:01:33: Position Data {'radio_id': 1
+1565	15:01:33: Ground Station GPS {'gs_lat': 0.0
+1566	15:01:34: Position Data {'radio_id': 1
+1567	15:01:34: Position Data {'radio_id': 1
+1568	15:01:34: Position Data {'radio_id': 1
+1569	15:01:34: Position Data {'radio_id': 1
+1570	15:01:34: Position Data {'radio_id': 1
+1571	15:01:34: Alt Info & Cfg {'radio_id': 1
+1572	15:01:34: Position Data {'radio_id': 1
+1573	15:01:34: Orientation {'radio_id': 1
+1574	15:01:34: Pyro Info {'radio_id': 1
+1575	15:01:34: Line Cutter 3 {'radio_id': 1
+1576	15:01:34: Line Cutter 1 {'radio_id': 1
+1577	15:01:34: Position Data {'radio_id': 1
+1578	15:01:34: Position Data {'radio_id': 1
+1579	15:01:34: Position Data {'radio_id': 1
+1580	15:01:35: Position Data {'radio_id': 1
+1581	15:01:35: Position Data {'radio_id': 1
+1582	15:01:35: Position Data {'radio_id': 1
+1583	15:01:35: Position Data {'radio_id': 1
+1584	15:01:35: Position Data {'radio_id': 1
+1585	15:01:35: Position Data {'radio_id': 1
+1586	15:01:35: Orientation {'radio_id': 1
+1587	15:01:35: Pyro Info {'radio_id': 1
+1588	15:01:35: Line Cutter 3 {'radio_id': 1
+1589	15:01:35: Line Cutter 1 {'radio_id': 1
+1590	15:01:35: Alt Info & Cfg {'radio_id': 1
+1591	15:01:35: Position Data {'radio_id': 1
+1592	15:01:35: Position Data {'radio_id': 1
+1593	15:01:35: Ground Station GPS {'gs_lat': 0.0
+1594	15:01:35: Position Data {'radio_id': 1
+1595	15:01:36: Position Data {'radio_id': 1
+1596	15:01:36: Position Data {'radio_id': 1
+1597	15:01:36: Position Data {'radio_id': 1
+1598	15:01:36: Position Data {'radio_id': 1
+1599	15:01:36: Position Data {'radio_id': 1
+1600	15:01:36: Position Data {'radio_id': 1
+1601	15:01:36: Orientation {'radio_id': 1
+1602	15:01:36: Pyro Info {'radio_id': 1
+1603	15:01:36: Line Cutter 3 {'radio_id': 1
+1604	15:01:36: Line Cutter 1 {'radio_id': 1
+1605	15:01:36: Position Data {'radio_id': 1
+1606	15:01:36: Position Data {'radio_id': 1
+1607	15:01:36: Alt Info & Cfg {'radio_id': 1
+1608	15:01:37: Position Data {'radio_id': 1
+1609	15:01:37: Position Data {'radio_id': 1
+1610	15:01:37: Position Data {'radio_id': 1
+1611	15:01:37: Position Data {'radio_id': 1
+1612	15:01:37: Position Data {'radio_id': 1
+1613	15:01:37: Position Data {'radio_id': 1
+1614	15:01:37: Position Data {'radio_id': 1
+1615	15:01:37: Orientation {'radio_id': 1
+1616	15:01:37: Pyro Info {'radio_id': 1
+1617	15:01:37: Line Cutter 3 {'radio_id': 1
+1618	15:01:37: Line Cutter 1 {'radio_id': 1
+1619	15:01:37: Position Data {'radio_id': 1
+1620	15:01:37: Position Data {'radio_id': 1
+1621	15:01:37: Position Data {'radio_id': 1
+1622	15:01:37: Ground Station GPS {'gs_lat': 0.0
+1623	15:01:38: Position Data {'radio_id': 1
+1624	15:01:38: Alt Info & Cfg {'radio_id': 1
+1625	15:01:38: Position Data {'radio_id': 1
+1626	15:01:38: Position Data {'radio_id': 1
+1627	15:01:38: Position Data {'radio_id': 1
+1628	15:01:38: Position Data {'radio_id': 1
+1629	15:01:38: Orientation {'radio_id': 1
+1630	15:01:38: Position Data {'radio_id': 1
+1631	15:01:38: Pyro Info {'radio_id': 1
+1632	15:01:38: Line Cutter 1 {'radio_id': 1
+1633	15:01:38: Position Data {'radio_id': 1
+1634	15:01:38: Position Data {'radio_id': 1
+1635	15:01:39: Position Data {'radio_id': 1
+1636	15:01:39: Position Data {'radio_id': 1
+1637	15:01:39: Position Data {'radio_id': 1
+1638	15:01:39: Alt Info & Cfg {'radio_id': 1
+1639	15:01:39: Position Data {'radio_id': 1
+1640	15:01:39: Position Data {'radio_id': 1
+1641	15:01:39: Position Data {'radio_id': 1
+1642	15:01:39: Orientation {'radio_id': 1
+1643	15:01:39: Pyro Info {'radio_id': 1
+1644	15:01:39: Line Cutter 3 {'radio_id': 1
+1645	15:01:39: Line Cutter 1 {'radio_id': 1
+1646	15:01:39: Position Data {'radio_id': 1
+1647	15:01:39: Position Data {'radio_id': 1
+1648	15:01:39: Position Data {'radio_id': 1
+1649	15:01:39: Ground Station GPS {'gs_lat': 0.0
+1650	15:01:40: Position Data {'radio_id': 1
+1651	15:01:40: Position Data {'radio_id': 1
+1652	15:01:40: Position Data {'radio_id': 1
+1653	15:01:40: Position Data {'radio_id': 1
+1654	15:01:40: Position Data {'radio_id': 1
+1655	15:01:40: Alt Info & Cfg {'radio_id': 1
+1656	15:01:40: Position Data {'radio_id': 1
+1657	15:01:40: Orientation {'radio_id': 1
+1658	15:01:40: Position Data {'radio_id': 1
+1659	15:01:40: Pyro Info {'radio_id': 1
+1660	15:01:40: Line Cutter 3 {'radio_id': 1
+1661	15:01:40: Line Cutter 1 {'radio_id': 1
+1662	15:01:40: Position Data {'radio_id': 1
+1663	15:01:40: Position Data {'radio_id': 1
+1664	15:01:41: Position Data {'radio_id': 1
+1665	15:01:41: Position Data {'radio_id': 1
+1666	15:01:41: Position Data {'radio_id': 1
+1667	15:01:41: Position Data {'radio_id': 1
+1668	15:01:41: Position Data {'radio_id': 1
+1669	15:01:41: Position Data {'radio_id': 1
+1670	15:01:41: Position Data {'radio_id': 1
+1671	15:01:41: Orientation {'radio_id': 1
+1672	15:01:41: Line Cutter 3 {'radio_id': 1
+1673	15:01:41: Line Cutter 1 {'radio_id': 1
+1674	15:01:41: Position Data {'radio_id': 1
+1675	15:01:41: Position Data {'radio_id': 1
+1676	15:01:41: Position Data {'radio_id': 1
+1677	15:01:42: Position Data {'radio_id': 1
+1678	15:01:42: Position Data {'radio_id': 1
+1679	15:01:42: Position Data {'radio_id': 1
+1680	15:01:42: Position Data {'radio_id': 1
+1681	15:01:42: Position Data {'radio_id': 1
+1682	15:01:42: Position Data {'radio_id': 1
+1683	15:01:42: Position Data {'radio_id': 1
+1684	15:01:42: Orientation {'radio_id': 1
+1685	15:01:42: Line Cutter 3 {'radio_id': 1
+1686	15:01:42: Line Cutter 1 {'radio_id': 1
+1687	15:01:42: Position Data {'radio_id': 1
+1688	15:01:43: Alt Info & Cfg {'radio_id': 1
+1689	15:01:43: Position Data {'radio_id': 1
+1690	15:01:43: Position Data {'radio_id': 1
+1691	15:01:43: Position Data {'radio_id': 1
+1692	15:01:43: Position Data {'radio_id': 1
+1693	15:01:43: Position Data {'radio_id': 1
+1694	15:01:43: Position Data {'radio_id': 1
+1695	15:01:43: Orientation {'radio_id': 1
+1696	15:01:43: Pyro Info {'radio_id': 1
+1697	15:01:43: Line Cutter 1 {'radio_id': 1
+1698	15:01:43: Position Data {'radio_id': 1
+1699	15:01:43: Position Data {'radio_id': 1
+1700	15:01:43: Ground Station GPS {'gs_lat': 0.0
+1701	15:01:44: Position Data {'radio_id': 1
+1702	15:01:44: Position Data {'radio_id': 1
+1703	15:01:44: Alt Info & Cfg {'radio_id': 1
+1704	15:01:44: Position Data {'radio_id': 1
+1705	15:01:44: Position Data {'radio_id': 1
+1706	15:01:44: Position Data {'radio_id': 1
+1707	15:01:44: Position Data {'radio_id': 1
+1708	15:01:44: Position Data {'radio_id': 1
+1709	15:01:44: Orientation {'radio_id': 1
+1710	15:01:44: Pyro Info {'radio_id': 1
+1711	15:01:44: Line Cutter 3 {'radio_id': 1
+1712	15:01:44: Line Cutter 1 {'radio_id': 1
+1713	15:01:44: Position Data {'radio_id': 1
+1714	15:01:44: Position Data {'radio_id': 1
+1715	15:01:44: Position Data {'radio_id': 1
+1716	15:01:45: Position Data {'radio_id': 1
+1717	15:01:45: Position Data {'radio_id': 1
+1718	15:01:45: Position Data {'radio_id': 1
+1719	15:01:45: Position Data {'radio_id': 1
+1720	15:01:45: Alt Info & Cfg {'radio_id': 1
+1721	15:01:45: Position Data {'radio_id': 1
+1722	15:01:45: Position Data {'radio_id': 1
+1723	15:01:45: Orientation {'radio_id': 1
+1724	15:01:45: Line Cutter 3 {'radio_id': 1
+1725	15:01:45: Line Cutter 1 {'radio_id': 1
+1726	15:01:45: Position Data {'radio_id': 1
+1727	15:01:45: Position Data {'radio_id': 1
+1728	15:01:45: Ground Station GPS {'gs_lat': 0.0
+1729	15:01:46: Position Data {'radio_id': 1
+1730	15:01:46: Position Data {'radio_id': 1
+1731	15:01:46: Position Data {'radio_id': 1
+1732	15:01:46: Position Data {'radio_id': 1
+1733	15:01:46: Position Data {'radio_id': 1
+1734	15:01:46: Position Data {'radio_id': 1
+1735	15:01:46: Alt Info & Cfg {'radio_id': 1
+1736	15:01:46: Position Data {'radio_id': 1
+1737	15:01:46: Orientation {'radio_id': 1
+1738	15:01:46: Line Cutter 3 {'radio_id': 1
+1739	15:01:46: Line Cutter 1 {'radio_id': 1
+1740	15:01:46: Position Data {'radio_id': 1
+1741	15:01:46: Position Data {'radio_id': 1
+1742	15:01:47: Position Data {'radio_id': 1
+1743	15:01:47: Position Data {'radio_id': 1
+1744	15:01:47: Position Data {'radio_id': 1
+1745	15:01:47: Position Data {'radio_id': 1
+1746	15:01:47: Position Data {'radio_id': 1
+1747	15:01:47: Position Data {'radio_id': 1
+1748	15:01:47: Orientation {'radio_id': 1
+1749	15:01:47: Position Data {'radio_id': 1
+1750	15:01:47: Line Cutter 3 {'radio_id': 1
+1751	15:01:47: Line Cutter 1 {'radio_id': 1
+1752	15:01:47: Position Data {'radio_id': 1
+1753	15:01:47: Ground Station GPS {'gs_lat': 0.0
+1754	15:01:48: Position Data {'radio_id': 1
+1755	15:01:48: Position Data {'radio_id': 1
+1756	15:01:48: Position Data {'radio_id': 1
+1757	15:01:48: Position Data {'radio_id': 1
+1758	15:01:48: Position Data {'radio_id': 1
+1759	15:01:48: Position Data {'radio_id': 1
+1760	15:01:48: Position Data {'radio_id': 1
+1761	15:01:48: Position Data {'radio_id': 1
+1762	15:01:48: Orientation {'radio_id': 1
+1763	15:01:49: Pyro Info {'radio_id': 1
+1764	15:01:49: Line Cutter 3 {'radio_id': 1
+1765	15:01:49: Line Cutter 1 {'radio_id': 1
+1766	15:01:49: Position Data {'radio_id': 1
+1767	15:01:49: Alt Info & Cfg {'radio_id': 1
+1768	15:01:49: Position Data {'radio_id': 1
+1769	15:01:49: Position Data {'radio_id': 1
+1770	15:01:49: Position Data {'radio_id': 1
+1771	15:01:49: Position Data {'radio_id': 1
+1772	15:01:49: Position Data {'radio_id': 1
+1773	15:01:49: Orientation {'radio_id': 1
+1774	15:01:49: Pyro Info {'radio_id': 1
+1775	15:01:49: Line Cutter 1 {'radio_id': 1
+1776	15:01:49: Position Data {'radio_id': 1
+1777	15:01:49: Position Data {'radio_id': 1
+1778	15:01:50: Ground Station GPS {'gs_lat': 0.0
+1779	15:01:50: Position Data {'radio_id': 1
+1780	15:01:50: Position Data {'radio_id': 1
+1781	15:01:50: Position Data {'radio_id': 1
+1782	15:01:50: Alt Info & Cfg {'radio_id': 1
+1783	15:01:50: Position Data {'radio_id': 1
+1784	15:01:50: Position Data {'radio_id': 1
+1785	15:01:50: Orientation {'radio_id': 1
+1786	15:01:50: Pyro Info {'radio_id': 1
+1787	15:01:50: Line Cutter 3 {'radio_id': 1
+1788	15:01:50: Line Cutter 1 {'radio_id': 1
+1789	15:01:50: Position Data {'radio_id': 1
+1790	15:01:50: Position Data {'radio_id': 1
+1791	15:01:51: Position Data {'radio_id': 1
+1792	15:01:51: Position Data {'radio_id': 1
+1793	15:01:51: Position Data {'radio_id': 1
+1794	15:01:51: Position Data {'radio_id': 1
+1795	15:01:51: Position Data {'radio_id': 1
+1796	15:01:51: Position Data {'radio_id': 1
+1797	15:01:51: Position Data {'radio_id': 1
+1798	15:01:51: Alt Info & Cfg {'radio_id': 1
+1799	15:01:51: Position Data {'radio_id': 1
+1800	15:01:51: Orientation {'radio_id': 1
+1801	15:01:51: Pyro Info {'radio_id': 1
+1802	15:01:51: Line Cutter 3 {'radio_id': 1
+1803	15:01:51: Line Cutter 1 {'radio_id': 1
+1804	15:01:51: Position Data {'radio_id': 1
+1805	15:01:51: Position Data {'radio_id': 1
+1806	15:01:52: Position Data {'radio_id': 1
+1807	15:01:52: Ground Station GPS {'gs_lat': 0.0
+1808	15:01:52: Position Data {'radio_id': 1
+1809	15:01:52: Position Data {'radio_id': 1
+1810	15:01:52: Position Data {'radio_id': 1
+1811	15:01:52: Position Data {'radio_id': 1
+1812	15:01:52: Position Data {'radio_id': 1
+1813	15:01:52: Position Data {'radio_id': 1
+1814	15:01:52: Orientation {'radio_id': 1
+1815	15:01:52: Position Data {'radio_id': 1
+1816	15:01:52: Pyro Info {'radio_id': 1
+1817	15:01:52: Line Cutter 3 {'radio_id': 1
+1818	15:01:52: Line Cutter 1 {'radio_id': 1
+1819	15:01:52: Alt Info & Cfg {'radio_id': 1
+1820	15:01:53: Position Data {'radio_id': 1
+1821	15:01:53: Position Data {'radio_id': 1
+1822	15:01:53: Position Data {'radio_id': 1
+1823	15:01:53: Position Data {'radio_id': 1
+1824	15:01:53: Position Data {'radio_id': 1
+1825	15:01:53: Position Data {'radio_id': 1
+1826	15:01:53: Position Data {'radio_id': 1
+1827	15:01:53: Position Data {'radio_id': 1
+1828	15:01:53: Orientation {'radio_id': 1
+1829	15:01:53: Pyro Info {'radio_id': 1
+1830	15:01:53: Line Cutter 3 {'radio_id': 1
+1831	15:01:53: Line Cutter 1 {'radio_id': 1
+1832	15:01:53: Position Data {'radio_id': 1
+1833	15:01:54: Position Data {'radio_id': 1
+1834	15:01:54: Ground Station GPS {'gs_lat': 0.0
+1835	15:01:54: Alt Info & Cfg {'radio_id': 1
+1836	15:01:54: Position Data {'radio_id': 1
+1837	15:01:54: Position Data {'radio_id': 1
+1838	15:01:54: Position Data {'radio_id': 1
+1839	15:01:54: Position Data {'radio_id': 1
+1840	15:01:54: Position Data {'radio_id': 1
+1841	15:01:54: Position Data {'radio_id': 1
+1842	15:01:54: Position Data {'radio_id': 1
+1843	15:01:54: Orientation {'radio_id': 1
+1844	15:01:54: Pyro Info {'radio_id': 1
+1845	15:01:54: Line Cutter 3 {'radio_id': 1
+1846	15:01:54: Position Data {'radio_id': 1
+1847	15:01:55: Position Data {'radio_id': 1
+1848	15:01:55: Position Data {'radio_id': 1
+1849	15:01:55: Position Data {'radio_id': 1
+1850	15:01:55: Alt Info & Cfg {'radio_id': 1
+1851	15:01:55: Position Data {'radio_id': 1
+1852	15:01:55: Position Data {'radio_id': 1
+1853	15:01:55: CLI Data {'radio_id': 1
+1854	15:01:55: Position Data {'radio_id': 1
+1855	15:01:55: Position Data {'radio_id': 1
+1856	15:01:55: Orientation {'radio_id': 1
+1857	15:01:55: Pyro Info {'radio_id': 1
+1858	15:01:55: Line Cutter 3 {'radio_id': 1
+1859	15:01:55: Line Cutter 1 {'radio_id': 1
+1860	15:01:55: Position Data {'radio_id': 1
+1861	15:01:55: Position Data {'radio_id': 1
+1862	15:01:56: Position Data {'radio_id': 1
+1863	15:01:56: Position Data {'radio_id': 1
+1864	15:01:56: Position Data {'radio_id': 1
+1865	15:01:56: Position Data {'radio_id': 1
+1866	15:01:56: Position Data {'radio_id': 1
+1867	15:01:56: Alt Info & Cfg {'radio_id': 1
+1868	15:01:56: Position Data {'radio_id': 1
+1869	15:01:56: Position Data {'radio_id': 1
+1870	15:01:56: Position Data {'radio_id': 1
+1871	15:01:56: Orientation {'radio_id': 1
+1872	15:01:56: Pyro Info {'radio_id': 1
+1873	15:01:56: Line Cutter 3 {'radio_id': 1
+1874	15:01:56: Line Cutter 1 {'radio_id': 1
+1875	15:01:56: Position Data {'radio_id': 1
+1876	15:01:56: Position Data {'radio_id': 1
+1877	15:01:57: Position Data {'radio_id': 1
+1878	15:01:57: Position Data {'radio_id': 1
+1879	15:01:57: Position Data {'radio_id': 1
+1880	15:01:57: Position Data {'radio_id': 1
+1881	15:01:57: Position Data {'radio_id': 1
+1882	15:01:57: Position Data {'radio_id': 1
+1883	15:01:57: Position Data {'radio_id': 1
+1884	15:01:57: Alt Info & Cfg {'radio_id': 1
+1885	15:01:57: Orientation {'radio_id': 1
+1886	15:01:57: Position Data {'radio_id': 1
+1887	15:01:57: Pyro Info {'radio_id': 1
+1888	15:01:57: Line Cutter 3 {'radio_id': 1
+1889	15:01:57: Line Cutter 1 {'radio_id': 1
+1890	15:01:58: Position Data {'radio_id': 1
+1891	15:01:58: Ground Station GPS {'gs_lat': 0.0
+1892	15:01:58: CLI Data {'radio_id': 1
+1893	15:01:58: Position Data {'radio_id': 1
+1894	15:01:58: Position Data {'radio_id': 1
+1895	15:01:58: Position Data {'radio_id': 1
+1896	15:01:58: Position Data {'radio_id': 1
+1897	15:01:58: Position Data {'radio_id': 1
+1898	15:01:58: Position Data {'radio_id': 1
+1899	15:01:58: Position Data {'radio_id': 1
+1900	15:01:58: Orientation {'radio_id': 1
+1901	15:01:58: Pyro Info {'radio_id': 1
+1902	15:01:58: Line Cutter 3 {'radio_id': 1
+1903	15:01:58: Line Cutter 1 {'radio_id': 1
+1904	15:01:59: Position Data {'radio_id': 1
+1905	15:01:59: Alt Info & Cfg {'radio_id': 1
+1906	15:01:59: Position Data {'radio_id': 1
+1907	15:01:59: Position Data {'radio_id': 1
+1908	15:01:59: Position Data {'radio_id': 1
+1909	15:01:59: Position Data {'radio_id': 1
+1910	15:01:59: Position Data {'radio_id': 1
+1911	15:01:59: Position Data {'radio_id': 1
+1912	15:01:59: Position Data {'radio_id': 1
+1913	15:01:59: Position Data {'radio_id': 1
+1914	15:01:59: Position Data {'radio_id': 1
+1915	15:01:59: Pyro Info {'radio_id': 1
+1916	15:01:59: Line Cutter 3 {'radio_id': 1
+1917	15:02:00: Line Cutter 1 {'radio_id': 1
+1918	15:02:00: Position Data {'radio_id': 1
+1919	15:02:00: Ground Station GPS {'gs_lat': 0.0
+1920	15:02:00: Position Data {'radio_id': 1
+1921	15:02:00: CLI Data {'radio_id': 1
+1922	15:02:00: Position Data {'radio_id': 1
+1923	15:02:00: Alt Info & Cfg {'radio_id': 1
+1924	15:02:00: Position Data {'radio_id': 1
+1925	15:02:00: Position Data {'radio_id': 1
+1926	15:02:00: Position Data {'radio_id': 1
+1927	15:02:00: Orientation {'radio_id': 1
+1928	15:02:00: Pyro Info {'radio_id': 1
+1929	15:02:00: Line Cutter 3 {'radio_id': 1
+1930	15:02:00: Line Cutter 1 {'radio_id': 1
+1931	15:02:00: Position Data {'radio_id': 1
+1932	15:02:01: Position Data {'radio_id': 1
+1933	15:02:01: Position Data {'radio_id': 1
+1934	15:02:01: Position Data {'radio_id': 1
+1935	15:02:01: Alt Info & Cfg {'radio_id': 1
+1936	15:02:01: Position Data {'radio_id': 1
+1937	15:02:01: Position Data {'radio_id': 1
+1938	15:02:01: Position Data {'radio_id': 1
+1939	15:02:01: Position Data {'radio_id': 1
+1940	15:02:01: Orientation {'radio_id': 1
+1941	15:02:01: Pyro Info {'radio_id': 1
+1942	15:02:01: Line Cutter 3 {'radio_id': 1
+1943	15:02:01: Line Cutter 1 {'radio_id': 1
+1944	15:02:01: Position Data {'radio_id': 1
+1945	15:02:02: Position Data {'radio_id': 1
+1946	15:02:02: Position Data {'radio_id': 1
+1947	15:02:02: CLI Data {'radio_id': 1
+1948	15:02:02: Position Data {'radio_id': 1
+1949	15:02:02: Position Data {'radio_id': 1
+1950	15:02:02: Position Data {'radio_id': 1
+1951	15:02:02: Position Data {'radio_id': 1
+1952	15:02:02: Alt Info & Cfg {'radio_id': 1
+1953	15:02:02: Position Data {'radio_id': 1
+1954	15:02:02: Position Data {'radio_id': 1
+1955	15:02:02: Orientation {'radio_id': 1
+1956	15:02:02: Pyro Info {'radio_id': 1
+1957	15:02:02: Line Cutter 3 {'radio_id': 1
+1958	15:02:02: Line Cutter 1 {'radio_id': 1
+1959	15:02:03: Position Data {'radio_id': 1
+1960	15:02:03: Position Data {'radio_id': 1
+1961	15:02:03: Position Data {'radio_id': 1
+1962	15:02:03: Position Data {'radio_id': 1
+1963	15:02:03: Position Data {'radio_id': 1
+1964	15:02:03: Position Data {'radio_id': 1
+1965	15:02:03: CLI Data {'radio_id': 1
+1966	15:02:03: Position Data {'radio_id': 1
+1967	15:02:03: Orientation {'radio_id': 1
+1968	15:02:03: Pyro Info {'radio_id': 1
+1969	15:02:03: Line Cutter 3 {'radio_id': 1
+1970	15:02:03: Line Cutter 1 {'radio_id': 1
+1971	15:02:04: Position Data {'radio_id': 1
+1972	15:02:04: Ground Station GPS {'gs_lat': 0.0
+1973	15:02:04: Position Data {'radio_id': 1
+1974	15:02:04: CLI Data {'radio_id': 1
+1975	15:02:04: Position Data {'radio_id': 1
+1976	15:02:04: Position Data {'radio_id': 1
+1977	15:02:04: Position Data {'radio_id': 1
+1978	15:02:04: Position Data {'radio_id': 1
+1979	15:02:04: Position Data {'radio_id': 1
+1980	15:02:04: Position Data {'radio_id': 1
+1981	15:02:04: Orientation {'radio_id': 1
+1982	15:02:04: Pyro Info {'radio_id': 1
+1983	15:02:05: Line Cutter 1 {'radio_id': 1
+1984	15:02:05: Position Data {'radio_id': 1
+1985	15:02:05: Position Data {'radio_id': 1
+1986	15:02:05: Position Data {'radio_id': 1
+1987	15:02:05: Position Data {'radio_id': 1
+1988	15:02:05: Position Data {'radio_id': 1
+1989	15:02:05: Position Data {'radio_id': 1
+1990	15:02:05: Position Data {'radio_id': 1
+1991	15:02:05: Position Data {'radio_id': 1
+1992	15:02:05: Position Data {'radio_id': 1
+1993	15:02:05: Position Data {'radio_id': 1
+1994	15:02:05: Orientation {'radio_id': 1
+1995	15:02:05: Pyro Info {'radio_id': 1
+1996	15:02:06: Line Cutter 1 {'radio_id': 1
+1997	15:02:06: Position Data {'radio_id': 1
+1998	15:02:06: Position Data {'radio_id': 1
+1999	15:02:06: Position Data {'radio_id': 1
+2000	15:02:06: Alt Info & Cfg {'radio_id': 1
+2001	15:02:06: Position Data {'radio_id': 1
+2002	15:02:06: Position Data {'radio_id': 1
+2003	15:02:06: Position Data {'radio_id': 1
+2004	15:02:06: Position Data {'radio_id': 1
+2005	15:02:06: Position Data {'radio_id': 1
+2006	15:02:06: Orientation {'radio_id': 1
+2007	15:02:06: Pyro Info {'radio_id': 1
+2008	15:02:06: Line Cutter 3 {'radio_id': 1
+2009	15:02:07: Line Cutter 4 {'radio_id': 1
+2010	15:02:07: Position Data {'radio_id': 1
+2011	15:02:07: Position Data {'radio_id': 1
+2012	15:02:07: Position Data {'radio_id': 1
+2013	15:02:07: Position Data {'radio_id': 1
+2014	15:02:07: CLI Data {'radio_id': 1
+2015	15:02:07: Position Data {'radio_id': 1
+2016	15:02:07: Alt Info & Cfg {'radio_id': 1
+2017	15:02:07: Position Data {'radio_id': 1
+2018	15:02:07: Position Data {'radio_id': 1
+2019	15:02:07: Position Data {'radio_id': 1

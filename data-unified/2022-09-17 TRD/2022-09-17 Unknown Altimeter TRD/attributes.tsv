@@ -1,0 +1,10 @@
+key	value	source
+altimeter.board	Unknown Altimeter	derived
+altimeter.source_folder	root-FCB Config Commands TRD 09-17-2022	derived
+data.has_parsed_timeseries	true	derived
+data.row_count	12	derived
+data.source_file	FCB Config Commands TRD 09-17-2022.txt	derived
+data.synthetic_time_added	true	derived
+data.time_column	generated_time_s	derived
+flight.date	2022-09-17	derived
+flight.name	TRD	derived

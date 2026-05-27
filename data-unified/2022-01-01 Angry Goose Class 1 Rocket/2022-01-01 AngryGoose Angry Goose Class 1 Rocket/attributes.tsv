@@ -1,0 +1,10 @@
+key	value	source
+altimeter.board	AngryGoose	derived
+altimeter.source_folder	root-Flight-1-1-22-F31-Trimmed	derived
+data.has_parsed_timeseries	true	derived
+data.row_count	2501	derived
+data.source_file	Flight-1-1-22-F31-Trimmed.csv	derived
+data.synthetic_time_added	true	derived
+data.time_column	generated_time_s	derived
+flight.date	2022-01-01	derived
+flight.name	Angry Goose Class 1 Rocket	derived

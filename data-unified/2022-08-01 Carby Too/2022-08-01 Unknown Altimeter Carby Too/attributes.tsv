@@ -1,0 +1,10 @@
+key	value	source
+altimeter.board	Unknown Altimeter	derived
+altimeter.source_folder	root-Carby_Goose_Jan_2022	derived
+data.has_parsed_timeseries	true	derived
+data.row_count	68895	derived
+data.source_file	Carby_Goose_Jan_2022.txt	derived
+data.synthetic_time_added	true	derived
+data.time_column	generated_time_s	derived
+flight.date	2022-08-01	derived
+flight.name	Carby Too	derived

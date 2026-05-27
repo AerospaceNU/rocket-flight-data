@@ -1,0 +1,713 @@
+generated_time_s	RUN START 2023-03-18 00:06:32
+0	00:06:41: Ground Station GPS {'gs_lat': 0.0
+1	00:06:43: Ground Station GPS {'gs_lat': 0.0
+2	00:06:47: Ground Station GPS {'gs_lat': 0.0
+3	00:06:49: Ground Station GPS {'gs_lat': 0.0
+4	00:06:51: Ground Station GPS {'gs_lat': 0.0
+5	00:06:53: Ground Station GPS {'gs_lat': 0.0
+6	00:06:55: Ground Station GPS {'gs_lat': 0.0
+7	00:06:57: Ground Station GPS {'gs_lat': 0.0
+8	00:06:59: Ground Station GPS {'gs_lat': 0.0
+9	00:07:01: Ground Station GPS {'gs_lat': 0.0
+10	00:07:03: Ground Station GPS {'gs_lat': 0.0
+11	00:07:04: Orientation {'radio_id': 0
+12	00:07:04: Position Data {'radio_id': 0
+13	00:07:04: Alt Info & Cfg {'radio_id': 0
+14	00:07:04: Pyro Info {'radio_id': 0
+15	00:07:04: Orientation {'radio_id': 0
+16	00:07:04: Position Data {'radio_id': 0
+17	00:07:04: Orientation {'radio_id': 0
+18	00:07:04: Position Data {'radio_id': 0
+19	00:07:05: Orientation {'radio_id': 0
+20	00:07:05: Position Data {'radio_id': 0
+21	00:07:05: Ground Station GPS {'gs_lat': 0.0
+22	00:07:05: Orientation {'radio_id': 0
+23	00:07:05: Position Data {'radio_id': 0
+24	00:07:05: Orientation {'radio_id': 0
+25	00:07:05: Position Data {'radio_id': 0
+26	00:07:05: Pyro Info {'radio_id': 0
+27	00:07:05: Orientation {'radio_id': 0
+28	00:07:05: Position Data {'radio_id': 0
+29	00:07:05: Alt Info & Cfg {'radio_id': 0
+30	00:07:05: Orientation {'radio_id': 0
+31	00:07:05: Position Data {'radio_id': 0
+32	00:07:06: Orientation {'radio_id': 0
+33	00:07:06: Position Data {'radio_id': 0
+34	00:07:06: Orientation {'radio_id': 0
+35	00:07:06: Position Data {'radio_id': 0
+36	00:07:06: Orientation {'radio_id': 0
+37	00:07:06: Position Data {'radio_id': 0
+38	00:07:06: Pyro Info {'radio_id': 0
+39	00:07:06: Orientation {'radio_id': 0
+40	00:07:06: Position Data {'radio_id': 0
+41	00:07:06: Orientation {'radio_id': 0
+42	00:07:06: Position Data {'radio_id': 0
+43	00:07:07: Alt Info & Cfg {'radio_id': 0
+44	00:07:07: Orientation {'radio_id': 0
+45	00:07:07: Position Data {'radio_id': 0
+46	00:07:07: Ground Station GPS {'gs_lat': 0.0
+47	00:07:07: Orientation {'radio_id': 0
+48	00:07:07: Position Data {'radio_id': 0
+49	00:07:07: Orientation {'radio_id': 0
+50	00:07:07: Position Data {'radio_id': 0
+51	00:07:07: Pyro Info {'radio_id': 0
+52	00:07:07: Orientation {'radio_id': 0
+53	00:07:07: Position Data {'radio_id': 0
+54	00:07:07: Orientation {'radio_id': 0
+55	00:07:07: Position Data {'radio_id': 0
+56	00:07:08: Orientation {'radio_id': 0
+57	00:07:08: Position Data {'radio_id': 0
+58	00:07:08: Orientation {'radio_id': 0
+59	00:07:08: Position Data {'radio_id': 0
+60	00:07:08: Alt Info & Cfg {'radio_id': 0
+61	00:07:08: Orientation {'radio_id': 0
+62	00:07:08: Pyro Info {'radio_id': 0
+63	00:07:08: Orientation {'radio_id': 0
+64	00:07:08: Position Data {'radio_id': 0
+65	00:07:08: Orientation {'radio_id': 0
+66	00:07:08: Position Data {'radio_id': 0
+67	00:07:09: Orientation {'radio_id': 0
+68	00:07:09: Position Data {'radio_id': 0
+69	00:07:09: Orientation {'radio_id': 0
+70	00:07:09: Position Data {'radio_id': 0
+71	00:07:09: Orientation {'radio_id': 0
+72	00:07:09: Position Data {'radio_id': 0
+73	00:07:09: Alt Info & Cfg {'radio_id': 0
+74	00:07:09: Pyro Info {'radio_id': 0
+75	00:07:09: Orientation {'radio_id': 0
+76	00:07:09: Orientation {'radio_id': 0
+77	00:07:09: Position Data {'radio_id': 0
+78	00:07:10: Orientation {'radio_id': 0
+79	00:07:10: Position Data {'radio_id': 0
+80	00:07:10: Orientation {'radio_id': 0
+81	00:07:10: Position Data {'radio_id': 0
+82	00:07:10: Orientation {'radio_id': 0
+83	00:07:10: Position Data {'radio_id': 0
+84	00:07:10: Orientation {'radio_id': 0
+85	00:07:10: Position Data {'radio_id': 0
+86	00:07:10: Pyro Info {'radio_id': 0
+87	00:07:10: Alt Info & Cfg {'radio_id': 0
+88	00:07:10: Orientation {'radio_id': 0
+89	00:07:10: Position Data {'radio_id': 0
+90	00:07:11: Orientation {'radio_id': 0
+91	00:07:11: Position Data {'radio_id': 0
+92	00:07:11: Ground Station GPS {'gs_lat': 0.0
+93	00:07:11: Orientation {'radio_id': 0
+94	00:07:11: Position Data {'radio_id': 0
+95	00:07:11: Orientation {'radio_id': 0
+96	00:07:11: Position Data {'radio_id': 0
+97	00:07:11: Orientation {'radio_id': 0
+98	00:07:11: Position Data {'radio_id': 0
+99	00:07:11: Pyro Info {'radio_id': 0
+100	00:07:11: Orientation {'radio_id': 0
+101	00:07:11: Position Data {'radio_id': 0
+102	00:07:12: Alt Info & Cfg {'radio_id': 0
+103	00:07:12: Orientation {'radio_id': 0
+104	00:07:12: Position Data {'radio_id': 0
+105	00:07:12: Orientation {'radio_id': 0
+106	00:07:12: Position Data {'radio_id': 0
+107	00:07:12: Orientation {'radio_id': 0
+108	00:07:12: Position Data {'radio_id': 0
+109	00:07:12: Orientation {'radio_id': 0
+110	00:07:12: Position Data {'radio_id': 0
+111	00:07:12: Pyro Info {'radio_id': 0
+112	00:07:12: Orientation {'radio_id': 0
+113	00:07:12: Position Data {'radio_id': 0
+114	00:07:13: Orientation {'radio_id': 0
+115	00:07:13: Position Data {'radio_id': 0
+116	00:07:13: Ground Station GPS {'gs_lat': 0.0
+117	00:07:13: Alt Info & Cfg {'radio_id': 0
+118	00:07:13: Orientation {'radio_id': 0
+119	00:07:13: Position Data {'radio_id': 0
+120	00:07:13: Orientation {'radio_id': 0
+121	00:07:13: Position Data {'radio_id': 0
+122	00:07:13: Orientation {'radio_id': 0
+123	00:07:13: Position Data {'radio_id': 0
+124	00:07:13: Pyro Info {'radio_id': 0
+125	00:07:13: Orientation {'radio_id': 0
+126	00:07:13: Position Data {'radio_id': 0
+127	00:07:14: Orientation {'radio_id': 0
+128	00:07:14: Position Data {'radio_id': 0
+129	00:07:14: Orientation {'radio_id': 0
+130	00:07:14: Position Data {'radio_id': 0
+131	00:07:14: Orientation {'radio_id': 0
+132	00:07:14: Position Data {'radio_id': 0
+133	00:07:14: Alt Info & Cfg {'radio_id': 0
+134	00:07:14: Orientation {'radio_id': 0
+135	00:07:14: Position Data {'radio_id': 0
+136	00:07:14: Pyro Info {'radio_id': 0
+137	00:07:14: Orientation {'radio_id': 0
+138	00:07:14: Position Data {'radio_id': 0
+139	00:07:15: Orientation {'radio_id': 0
+140	00:07:15: Position Data {'radio_id': 0
+141	00:07:15: Ground Station GPS {'gs_lat': 0.0
+142	00:07:15: Orientation {'radio_id': 0
+143	00:07:15: Position Data {'radio_id': 0
+144	00:07:15: Orientation {'radio_id': 0
+145	00:07:15: Position Data {'radio_id': 0
+146	00:07:15: Orientation {'radio_id': 0
+147	00:07:15: Position Data {'radio_id': 0
+148	00:07:15: Pyro Info {'radio_id': 0
+149	00:07:15: Orientation {'radio_id': 0
+150	00:07:15: Position Data {'radio_id': 0
+151	00:07:16: Orientation {'radio_id': 0
+152	00:07:16: Position Data {'radio_id': 0
+153	00:07:16: Orientation {'radio_id': 0
+154	00:07:16: Position Data {'radio_id': 0
+155	00:07:16: Orientation {'radio_id': 0
+156	00:07:16: Position Data {'radio_id': 0
+157	00:07:16: Orientation {'radio_id': 0
+158	00:07:16: Pyro Info {'radio_id': 0
+159	00:07:16: Orientation {'radio_id': 0
+160	00:07:16: Position Data {'radio_id': 0
+161	00:07:17: Alt Info & Cfg {'radio_id': 0
+162	00:07:17: Orientation {'radio_id': 0
+163	00:07:17: Position Data {'radio_id': 0
+164	00:07:17: Ground Station GPS {'gs_lat': 0.0
+165	00:07:17: Orientation {'radio_id': 0
+166	00:07:17: Position Data {'radio_id': 0
+167	00:07:17: Orientation {'radio_id': 0
+168	00:07:17: Position Data {'radio_id': 0
+169	00:07:17: Orientation {'radio_id': 0
+170	00:07:17: Position Data {'radio_id': 0
+171	00:07:17: Pyro Info {'radio_id': 0
+172	00:07:17: Orientation {'radio_id': 0
+173	00:07:17: Position Data {'radio_id': 0
+174	00:07:18: Orientation {'radio_id': 0
+175	00:07:18: Position Data {'radio_id': 0
+176	00:07:18: Alt Info & Cfg {'radio_id': 0
+177	00:07:18: Orientation {'radio_id': 0
+178	00:07:18: Position Data {'radio_id': 0
+179	00:07:18: Orientation {'radio_id': 0
+180	00:07:18: Position Data {'radio_id': 0
+181	00:07:18: Orientation {'radio_id': 0
+182	00:07:18: Position Data {'radio_id': 0
+183	00:07:18: Pyro Info {'radio_id': 0
+184	00:07:18: Orientation {'radio_id': 0
+185	00:07:18: Position Data {'radio_id': 0
+186	00:07:19: Orientation {'radio_id': 0
+187	00:07:19: Position Data {'radio_id': 0
+188	00:07:19: Orientation {'radio_id': 0
+189	00:07:19: Position Data {'radio_id': 0
+190	00:07:19: Alt Info & Cfg {'radio_id': 0
+191	00:07:19: Orientation {'radio_id': 0
+192	00:07:19: Position Data {'radio_id': 0
+193	00:07:19: Orientation {'radio_id': 0
+194	00:07:19: Position Data {'radio_id': 0
+195	00:07:19: Pyro Info {'radio_id': 0
+196	00:07:19: Orientation {'radio_id': 0
+197	00:07:19: Position Data {'radio_id': 0
+198	00:07:20: Orientation {'radio_id': 0
+199	00:07:20: Position Data {'radio_id': 0
+200	00:07:20: Orientation {'radio_id': 0
+201	00:07:20: Position Data {'radio_id': 0
+202	00:07:20: Orientation {'radio_id': 0
+203	00:07:20: Position Data {'radio_id': 0
+204	00:07:20: Orientation {'radio_id': 0
+205	00:07:20: Position Data {'radio_id': 0
+206	00:07:20: Alt Info & Cfg {'radio_id': 0
+207	00:07:20: Orientation {'radio_id': 0
+208	00:07:20: Position Data {'radio_id': 0
+209	00:07:20: Pyro Info {'radio_id': 0
+210	00:07:21: Orientation {'radio_id': 0
+211	00:07:21: Position Data {'radio_id': 0
+212	00:07:21: Ground Station GPS {'gs_lat': 0.0
+213	00:07:21: Orientation {'radio_id': 0
+214	00:07:21: Position Data {'radio_id': 0
+215	00:07:21: Orientation {'radio_id': 0
+216	00:07:21: Position Data {'radio_id': 0
+217	00:07:21: Orientation {'radio_id': 0
+218	00:07:21: Position Data {'radio_id': 0
+219	00:07:21: Orientation {'radio_id': 0
+220	00:07:21: Position Data {'radio_id': 0
+221	00:07:22: Pyro Info {'radio_id': 0
+222	00:07:22: Alt Info & Cfg {'radio_id': 0
+223	00:07:22: Orientation {'radio_id': 0
+224	00:07:22: Position Data {'radio_id': 0
+225	00:07:22: Orientation {'radio_id': 0
+226	00:07:22: Position Data {'radio_id': 0
+227	00:07:22: Orientation {'radio_id': 0
+228	00:07:22: Position Data {'radio_id': 0
+229	00:07:22: Orientation {'radio_id': 0
+230	00:07:22: Position Data {'radio_id': 0
+231	00:07:22: Orientation {'radio_id': 0
+232	00:07:22: Position Data {'radio_id': 0
+233	00:07:23: Pyro Info {'radio_id': 0
+234	00:07:23: Orientation {'radio_id': 0
+235	00:07:23: Position Data {'radio_id': 0
+236	00:07:23: Alt Info & Cfg {'radio_id': 0
+237	00:07:23: Orientation {'radio_id': 0
+238	00:07:23: Position Data {'radio_id': 0
+239	00:07:23: Orientation {'radio_id': 0
+240	00:07:23: Position Data {'radio_id': 0
+241	00:07:23: Orientation {'radio_id': 0
+242	00:07:23: Position Data {'radio_id': 0
+243	00:07:23: Orientation {'radio_id': 0
+244	00:07:23: Position Data {'radio_id': 0
+245	00:07:24: Pyro Info {'radio_id': 0
+246	00:07:24: Orientation {'radio_id': 0
+247	00:07:24: Position Data {'radio_id': 0
+248	00:07:24: Orientation {'radio_id': 0
+249	00:07:24: Position Data {'radio_id': 0
+250	00:07:24: Alt Info & Cfg {'radio_id': 0
+251	00:07:24: Orientation {'radio_id': 0
+252	00:07:24: Position Data {'radio_id': 0
+253	00:07:24: Orientation {'radio_id': 0
+254	00:07:24: Position Data {'radio_id': 0
+255	00:07:24: Orientation {'radio_id': 0
+256	00:07:24: Position Data {'radio_id': 0
+257	00:07:25: Pyro Info {'radio_id': 0
+258	00:07:25: Orientation {'radio_id': 0
+259	00:07:25: Position Data {'radio_id': 0
+260	00:07:25: Ground Station GPS {'gs_lat': 0.0
+261	00:07:25: Orientation {'radio_id': 0
+262	00:07:25: Position Data {'radio_id': 0
+263	00:07:25: Orientation {'radio_id': 0
+264	00:07:25: Position Data {'radio_id': 0
+265	00:07:25: Alt Info & Cfg {'radio_id': 0
+266	00:07:25: Orientation {'radio_id': 0
+267	00:07:25: Position Data {'radio_id': 0
+268	00:07:25: Orientation {'radio_id': 0
+269	00:07:25: Position Data {'radio_id': 0
+270	00:07:26: Pyro Info {'radio_id': 0
+271	00:07:26: Orientation {'radio_id': 0
+272	00:07:26: Position Data {'radio_id': 0
+273	00:07:26: Orientation {'radio_id': 0
+274	00:07:26: Position Data {'radio_id': 0
+275	00:07:26: Orientation {'radio_id': 0
+276	00:07:26: Position Data {'radio_id': 0
+277	00:07:26: Orientation {'radio_id': 0
+278	00:07:26: Position Data {'radio_id': 0
+279	00:07:26: Orientation {'radio_id': 0
+280	00:07:26: Position Data {'radio_id': 0
+281	00:07:26: Alt Info & Cfg {'radio_id': 0
+282	00:07:27: Pyro Info {'radio_id': 0
+283	00:07:27: Orientation {'radio_id': 0
+284	00:07:27: Position Data {'radio_id': 0
+285	00:07:27: Ground Station GPS {'gs_lat': 0.0
+286	00:07:27: Orientation {'radio_id': 0
+287	00:07:27: Position Data {'radio_id': 0
+288	00:07:27: Orientation {'radio_id': 0
+289	00:07:27: Position Data {'radio_id': 0
+290	00:07:27: Orientation {'radio_id': 0
+291	00:07:27: Position Data {'radio_id': 0
+292	00:07:27: Orientation {'radio_id': 0
+293	00:07:27: Position Data {'radio_id': 0
+294	00:07:28: Pyro Info {'radio_id': 0
+295	00:07:28: Orientation {'radio_id': 0
+296	00:07:28: Position Data {'radio_id': 0
+297	00:07:28: Alt Info & Cfg {'radio_id': 0
+298	00:07:28: Orientation {'radio_id': 0
+299	00:07:28: Position Data {'radio_id': 0
+300	00:07:28: Orientation {'radio_id': 0
+301	00:07:28: Position Data {'radio_id': 0
+302	00:07:28: Orientation {'radio_id': 0
+303	00:07:28: Position Data {'radio_id': 0
+304	00:07:28: Orientation {'radio_id': 0
+305	00:07:28: Position Data {'radio_id': 0
+306	00:07:29: Pyro Info {'radio_id': 0
+307	00:07:29: Orientation {'radio_id': 0
+308	00:07:29: Position Data {'radio_id': 0
+309	00:07:29: Ground Station GPS {'gs_lat': 0.0
+310	00:07:29: Orientation {'radio_id': 0
+311	00:07:29: Position Data {'radio_id': 0
+312	00:07:29: Alt Info & Cfg {'radio_id': 0
+313	00:07:29: Orientation {'radio_id': 0
+314	00:07:29: Position Data {'radio_id': 0
+315	00:07:29: Orientation {'radio_id': 0
+316	00:07:29: Position Data {'radio_id': 0
+317	00:07:29: Orientation {'radio_id': 0
+318	00:07:29: Position Data {'radio_id': 0
+319	00:07:30: Pyro Info {'radio_id': 0
+320	00:07:30: Orientation {'radio_id': 0
+321	00:07:30: Position Data {'radio_id': 0
+322	00:07:30: Orientation {'radio_id': 0
+323	00:07:30: Position Data {'radio_id': 0
+324	00:07:30: Orientation {'radio_id': 0
+325	00:07:30: Position Data {'radio_id': 0
+326	00:07:30: Alt Info & Cfg {'radio_id': 0
+327	00:07:30: Orientation {'radio_id': 0
+328	00:07:30: Position Data {'radio_id': 0
+329	00:07:30: Orientation {'radio_id': 0
+330	00:07:30: Position Data {'radio_id': 0
+331	00:07:31: Pyro Info {'radio_id': 0
+332	00:07:31: Orientation {'radio_id': 0
+333	00:07:31: Position Data {'radio_id': 0
+334	00:07:31: Ground Station GPS {'gs_lat': 0.0
+335	00:07:31: Orientation {'radio_id': 0
+336	00:07:31: Position Data {'radio_id': 0
+337	00:07:31: Orientation {'radio_id': 0
+338	00:07:31: Position Data {'radio_id': 0
+339	00:07:31: Orientation {'radio_id': 0
+340	00:07:31: Position Data {'radio_id': 0
+341	00:07:31: Alt Info & Cfg {'radio_id': 0
+342	00:07:31: Orientation {'radio_id': 0
+343	00:07:31: Position Data {'radio_id': 0
+344	00:07:32: Orientation {'radio_id': 0
+345	00:07:32: Position Data {'radio_id': 0
+346	00:07:32: Pyro Info {'radio_id': 0
+347	00:07:32: Orientation {'radio_id': 0
+348	00:07:32: Position Data {'radio_id': 0
+349	00:07:32: Orientation {'radio_id': 0
+350	00:07:32: Position Data {'radio_id': 0
+351	00:07:32: Orientation {'radio_id': 0
+352	00:07:32: Position Data {'radio_id': 0
+353	00:07:32: Orientation {'radio_id': 0
+354	00:07:32: Position Data {'radio_id': 0
+355	00:07:33: Orientation {'radio_id': 0
+356	00:07:33: Position Data {'radio_id': 0
+357	00:07:33: Alt Info & Cfg {'radio_id': 0
+358	00:07:33: Ground Station GPS {'gs_lat': 0.0
+359	00:07:33: Orientation {'radio_id': 0
+360	00:07:33: Position Data {'radio_id': 0
+361	00:07:33: Orientation {'radio_id': 0
+362	00:07:33: Position Data {'radio_id': 0
+363	00:07:33: Orientation {'radio_id': 0
+364	00:07:33: Position Data {'radio_id': 0
+365	00:07:33: Orientation {'radio_id': 0
+366	00:07:33: Position Data {'radio_id': 0
+367	00:07:34: Orientation {'radio_id': 0
+368	00:07:34: Position Data {'radio_id': 0
+369	00:07:34: Pyro Info {'radio_id': 0
+370	00:07:34: Orientation {'radio_id': 0
+371	00:07:34: Position Data {'radio_id': 0
+372	00:07:34: Alt Info & Cfg {'radio_id': 0
+373	00:07:34: Orientation {'radio_id': 0
+374	00:07:34: Position Data {'radio_id': 0
+375	00:07:34: Orientation {'radio_id': 0
+376	00:07:34: Position Data {'radio_id': 0
+377	00:07:34: Orientation {'radio_id': 0
+378	00:07:34: Position Data {'radio_id': 0
+379	00:07:35: Orientation {'radio_id': 0
+380	00:07:35: Position Data {'radio_id': 0
+381	00:07:35: Pyro Info {'radio_id': 0
+382	00:07:35: Ground Station GPS {'gs_lat': 0.0
+383	00:07:35: Orientation {'radio_id': 0
+384	00:07:35: Position Data {'radio_id': 0
+385	00:07:35: Orientation {'radio_id': 0
+386	00:07:35: Position Data {'radio_id': 0
+387	00:07:35: Alt Info & Cfg {'radio_id': 0
+388	00:07:35: Orientation {'radio_id': 0
+389	00:07:35: Position Data {'radio_id': 0
+390	00:07:35: Orientation {'radio_id': 0
+391	00:07:35: Position Data {'radio_id': 0
+392	00:07:36: Orientation {'radio_id': 0
+393	00:07:36: Position Data {'radio_id': 0
+394	00:07:36: Pyro Info {'radio_id': 0
+395	00:07:36: Orientation {'radio_id': 0
+396	00:07:36: Position Data {'radio_id': 0
+397	00:07:36: Orientation {'radio_id': 0
+398	00:07:36: Position Data {'radio_id': 0
+399	00:07:36: Orientation {'radio_id': 0
+400	00:07:36: Alt Info & Cfg {'radio_id': 0
+401	00:07:36: Orientation {'radio_id': 0
+402	00:07:36: Position Data {'radio_id': 0
+403	00:07:37: Orientation {'radio_id': 0
+404	00:07:37: Position Data {'radio_id': 0
+405	00:07:37: Pyro Info {'radio_id': 0
+406	00:07:37: Ground Station GPS {'gs_lat': 0.0
+407	00:07:37: Orientation {'radio_id': 0
+408	00:07:37: Position Data {'radio_id': 0
+409	00:07:37: Orientation {'radio_id': 0
+410	00:07:37: Position Data {'radio_id': 0
+411	00:07:37: Orientation {'radio_id': 0
+412	00:07:37: Position Data {'radio_id': 0
+413	00:07:37: Orientation {'radio_id': 0
+414	00:07:37: Position Data {'radio_id': 0
+415	00:07:38: Alt Info & Cfg {'radio_id': 0
+416	00:07:38: Orientation {'radio_id': 0
+417	00:07:38: Position Data {'radio_id': 0
+418	00:07:38: Pyro Info {'radio_id': 0
+419	00:07:38: Orientation {'radio_id': 0
+420	00:07:38: Position Data {'radio_id': 0
+421	00:07:38: Orientation {'radio_id': 0
+422	00:07:38: Position Data {'radio_id': 0
+423	00:07:38: Orientation {'radio_id': 0
+424	00:07:38: Position Data {'radio_id': 0
+425	00:07:38: Orientation {'radio_id': 0
+426	00:07:38: Position Data {'radio_id': 0
+427	00:07:39: Orientation {'radio_id': 0
+428	00:07:39: Position Data {'radio_id': 0
+429	00:07:39: Pyro Info {'radio_id': 0
+430	00:07:39: Ground Station GPS {'gs_lat': 0.0
+431	00:07:39: Orientation {'radio_id': 0
+432	00:07:39: Position Data {'radio_id': 0
+433	00:07:39: Alt Info & Cfg {'radio_id': 0
+434	00:07:39: Orientation {'radio_id': 0
+435	00:07:39: Position Data {'radio_id': 0
+436	00:07:39: Orientation {'radio_id': 0
+437	00:07:39: Position Data {'radio_id': 0
+438	00:07:39: Orientation {'radio_id': 0
+439	00:07:39: Position Data {'radio_id': 0
+440	00:07:40: Orientation {'radio_id': 0
+441	00:07:40: Position Data {'radio_id': 0
+442	00:07:40: Pyro Info {'radio_id': 0
+443	00:07:40: Orientation {'radio_id': 0
+444	00:07:40: Position Data {'radio_id': 0
+445	00:07:40: Orientation {'radio_id': 0
+446	00:07:40: Position Data {'radio_id': 0
+447	00:07:40: Alt Info & Cfg {'radio_id': 0
+448	00:07:40: Orientation {'radio_id': 0
+449	00:07:40: Position Data {'radio_id': 0
+450	00:07:40: Orientation {'radio_id': 0
+451	00:07:40: Position Data {'radio_id': 0
+452	00:07:41: Orientation {'radio_id': 0
+453	00:07:41: Position Data {'radio_id': 0
+454	00:07:41: Pyro Info {'radio_id': 0
+455	00:07:41: Orientation {'radio_id': 0
+456	00:07:41: Position Data {'radio_id': 0
+457	00:07:41: Orientation {'radio_id': 0
+458	00:07:41: Orientation {'radio_id': 0
+459	00:07:41: Position Data {'radio_id': 0
+460	00:07:41: Alt Info & Cfg {'radio_id': 0
+461	00:07:41: Orientation {'radio_id': 0
+462	00:07:41: Position Data {'radio_id': 0
+463	00:07:42: Orientation {'radio_id': 0
+464	00:07:42: Position Data {'radio_id': 0
+465	00:07:42: Orientation {'radio_id': 0
+466	00:07:42: Position Data {'radio_id': 0
+467	00:07:42: Pyro Info {'radio_id': 0
+468	00:07:42: Orientation {'radio_id': 0
+469	00:07:42: Position Data {'radio_id': 0
+470	00:07:42: Orientation {'radio_id': 0
+471	00:07:42: Position Data {'radio_id': 0
+472	00:07:42: Orientation {'radio_id': 0
+473	00:07:42: Position Data {'radio_id': 0
+474	00:07:43: Alt Info & Cfg {'radio_id': 0
+475	00:07:43: Orientation {'radio_id': 0
+476	00:07:43: Position Data {'radio_id': 0
+477	00:07:43: Ground Station GPS {'gs_lat': 0.0
+478	00:07:43: Orientation {'radio_id': 0
+479	00:07:43: Pyro Info {'radio_id': 0
+480	00:07:43: Orientation {'radio_id': 0
+481	00:07:43: Position Data {'radio_id': 0
+482	00:07:43: Orientation {'radio_id': 0
+483	00:07:43: Position Data {'radio_id': 0
+484	00:07:43: Orientation {'radio_id': 0
+485	00:07:43: Position Data {'radio_id': 0
+486	00:07:44: Orientation {'radio_id': 0
+487	00:07:44: Position Data {'radio_id': 0
+488	00:07:44: Alt Info & Cfg {'radio_id': 0
+489	00:07:44: Orientation {'radio_id': 0
+490	00:07:44: Position Data {'radio_id': 0
+491	00:07:44: Pyro Info {'radio_id': 0
+492	00:07:44: Orientation {'radio_id': 0
+493	00:07:44: Position Data {'radio_id': 0
+494	00:07:44: Orientation {'radio_id': 0
+495	00:07:44: Position Data {'radio_id': 0
+496	00:07:44: Orientation {'radio_id': 0
+497	00:07:44: Position Data {'radio_id': 0
+498	00:07:45: Orientation {'radio_id': 0
+499	00:07:45: Position Data {'radio_id': 0
+500	00:07:45: Ground Station GPS {'gs_lat': 0.0
+501	00:07:45: Orientation {'radio_id': 0
+502	00:07:45: Position Data {'radio_id': 0
+503	00:07:45: Pyro Info {'radio_id': 0
+504	00:07:45: Orientation {'radio_id': 0
+505	00:07:45: Position Data {'radio_id': 0
+506	00:07:45: Orientation {'radio_id': 0
+507	00:07:45: Position Data {'radio_id': 0
+508	00:07:45: Orientation {'radio_id': 0
+509	00:07:45: Position Data {'radio_id': 0
+510	00:07:46: Orientation {'radio_id': 0
+511	00:07:46: Position Data {'radio_id': 0
+512	00:07:46: Orientation {'radio_id': 0
+513	00:07:46: Position Data {'radio_id': 0
+514	00:07:46: Pyro Info {'radio_id': 0
+515	00:07:46: Orientation {'radio_id': 0
+516	00:07:46: Position Data {'radio_id': 0
+517	00:07:46: Orientation {'radio_id': 0
+518	00:07:46: Position Data {'radio_id': 0
+519	00:07:46: Alt Info & Cfg {'radio_id': 0
+520	00:07:46: Orientation {'radio_id': 0
+521	00:07:46: Position Data {'radio_id': 0
+522	00:07:47: Orientation {'radio_id': 0
+523	00:07:47: Position Data {'radio_id': 0
+524	00:07:47: Ground Station GPS {'gs_lat': 0.0
+525	00:07:47: Orientation {'radio_id': 0
+526	00:07:47: Position Data {'radio_id': 0
+527	00:07:47: Pyro Info {'radio_id': 0
+528	00:07:47: Orientation {'radio_id': 0
+529	00:07:47: Position Data {'radio_id': 0
+530	00:07:47: Orientation {'radio_id': 0
+531	00:07:47: Position Data {'radio_id': 0
+532	00:07:47: Orientation {'radio_id': 0
+533	00:07:47: Position Data {'radio_id': 0
+534	00:07:47: Alt Info & Cfg {'radio_id': 0
+535	00:07:48: Orientation {'radio_id': 0
+536	00:07:48: Position Data {'radio_id': 0
+537	00:07:48: Orientation {'radio_id': 0
+538	00:07:48: Position Data {'radio_id': 0
+539	00:07:48: Pyro Info {'radio_id': 0
+540	00:07:48: Orientation {'radio_id': 0
+541	00:07:48: Position Data {'radio_id': 0
+542	00:07:48: Orientation {'radio_id': 0
+543	00:07:48: Position Data {'radio_id': 0
+544	00:07:48: Orientation {'radio_id': 0
+545	00:07:48: Position Data {'radio_id': 0
+546	00:07:49: Orientation {'radio_id': 0
+547	00:07:49: Position Data {'radio_id': 0
+548	00:07:49: Alt Info & Cfg {'radio_id': 0
+549	00:07:49: Ground Station GPS {'gs_lat': 0.0
+550	00:07:49: Orientation {'radio_id': 0
+551	00:07:49: Position Data {'radio_id': 0
+552	00:07:49: Pyro Info {'radio_id': 0
+553	00:07:49: Orientation {'radio_id': 0
+554	00:07:49: Position Data {'radio_id': 0
+555	00:07:49: Orientation {'radio_id': 0
+556	00:07:49: Position Data {'radio_id': 0
+557	00:07:49: Orientation {'radio_id': 0
+558	00:07:49: Position Data {'radio_id': 0
+559	00:07:50: Orientation {'radio_id': 0
+560	00:07:50: Position Data {'radio_id': 0
+561	00:07:50: Orientation {'radio_id': 0
+562	00:07:50: Position Data {'radio_id': 0
+563	00:07:50: Alt Info & Cfg {'radio_id': 0
+564	00:07:50: Pyro Info {'radio_id': 0
+565	00:07:50: Orientation {'radio_id': 0
+566	00:07:50: Position Data {'radio_id': 0
+567	00:07:50: Orientation {'radio_id': 0
+568	00:07:50: Position Data {'radio_id': 0
+569	00:07:50: Orientation {'radio_id': 0
+570	00:07:50: Position Data {'radio_id': 0
+571	00:07:51: Orientation {'radio_id': 0
+572	00:07:51: Position Data {'radio_id': 0
+573	00:07:51: Ground Station GPS {'gs_lat': 0.0
+574	00:07:51: Orientation {'radio_id': 0
+575	00:07:51: Position Data {'radio_id': 0
+576	00:07:51: Pyro Info {'radio_id': 0
+577	00:07:51: Orientation {'radio_id': 0
+578	00:07:51: Position Data {'radio_id': 0
+579	00:07:51: Orientation {'radio_id': 0
+580	00:07:51: Position Data {'radio_id': 0
+581	00:07:51: Alt Info & Cfg {'radio_id': 0
+582	00:07:51: Orientation {'radio_id': 0
+583	00:07:51: Position Data {'radio_id': 0
+584	00:07:52: Orientation {'radio_id': 0
+585	00:07:52: Position Data {'radio_id': 0
+586	00:07:52: Orientation {'radio_id': 0
+587	00:07:52: Position Data {'radio_id': 0
+588	00:07:52: Orientation {'radio_id': 0
+589	00:07:52: Position Data {'radio_id': 0
+590	00:07:52: Pyro Info {'radio_id': 0
+591	00:07:52: Orientation {'radio_id': 0
+592	00:07:52: Position Data {'radio_id': 0
+593	00:07:52: Orientation {'radio_id': 0
+594	00:07:52: Position Data {'radio_id': 0
+595	00:07:52: Alt Info & Cfg {'radio_id': 0
+596	00:07:53: Orientation {'radio_id': 0
+597	00:07:53: Position Data {'radio_id': 0
+598	00:07:53: Ground Station GPS {'gs_lat': 0.0
+599	00:07:53: Orientation {'radio_id': 0
+600	00:07:53: Position Data {'radio_id': 0
+601	00:07:53: Orientation {'radio_id': 0
+602	00:07:53: Position Data {'radio_id': 0
+603	00:07:53: Pyro Info {'radio_id': 0
+604	00:07:53: Orientation {'radio_id': 0
+605	00:07:53: Position Data {'radio_id': 0
+606	00:07:53: Orientation {'radio_id': 0
+607	00:07:53: Position Data {'radio_id': 0
+608	00:07:54: Orientation {'radio_id': 0
+609	00:07:54: Position Data {'radio_id': 0
+610	00:07:54: Alt Info & Cfg {'radio_id': 0
+611	00:07:54: Orientation {'radio_id': 0
+612	00:07:54: Position Data {'radio_id': 0
+613	00:07:54: Orientation {'radio_id': 0
+614	00:07:54: Position Data {'radio_id': 0
+615	00:07:54: Pyro Info {'radio_id': 0
+616	00:07:54: Orientation {'radio_id': 0
+617	00:07:54: Position Data {'radio_id': 0
+618	00:07:54: Orientation {'radio_id': 0
+619	00:07:54: Position Data {'radio_id': 0
+620	00:07:55: Orientation {'radio_id': 0
+621	00:07:55: Position Data {'radio_id': 0
+622	00:07:55: Ground Station GPS {'gs_lat': 0.0
+623	00:07:55: Orientation {'radio_id': 0
+624	00:07:55: Position Data {'radio_id': 0
+625	00:07:55: Alt Info & Cfg {'radio_id': 0
+626	00:07:55: Orientation {'radio_id': 0
+627	00:07:55: Position Data {'radio_id': 0
+628	00:07:55: Pyro Info {'radio_id': 0
+629	00:07:55: Orientation {'radio_id': 0
+630	00:07:55: Position Data {'radio_id': 0
+631	00:07:55: Orientation {'radio_id': 0
+632	00:07:55: Position Data {'radio_id': 0
+633	00:07:56: Orientation {'radio_id': 0
+634	00:07:56: Position Data {'radio_id': 0
+635	00:07:56: Orientation {'radio_id': 0
+636	00:07:56: Position Data {'radio_id': 0
+637	00:07:56: Orientation {'radio_id': 0
+638	00:07:56: Position Data {'radio_id': 0
+639	00:07:56: Pyro Info {'radio_id': 0
+640	00:07:56: Alt Info & Cfg {'radio_id': 0
+641	00:07:56: Orientation {'radio_id': 0
+642	00:07:56: Position Data {'radio_id': 0
+643	00:07:56: Orientation {'radio_id': 0
+644	00:07:56: Position Data {'radio_id': 0
+645	00:07:57: Orientation {'radio_id': 0
+646	00:07:57: Position Data {'radio_id': 0
+647	00:07:57: Ground Station GPS {'gs_lat': 0.0
+648	00:07:57: Orientation {'radio_id': 0
+649	00:07:57: Position Data {'radio_id': 0
+650	00:07:57: Orientation {'radio_id': 0
+651	00:07:57: Position Data {'radio_id': 0
+652	00:07:57: Pyro Info {'radio_id': 0
+653	00:07:57: Orientation {'radio_id': 0
+654	00:07:57: Position Data {'radio_id': 0
+655	00:07:57: Orientation {'radio_id': 0
+656	00:07:57: Position Data {'radio_id': 0
+657	00:07:58: Alt Info & Cfg {'radio_id': 0
+658	00:07:58: Orientation {'radio_id': 0
+659	00:07:58: Position Data {'radio_id': 0
+660	00:07:58: Orientation {'radio_id': 0
+661	00:07:58: Position Data {'radio_id': 0
+662	00:07:58: Orientation {'radio_id': 0
+663	00:07:58: Position Data {'radio_id': 0
+664	00:07:58: Pyro Info {'radio_id': 0
+665	00:07:58: Orientation {'radio_id': 0
+666	00:07:58: Position Data {'radio_id': 0
+667	00:07:58: Orientation {'radio_id': 0
+668	00:07:58: Position Data {'radio_id': 0
+669	00:07:59: Orientation {'radio_id': 0
+670	00:07:59: Position Data {'radio_id': 0
+671	00:07:59: Alt Info & Cfg {'radio_id': 0
+672	00:07:59: Ground Station GPS {'gs_lat': 0.0
+673	00:07:59: Orientation {'radio_id': 0
+674	00:07:59: Position Data {'radio_id': 0
+675	00:07:59: Orientation {'radio_id': 0
+676	00:07:59: Position Data {'radio_id': 0
+677	00:07:59: Pyro Info {'radio_id': 0
+678	00:07:59: Orientation {'radio_id': 0
+679	00:07:59: Position Data {'radio_id': 0
+680	00:07:59: Orientation {'radio_id': 0
+681	00:07:59: Position Data {'radio_id': 0
+682	00:08:00: Orientation {'radio_id': 0
+683	00:08:00: Position Data {'radio_id': 0
+684	00:08:00: Orientation {'radio_id': 0
+685	00:08:00: Position Data {'radio_id': 0
+686	00:08:00: Alt Info & Cfg {'radio_id': 0
+687	00:08:00: Orientation {'radio_id': 0
+688	00:08:00: Position Data {'radio_id': 0
+689	00:08:00: Pyro Info {'radio_id': 0
+690	00:08:00: Orientation {'radio_id': 0
+691	00:08:00: Position Data {'radio_id': 0
+692	00:08:00: Orientation {'radio_id': 0
+693	00:08:00: Position Data {'radio_id': 0
+694	00:08:01: Orientation {'radio_id': 0
+695	00:08:01: Position Data {'radio_id': 0
+696	00:08:01: Ground Station GPS {'gs_lat': 0.0
+697	00:08:01: Orientation {'radio_id': 0
+698	00:08:01: Position Data {'radio_id': 0
+699	00:08:01: Orientation {'radio_id': 0
+700	00:08:01: Position Data {'radio_id': 0
+701	00:08:01: Alt Info & Cfg {'radio_id': 0
+702	00:08:01: Pyro Info {'radio_id': 0
+703	00:08:01: Orientation {'radio_id': 0
+704	00:08:01: Position Data {'radio_id': 0
+705	00:08:01: Orientation {'radio_id': 0
+706	00:08:01: Position Data {'radio_id': 0
+707	00:08:02: Orientation {'radio_id': 0
+708	00:08:02: Position Data {'radio_id': 0
+709	00:08:02: Orientation {'radio_id': 0
+710	00:08:02: Position Data {'radio_id': 0
+711	00:08:02: Orientation {'radio_id': 0

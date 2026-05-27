@@ -1,0 +1,10 @@
+key	value	source
+altimeter.board	Unknown Altimeter	derived
+altimeter.source_folder	root-03-18-2023 00-06-32 GroundStationDataInterface_parsed	derived
+data.has_parsed_timeseries	true	derived
+data.row_count	712	derived
+data.source_file	03-18-2023 00-06-32 GroundStationDataInterface_parsed.txt	derived
+data.synthetic_time_added	true	derived
+data.time_column	generated_time_s	derived
+flight.date	2023-03-18	derived
+flight.name	Ryan Cert	derived
