@@ -1,5 +1,7 @@
 import { app, BrowserWindow, Menu, dialog, ipcMain } from 'electron';
+import { spawn } from 'node:child_process';
 import fs from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
 import { getImportConfig } from './importers/registry';
 import {
@@ -17,6 +19,9 @@ const portableExecutableDir = process.env.PORTABLE_EXECUTABLE_DIR ?? null;
 const THEME_IDS = ['default-dark', 'slate-light', 'forest-dark', 'amber-dark'] as const;
 type ThemeId = (typeof THEME_IDS)[number];
 const DEFAULT_THEME: ThemeId = 'default-dark';
+const REMOTE_FLIGHT_DATA_REPO = 'https://github.com/AerospaceNU/rocket-flight-data.git';
+const REMOTE_FLIGHT_DATA_BRANCH = 'new-app-dev';
+const REMOTE_FLIGHT_DATA_SUBDIR = 'flight-data';
 
 function getConfigDirectory(): string {
   if (portableExecutableDir) return portableExecutableDir;
@@ -112,6 +117,119 @@ function persistTheme(theme: ThemeId): void {
   writeConfig(config);
 }
 
+function runGitCommand(args: string[], cwd?: string): Promise<void> {
+  return new Promise((resolve, reject) => {
+    const child = spawn('git', args, {
+      cwd,
+      windowsHide: true
+    });
+    let stderr = '';
+
+    child.stderr.on('data', (chunk: Buffer | string) => {
+      stderr += chunk.toString();
+    });
+    child.on('error', (error) => {
+      reject(error);
+    });
+    child.on('close', (code) => {
+      if (code === 0) {
+        resolve();
+        return;
+      }
+      reject(new Error(stderr.trim() || `git ${args.join(' ')} failed with exit code ${code}`));
+    });
+  });
+}
+
+function resolveFlightDataDownloadTarget(selectedDirectory: string): string {
+  const resolved = path.resolve(selectedDirectory);
+  return path.basename(resolved).toLowerCase() === 'flight-data'
+    ? resolved
+    : path.join(resolved, 'flight-data');
+}
+
+async function downloadRemoteFlightData(mainWindow: BrowserWindow): Promise<void> {
+  const result = await dialog.showOpenDialog(mainWindow, {
+    title: 'Select Location for Downloaded Flight Data',
+    defaultPath: path.dirname(outputDirectory),
+    properties: ['openDirectory', 'createDirectory']
+  });
+
+  if (result.canceled || !result.filePaths[0]) {
+    return;
+  }
+
+  const targetDirectory = resolveFlightDataDownloadTarget(result.filePaths[0]);
+
+  if (fs.existsSync(targetDirectory)) {
+    const confirm = await dialog.showMessageBox(mainWindow, {
+      type: 'warning',
+      buttons: ['Replace', 'Cancel'],
+      defaultId: 1,
+      cancelId: 1,
+      message: `Replace existing data in:\n${targetDirectory}?`,
+      detail: 'This will remove the existing folder before downloading the latest data.'
+    });
+
+    if (confirm.response !== 0) {
+      return;
+    }
+  }
+
+  const tempRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'rocket-flight-data-sync-'));
+  const cloneDirectory = path.join(tempRoot, 'repo');
+
+  try {
+    await runGitCommand(
+      [
+        'clone',
+        '--depth',
+        '1',
+        '--branch',
+        REMOTE_FLIGHT_DATA_BRANCH,
+        '--filter=blob:none',
+        '--sparse',
+        REMOTE_FLIGHT_DATA_REPO,
+        cloneDirectory
+      ],
+      undefined
+    );
+    await runGitCommand(['sparse-checkout', 'set', REMOTE_FLIGHT_DATA_SUBDIR], cloneDirectory);
+
+    const sourceDirectory = path.join(cloneDirectory, REMOTE_FLIGHT_DATA_SUBDIR);
+    if (!fs.existsSync(sourceDirectory) || !fs.statSync(sourceDirectory).isDirectory()) {
+      throw new Error(`Remote folder not found: ${REMOTE_FLIGHT_DATA_SUBDIR}`);
+    }
+
+    fs.rmSync(targetDirectory, { recursive: true, force: true });
+    fs.mkdirSync(path.dirname(targetDirectory), { recursive: true });
+    fs.cpSync(sourceDirectory, targetDirectory, { recursive: true, force: true });
+
+    outputDirectory = targetDirectory;
+    await ensureOutputDirectory(outputDirectory);
+    persistOutputDirectory(outputDirectory);
+    mainWindow.webContents.send('directory:changed', outputDirectory);
+
+    await dialog.showMessageBox(mainWindow, {
+      type: 'info',
+      buttons: ['OK'],
+      message: 'Flight data downloaded.',
+      detail: `Downloaded ${REMOTE_FLIGHT_DATA_SUBDIR} from ${REMOTE_FLIGHT_DATA_BRANCH} and set it as the active directory.\n\n${outputDirectory}`
+    });
+  } catch (error) {
+    const message =
+      error instanceof Error ? error.message : 'Unknown error occurred while downloading flight data.';
+    await dialog.showMessageBox(mainWindow, {
+      type: 'error',
+      buttons: ['OK'],
+      message: 'Download failed.',
+      detail: message
+    });
+  } finally {
+    fs.rmSync(tempRoot, { recursive: true, force: true });
+  }
+}
+
 function buildAppMenu(mainWindow: BrowserWindow) {
   const themeItems: Electron.MenuItemConstructorOptions[] = [
     { id: 'default-dark', label: 'Default Dark' },
@@ -170,6 +288,17 @@ function buildAppMenu(mainWindow: BrowserWindow) {
     {
       label: 'Theme',
       submenu: themeItems
+    },
+    {
+      label: 'Download',
+      submenu: [
+        {
+          label: 'Sync Flight Data From GitHub',
+          click: () => {
+            void downloadRemoteFlightData(mainWindow);
+          }
+        }
+      ]
     }
   ]);
 
