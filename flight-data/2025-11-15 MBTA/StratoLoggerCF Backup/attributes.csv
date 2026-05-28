@@ -21,3 +21,6 @@ main_at,85.50 Seconds
 max_drogue_current,0 Amps
 max_main_current,0 Amps
 comments,
+row_count,2328
+peak_altitude_m,1718.46
+peak_velocity_ms,205.44

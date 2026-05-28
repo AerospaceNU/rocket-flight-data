@@ -1,7 +1,11 @@
 import { access, copyFile, mkdir, readdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
-import { getAltimeterDefinition, getImporterForAltimeter } from './importers/registry';
-import type { ImportPreview } from './importers/types';
+import {
+  getAltimeterDefinition,
+  getImporterById,
+  getImporterForAltimeter
+} from './importers/registry';
+import type { ImportPreview, ParsedImport } from './importers/types';
 
 export type FlightSummary = {
   directoryName: string;
@@ -66,7 +70,6 @@ export type SaveImportResult = {
   outputDirectory: string;
   flightDirectory: string;
   altimeterDirectory: string;
-  logPath: string;
   attributesPath: string;
   rowsWritten: number;
   dataset: ImportedAltimeterSummary;
@@ -159,9 +162,11 @@ async function writeAttributes(attributesPath: string, attributes: CustomAttribu
   await writeFile(attributesPath, `${attributesCsv}\n`, 'utf8');
 }
 
+const RESERVED_FILE_NAMES = new Set(['attributes.csv']);
+
 async function copyOriginalFiles(filePaths: string[], destinationDirectory: string) {
   await mkdir(destinationDirectory, { recursive: true });
-  const usedNames = new Set<string>();
+  const usedNames = new Set<string>(RESERVED_FILE_NAMES);
 
   for (const filePath of filePaths) {
     const parsed = path.parse(filePath);
@@ -176,6 +181,13 @@ async function copyOriginalFiles(filePaths: string[], destinationDirectory: stri
     usedNames.add(fileName);
     await copyFile(filePath, path.join(destinationDirectory, fileName));
   }
+}
+
+async function listOriginalFilePaths(altimeterDirectory: string): Promise<string[]> {
+  const entries = await readdir(altimeterDirectory, { withFileTypes: true });
+  return entries
+    .filter((entry) => entry.isFile() && !RESERVED_FILE_NAMES.has(entry.name))
+    .map((entry) => path.join(altimeterDirectory, entry.name));
 }
 
 function attributesToRecord(attributes: CustomAttribute[]) {
@@ -260,20 +272,8 @@ function parseNumberAttribute(value: string | undefined): number | null {
   return Number.isFinite(number) ? number : null;
 }
 
-async function readLog(logPath: string) {
-  const contents = await readFile(logPath, 'utf8');
-  const rows = parseCsvRows(contents);
-  const headers = rows[0] ?? [];
-
-  return {
-    headers,
-    rows: rows.slice(1)
-  };
-}
-
 async function hasImportedAltimeter(altimeterDirectory: string) {
   try {
-    await access(path.join(altimeterDirectory, 'log.csv'));
     await access(path.join(altimeterDirectory, 'attributes.csv'));
     return true;
   } catch {
@@ -305,6 +305,114 @@ function resolveInsideOutputDirectory(outputDirectory: string, datasetDirectory:
   return resolvedDatasetDirectory;
 }
 
+type CachedMetrics = {
+  rowCount: number;
+  peakAltitudeMeters: number | null;
+  peakVelocityMs: number | null;
+  peakAccelerationMss: number | null;
+};
+
+const METRIC_ATTRIBUTE_KEYS = [
+  'row_count',
+  'peak_altitude_m',
+  'peak_velocity_ms',
+  'peak_acceleration_mss'
+] as const;
+
+function metricsFromAttributes(attributes: Record<string, string>): Partial<CachedMetrics> {
+  const result: Partial<CachedMetrics> = {};
+  const rowCount = parseNumberAttribute(attributes.row_count);
+  if (rowCount !== null) result.rowCount = rowCount;
+  if (attributes.peak_altitude_m !== undefined) {
+    result.peakAltitudeMeters = parseNumberAttribute(attributes.peak_altitude_m);
+  }
+  if (attributes.peak_velocity_ms !== undefined) {
+    result.peakVelocityMs = parseNumberAttribute(attributes.peak_velocity_ms);
+  }
+  if (attributes.peak_acceleration_mss !== undefined) {
+    result.peakAccelerationMss = parseNumberAttribute(attributes.peak_acceleration_mss);
+  }
+  return result;
+}
+
+function computeMetricsFromParsed(parsed: { headers: string[]; rows: string[][] }): CachedMetrics {
+  return {
+    rowCount: parsed.rows.length,
+    peakAltitudeMeters: computePeakAltitudeMeters(parsed.headers, parsed.rows),
+    peakVelocityMs: computePeakVelocityMs(parsed.headers, parsed.rows),
+    peakAccelerationMss: computePeakAccelerationMss(parsed.headers, parsed.rows)
+  };
+}
+
+async function parseAltimeterOriginals(
+  altimeterDirectory: string,
+  importerId: string
+): Promise<ParsedImport> {
+  const importer = getImporterById(importerId);
+  if (!importer) {
+    throw new Error(`No importer registered for id: ${importerId}`);
+  }
+  const filePaths = await listOriginalFilePaths(altimeterDirectory);
+  if (filePaths.length === 0) {
+    throw new Error(`No original files found in ${altimeterDirectory}`);
+  }
+  return importer.parse(filePaths);
+}
+
+async function resolveMetrics(
+  altimeterDirectory: string,
+  attributesPath: string,
+  attributes: Record<string, string>
+): Promise<{ metrics: CachedMetrics; attributes: Record<string, string> }> {
+  const cached = metricsFromAttributes(attributes);
+  if (cached.rowCount !== undefined) {
+    return {
+      metrics: {
+        rowCount: cached.rowCount,
+        peakAltitudeMeters: cached.peakAltitudeMeters ?? null,
+        peakVelocityMs: cached.peakVelocityMs ?? null,
+        peakAccelerationMss: cached.peakAccelerationMss ?? null
+      },
+      attributes
+    };
+  }
+
+  const importerId = attributes.importer_id;
+  if (!importerId) {
+    return {
+      metrics: {
+        rowCount: 0,
+        peakAltitudeMeters: null,
+        peakVelocityMs: null,
+        peakAccelerationMss: null
+      },
+      attributes
+    };
+  }
+
+  const parsed = await parseAltimeterOriginals(altimeterDirectory, importerId);
+  const metrics = computeMetricsFromParsed(parsed);
+
+  const nextAttributes = { ...attributes };
+  nextAttributes.row_count = String(metrics.rowCount);
+  if (metrics.peakAltitudeMeters !== null) {
+    nextAttributes.peak_altitude_m = metrics.peakAltitudeMeters.toFixed(2);
+  }
+  if (metrics.peakVelocityMs !== null) {
+    nextAttributes.peak_velocity_ms = metrics.peakVelocityMs.toFixed(2);
+  }
+  if (metrics.peakAccelerationMss !== null) {
+    nextAttributes.peak_acceleration_mss = metrics.peakAccelerationMss.toFixed(2);
+  }
+
+  await writeAttributes(
+    attributesPath,
+    Object.entries(nextAttributes).map(([key, value]) => ({ key, value }))
+  );
+
+  return { metrics, attributes: nextAttributes };
+}
+
 async function createImportedAltimeterSummary(
   outputDirectory: string,
   flightDirectoryName: string,
@@ -312,22 +420,14 @@ async function createImportedAltimeterSummary(
 ): Promise<ImportedAltimeterSummary | null> {
   const parsedFlight = splitFlightDirectoryName(flightDirectoryName);
   const altimeterDirectory = path.join(outputDirectory, flightDirectoryName, altimeterDirectoryName);
-  const logPath = path.join(altimeterDirectory, 'log.csv');
   const attributesPath = path.join(altimeterDirectory, 'attributes.csv');
 
   if (!(await hasImportedAltimeter(altimeterDirectory))) {
     return null;
   }
 
-  const attributes = attributesToRecord(await readAttributes(attributesPath));
-  const log = await readLog(logPath);
-
-  const peakAltitudeMeters =
-    parseNumberAttribute(attributes.peak_altitude_m) ?? computePeakAltitudeMeters(log.headers, log.rows);
-  const peakVelocityMs =
-    parseNumberAttribute(attributes.peak_velocity_ms) ?? computePeakVelocityMs(log.headers, log.rows);
-  const peakAccelerationMss =
-    parseNumberAttribute(attributes.peak_acceleration_mss) ?? computePeakAccelerationMss(log.headers, log.rows);
+  const initialAttributes = attributesToRecord(await readAttributes(attributesPath));
+  const { metrics, attributes } = await resolveMetrics(altimeterDirectory, attributesPath, initialAttributes);
 
   return {
     id: path.join(flightDirectoryName, altimeterDirectoryName),
@@ -341,10 +441,10 @@ async function createImportedAltimeterSummary(
     altimeterNote: attributes.altimeter_note ?? '',
     motor: attributes.motor ?? '',
     flightNotes: attributes.flight_notes ?? '',
-    peakAltitudeMeters,
-    peakVelocityMs,
-    peakAccelerationMss,
-    rowCount: log.rows.length,
+    peakAltitudeMeters: metrics.peakAltitudeMeters,
+    peakVelocityMs: metrics.peakVelocityMs,
+    peakAccelerationMss: metrics.peakAccelerationMss,
+    rowCount: metrics.rowCount,
     attributes
   };
 }
@@ -423,17 +523,22 @@ export async function readImportedDataset(
   );
 
   if (!summary) {
-    throw new Error('Dataset does not contain log.csv and attributes.csv.');
+    throw new Error('Dataset is missing attributes.csv.');
   }
 
   const attributes = await readAttributes(path.join(altimeterDirectory, 'attributes.csv'));
-  const log = await readLog(path.join(altimeterDirectory, 'log.csv'));
+  const importerId = summary.attributes.importer_id;
+  if (!importerId) {
+    throw new Error('Dataset is missing importer_id attribute; cannot parse originals.');
+  }
+
+  const parsed = await parseAltimeterOriginals(altimeterDirectory, importerId);
 
   return {
     summary,
     attributes,
-    headers: log.headers,
-    rows: log.rows
+    headers: parsed.headers,
+    rows: parsed.rows
   };
 }
 
@@ -573,7 +678,6 @@ export async function saveImport(
   );
   const flightDirectory = path.join(outputDirectory, flightDirectoryName);
   const altimeterDirectory = path.join(flightDirectory, altimeterDirectoryName);
-  const logPath = path.join(altimeterDirectory, 'log.csv');
   const attributesPath = path.join(altimeterDirectory, 'attributes.csv');
 
   await mkdir(flightDirectory, { recursive: true });
@@ -584,11 +688,6 @@ export async function saveImport(
     throw new Error(`An altimeter import already exists at ${altimeterDirectory}`);
   }
 
-  const logCsv = [
-    csvLine(parsed.headers),
-    ...parsed.rows.map((row) => csvLine(row))
-  ].join('\n');
-
   const attributes = new Map<string, string>();
   attributes.set('altimeter_name', altimeter.name);
   attributes.set('flight_location', flightLocation);
@@ -597,6 +696,7 @@ export async function saveImport(
   attributes.set('altimeter_note', request.altimeterNote.trim());
   attributes.set('importer_id', importer.id);
   attributes.set('imported_at', new Date().toISOString());
+  attributes.set('row_count', String(parsed.rows.length));
 
   const peakAltitudeMeters = computePeakAltitudeMeters(parsed.headers, parsed.rows);
   const peakVelocityMs = computePeakVelocityMs(parsed.headers, parsed.rows);
@@ -612,12 +712,11 @@ export async function saveImport(
     }
   }
 
-  await writeFile(logPath, `${logCsv}\n`, 'utf8');
+  await copyOriginalFiles(parsed.sourceFiles, altimeterDirectory);
   await writeAttributes(
     attributesPath,
     Array.from(attributes.entries()).map(([key, value]) => ({ key, value }))
   );
-  await copyOriginalFiles(parsed.sourceFiles, path.join(altimeterDirectory, 'original-files'));
 
   const summary = await createImportedAltimeterSummary(
     outputDirectory,
@@ -633,7 +732,6 @@ export async function saveImport(
     outputDirectory,
     flightDirectory,
     altimeterDirectory,
-    logPath,
     attributesPath,
     rowsWritten: parsed.rows.length,
     dataset: summary

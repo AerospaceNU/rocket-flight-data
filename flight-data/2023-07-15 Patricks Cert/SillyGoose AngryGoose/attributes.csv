@@ -1,0 +1,26 @@
+key,value
+altimeter_name,SillyGoose
+flight_location,FAR
+flight_date,2023-07-15
+flight_name,Patricks Cert
+altimeter_note,AngryGoose
+importer_id,sillygoose
+imported_at,2026-05-28T19:49:03.338Z
+row_count,1895
+peak_altitude_m,3875.15
+peak_velocity_ms,477.05
+peak_acceleration_mss,82.24
+motor,L265
+flight_notes,"This is data from an AngryGoose, however run though a sim on the SillyGoose to produce a SillyGoose output. Small Owl/Patrick's cert FAR flight. During heat wave. Main parachute didn't deploy, but still recovered safely"
+BOARD_NAME,AngryGoose
+DROGUE_DELAY,1001
+MAIN_ELEVATION,200.00
+BATTERY_VOLTAGE_SENSOR_SCALE_FACTOR,0.0129
+GROUND_ELEVATION,-13.69
+GROUND_TEMPERATURE,295.63
+PYRO_FIRE_DURATION,1000
+BUZZER_ENABLED,0
+FLIGHT_STATE,0
+BOARD_ORIENTATION,4
+CONFIGURATION_VERSION,1
+FIRMWARE_VERSION,1.00

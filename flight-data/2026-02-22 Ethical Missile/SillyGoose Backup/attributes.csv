@@ -7,3 +7,7 @@ altimeter_note,Backup
 importer_id,sillygoose
 imported_at,2026-05-28T17:37:21.070Z
 BOARD_NAME,SillyGooseV1
+row_count,9578
+peak_altitude_m,747.35
+peak_velocity_ms,162.38
+peak_acceleration_mss,92.94

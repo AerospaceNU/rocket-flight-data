@@ -7,3 +7,7 @@ altimeter_note,Primary PT2
 importer_id,sillygoose
 imported_at,2026-05-28T17:35:29.685Z
 BOARD_NAME,SillyGooseV1
+row_count,1524
+peak_altitude_m,155.57
+peak_velocity_ms,29.64
+peak_acceleration_mss,17.76

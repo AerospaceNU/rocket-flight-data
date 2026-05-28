@@ -38,3 +38,7 @@ export function getImporterForAltimeter(altimeterId: string) {
 export function getAltimeterDefinition(altimeterId: string) {
   return ALTIMETERS.find((item) => item.id === altimeterId) ?? null;
 }
+
+export function getImporterById(importerId: string) {
+  return importers.get(importerId) ?? null;
+}

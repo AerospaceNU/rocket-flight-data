@@ -7,3 +7,7 @@ altimeter_note,Ridealong 2
 importer_id,sillygoose
 imported_at,2026-05-28T17:41:21.380Z
 BOARD_NAME,SillyGooseV1
+row_count,18905
+peak_altitude_m,1680.08
+peak_velocity_ms,187.26
+peak_acceleration_mss,68.98

@@ -92,7 +92,6 @@ export type SaveImportResult = {
   outputDirectory: string;
   flightDirectory: string;
   altimeterDirectory: string;
-  logPath: string;
   attributesPath: string;
   rowsWritten: number;
   dataset: ImportedAltimeterSummary;
