@@ -452,19 +452,19 @@ export function FlightViewer({
   }, [gpsColumns, visibleRows, visibleXValues]);
   const gpsAspectRatio = useMemo(() => {
     if (gpsPoints.length === 0) {
-      return { x: 1, y: 1, z: 0.35 };
+      return { x: 1, y: 1, z: 1 };
     }
 
     const lonRange = axisRange(gpsPoints.map((point) => point.longitude));
     const latRange = axisRange(gpsPoints.map((point) => point.latitude));
-    const altRange = axisRange(gpsPoints.map((point) => point.altitude));
     const horizontalRange = Math.max(lonRange, latRange, 1e-9);
-    const normalizedZ = altRange / horizontalRange;
+    const xRatio = Math.max(lonRange / horizontalRange, 1e-6);
+    const yRatio = Math.max(latRange / horizontalRange, 1e-6);
 
     return {
-      x: 1,
-      y: 1,
-      z: Math.min(8, Math.max(0.05, normalizedZ))
+      x: xRatio,
+      y: yRatio,
+      z: 1
     };
   }, [gpsPoints]);
 

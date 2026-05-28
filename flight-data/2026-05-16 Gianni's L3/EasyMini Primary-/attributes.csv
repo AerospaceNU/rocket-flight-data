@@ -1,0 +1,12 @@
+key,value
+altimeter_name,EasyMini
+flight_location,CRMRC
+flight_date,2026-05-16
+flight_name,Gianni's L3
+altimeter_note,Primary?
+importer_id,easymini
+imported_at,2026-05-28T17:32:49.097Z
+version,6
+serial,13371
+flight,2
+source_format,AltOS CSV

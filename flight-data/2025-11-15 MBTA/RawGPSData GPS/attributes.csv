@@ -1,0 +1,17 @@
+key,value
+altimeter_name,RawGPSData
+flight_location,CRMRC
+flight_date,2025-11-15
+flight_name,MBTA
+altimeter_note,GPS
+importer_id,rawgpsdata
+imported_at,2026-05-28T17:42:32.459Z
+source_format,Raw GPS CSV
+time_units,s
+altitude_units,m
+start_timestamp,1763236582.4323337
+end_timestamp,1763237082.4825082
+start_latitude,44.825096130371094
+start_longitude,-73.16305541992188
+end_latitude,44.82490158081055
+end_longitude,-73.16101837158203
