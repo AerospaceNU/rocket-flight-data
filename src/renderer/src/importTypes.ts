@@ -22,6 +22,9 @@ export type FlightSummary = {
   name: string;
   location: string;
   altimeterCount: number;
+  peakAltitudeMeters: number | null;
+  peakVelocityMs: number | null;
+  peakAccelerationMss: number | null;
   altimeters: ImportedAltimeterSummary[];
 };
 
@@ -35,7 +38,13 @@ export type ImportedAltimeterSummary = {
   altimeterDirectory: string;
   altimeterName: string;
   altimeterNote: string;
+  motor: string;
+  flightNotes: string;
+  peakAltitudeMeters: number | null;
+  peakVelocityMs: number | null;
+  peakAccelerationMss: number | null;
   rowCount: number;
+  attributes: Record<string, string>;
 };
 
 export type ImportedDataset = {

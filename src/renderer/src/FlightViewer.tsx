@@ -4,6 +4,8 @@ import { AttributeEditor, ensureRequiredAttributes, hasRequiredAttributes } from
 import type { CustomAttribute, FlightSummary, ImportedDataset } from './importTypes';
 
 const REQUIRED_ATTRIBUTE_KEYS = ['motor'];
+const MULTILINE_ATTRIBUTE_KEYS = ['flight_notes'];
+const ENSURED_ATTRIBUTE_KEYS = [...REQUIRED_ATTRIBUTE_KEYS, ...MULTILINE_ATTRIBUTE_KEYS];
 
 type FlightViewerProps = {
   flight: FlightSummary | null;
@@ -355,7 +357,7 @@ export function FlightViewer({
       .then((nextDataset) => {
         if (ignore) return;
         setDataset(nextDataset);
-        setAttributes(ensureRequiredAttributes(nextDataset.attributes, REQUIRED_ATTRIBUTE_KEYS));
+        setAttributes(ensureRequiredAttributes(nextDataset.attributes, ENSURED_ATTRIBUTE_KEYS));
         setSelectedSeries(defaultSeries(nextDataset.headers));
         setShowFullData(false);
         setRawPage(0);
@@ -373,7 +375,7 @@ export function FlightViewer({
 
   const hasAttributeChanges = useMemo(() => {
     if (!dataset) return false;
-    const ensured = ensureRequiredAttributes(dataset.attributes, REQUIRED_ATTRIBUTE_KEYS);
+    const ensured = ensureRequiredAttributes(dataset.attributes, ENSURED_ATTRIBUTE_KEYS);
     return JSON.stringify(attributes) !== JSON.stringify(ensured);
   }, [attributes, dataset]);
 
@@ -812,8 +814,9 @@ export function FlightViewer({
               <AttributeEditor
                 attributes={attributes}
                 emptyText="No attributes."
-                onChange={(next) => setAttributes(ensureRequiredAttributes(next, REQUIRED_ATTRIBUTE_KEYS))}
+                onChange={(next) => setAttributes(ensureRequiredAttributes(next, ENSURED_ATTRIBUTE_KEYS))}
                 requiredKeys={REQUIRED_ATTRIBUTE_KEYS}
+                multilineKeys={MULTILINE_ATTRIBUTE_KEYS}
               />
               <footer className="import-actions">
                 {saveStatus ? <div className="success-text">{saveStatus}</div> : null}

@@ -6,6 +6,7 @@ type AttributeEditorProps = {
   onChange: (attributes: CustomAttribute[]) => void;
   allowAdd?: boolean;
   requiredKeys?: string[];
+  multilineKeys?: string[];
 };
 
 export function ensureRequiredAttributes(
@@ -34,10 +35,13 @@ export function AttributeEditor({
   emptyText,
   onChange,
   allowAdd = true,
-  requiredKeys = []
+  requiredKeys = [],
+  multilineKeys = []
 }: AttributeEditorProps) {
   const requiredKeySet = new Set(requiredKeys.map((key) => key.toLowerCase()));
+  const multilineKeySet = new Set(multilineKeys.map((key) => key.toLowerCase()));
   const isRequired = (key: string) => requiredKeySet.has(key.trim().toLowerCase());
+  const isMultiline = (key: string) => multilineKeySet.has(key.trim().toLowerCase());
 
   const updateAttribute = (index: number, field: keyof CustomAttribute, value: string) => {
     onChange(
@@ -51,23 +55,38 @@ export function AttributeEditor({
     <div className="attribute-editor">
       {attributes.map((attribute, index) => {
         const required = isRequired(attribute.key);
+        const multiline = isMultiline(attribute.key);
+        const fixedKey = required || multiline;
         const missing = required && !attribute.value.trim();
+        const valueClassName = `${missing ? 'required-missing' : ''}${multiline ? ' multiline-value' : ''}`.trim();
         return (
-          <div className="custom-attribute-row" key={index}>
+          <div className={`custom-attribute-row${multiline ? ' multiline-row' : ''}`} key={index}>
             <input
-              disabled={required}
+              disabled={fixedKey}
               value={attribute.key}
               onChange={(event) => updateAttribute(index, 'key', event.target.value)}
               placeholder="key"
             />
-            <input
-              className={missing ? 'required-missing' : ''}
-              value={attribute.value}
-              onChange={(event) => updateAttribute(index, 'value', event.target.value)}
-              placeholder={required ? 'required' : 'value'}
-            />
+            {multiline ? (
+              <textarea
+                className={valueClassName}
+                value={attribute.value}
+                onChange={(event) => updateAttribute(index, 'value', event.target.value)}
+                placeholder={required ? 'required' : 'value'}
+                rows={4}
+              />
+            ) : (
+              <input
+                className={valueClassName}
+                value={attribute.value}
+                onChange={(event) => updateAttribute(index, 'value', event.target.value)}
+                placeholder={required ? 'required' : 'value'}
+              />
+            )}
             {required ? (
               <span className="required-indicator" title="Required">*</span>
+            ) : fixedKey ? (
+              <span />
             ) : (
               <button
                 className="icon-button"

@@ -36,6 +36,66 @@ export function App() {
   const [outputDirectory, setOutputDirectory] = useState('');
   const [config, setConfig] = useState<ImportConfig | null>(null);
   const [flights, setFlights] = useState<FlightSummary[]>([]);
+  const [searchKeyword, setSearchKeyword] = useState('');
+  const [altimeterTypeFilter, setAltimeterTypeFilter] = useState('');
+  const [altitudeMinInput, setAltitudeMinInput] = useState('');
+  const [altitudeMaxInput, setAltitudeMaxInput] = useState('');
+  const [velocityMinInput, setVelocityMinInput] = useState('');
+  const [velocityMaxInput, setVelocityMaxInput] = useState('');
+  const [accelerationMinInput, setAccelerationMinInput] = useState('');
+  const [accelerationMaxInput, setAccelerationMaxInput] = useState('');
+
+  const filteredFlights = useMemo(() => {
+    const keyword = searchKeyword.trim().toLowerCase();
+
+    const inRange = (value: number | null, min: string, max: string) => {
+      const minNum = Number.parseFloat(min);
+      const maxNum = Number.parseFloat(max);
+      const hasMin = Number.isFinite(minNum);
+      const hasMax = Number.isFinite(maxNum);
+      if (!hasMin && !hasMax) return true;
+      if (value === null) return false;
+      if (hasMin && value < minNum) return false;
+      if (hasMax && value > maxNum) return false;
+      return true;
+    };
+
+    return flights.filter((flight) => {
+      if (!inRange(flight.peakAltitudeMeters, altitudeMinInput, altitudeMaxInput)) return false;
+      if (!inRange(flight.peakVelocityMs, velocityMinInput, velocityMaxInput)) return false;
+      if (!inRange(flight.peakAccelerationMss, accelerationMinInput, accelerationMaxInput)) return false;
+      if (altimeterTypeFilter) {
+        const hasMatch = flight.altimeters.some(
+          (altimeter) => altimeter.altimeterName === altimeterTypeFilter
+        );
+        if (!hasMatch) return false;
+      }
+      if (keyword) {
+        const haystacks: string[] = [
+          flight.directoryName,
+          flight.name,
+          flight.location,
+          ...flight.altimeters.flatMap((altimeter) => [
+            altimeter.altimeterDirectoryName,
+            ...Object.values(altimeter.attributes)
+          ])
+        ];
+        const matches = haystacks.some((value) => value?.toLowerCase().includes(keyword));
+        if (!matches) return false;
+      }
+      return true;
+    });
+  }, [
+    flights,
+    searchKeyword,
+    altimeterTypeFilter,
+    altitudeMinInput,
+    altitudeMaxInput,
+    velocityMinInput,
+    velocityMaxInput,
+    accelerationMinInput,
+    accelerationMaxInput
+  ]);
 
   const refreshFlights = useCallback(async () => {
     const nextFlights = await window.appBridge.listFlights();
@@ -150,47 +210,149 @@ export function App() {
             </div>
             <div>
               <span className="summary-label">Imported flights</span>
-              <span className="summary-value">{flights.length}</span>
+              <span className="summary-value">
+                {filteredFlights.length}
+                {filteredFlights.length !== flights.length ? ` / ${flights.length}` : ''}
+              </span>
             </div>
           </div>
+          <div className="flight-filters">
+            <label className="filter-wide">
+              <span className="summary-label">Search</span>
+              <input
+                type="search"
+                value={searchKeyword}
+                onChange={(event) => setSearchKeyword(event.target.value)}
+                placeholder="Name, location, motor, altimeter, notes..."
+              />
+            </label>
+            <label>
+              <span className="summary-label">Altimeter</span>
+              <select
+                value={altimeterTypeFilter}
+                onChange={(event) => setAltimeterTypeFilter(event.target.value)}
+              >
+                <option value="">All</option>
+                {config?.altimeters.map((altimeter) => (
+                  <option key={altimeter.id} value={altimeter.name}>
+                    {altimeter.name}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label>
+              <span className="summary-label">Min altitude (m)</span>
+              <input
+                type="number"
+                value={altitudeMinInput}
+                onChange={(event) => setAltitudeMinInput(event.target.value)}
+                placeholder="Any"
+              />
+            </label>
+            <label>
+              <span className="summary-label">Max altitude (m)</span>
+              <input
+                type="number"
+                value={altitudeMaxInput}
+                onChange={(event) => setAltitudeMaxInput(event.target.value)}
+                placeholder="Any"
+              />
+            </label>
+            <label>
+              <span className="summary-label">Min velocity (m/s)</span>
+              <input
+                type="number"
+                value={velocityMinInput}
+                onChange={(event) => setVelocityMinInput(event.target.value)}
+                placeholder="Any"
+              />
+            </label>
+            <label>
+              <span className="summary-label">Max velocity (m/s)</span>
+              <input
+                type="number"
+                value={velocityMaxInput}
+                onChange={(event) => setVelocityMaxInput(event.target.value)}
+                placeholder="Any"
+              />
+            </label>
+            <label>
+              <span className="summary-label">Min accel (m/s&sup2;)</span>
+              <input
+                type="number"
+                value={accelerationMinInput}
+                onChange={(event) => setAccelerationMinInput(event.target.value)}
+                placeholder="Any"
+              />
+            </label>
+            <label>
+              <span className="summary-label">Max accel (m/s&sup2;)</span>
+              <input
+                type="number"
+                value={accelerationMaxInput}
+                onChange={(event) => setAccelerationMaxInput(event.target.value)}
+                placeholder="Any"
+              />
+            </label>
+          </div>
           <div className="flight-list">
-            {flights.map((flight) => (
-              <section className="flight-group" key={flight.directoryName}>
-                <div className="flight-group-header">
-                  <div>
+            {filteredFlights.map((flight) => {
+              const metaParts = [flight.location || 'No location set'];
+              if (flight.peakAltitudeMeters !== null) {
+                metaParts.push(`${Math.round(flight.peakAltitudeMeters).toLocaleString()} m`);
+              }
+              if (flight.peakVelocityMs !== null) {
+                metaParts.push(`${Math.round(flight.peakVelocityMs).toLocaleString()} m/s`);
+              }
+              if (flight.peakAccelerationMss !== null) {
+                metaParts.push(`${Math.round(flight.peakAccelerationMss).toLocaleString()} m/s²`);
+              }
+              const handleOpen = () => openFlight({ directoryName: flight.directoryName });
+              return (
+                <div
+                  className="flight-row"
+                  key={flight.directoryName}
+                  role="button"
+                  tabIndex={0}
+                  onClick={handleOpen}
+                  onKeyDown={(event) => {
+                    if (event.key === 'Enter' || event.key === ' ') {
+                      event.preventDefault();
+                      handleOpen();
+                    }
+                  }}
+                >
+                  <div className="flight-row-main">
                     <h3>{flight.directoryName}</h3>
-                    <span>{flight.location || 'No location set'}</span>
+                    <span className="flight-row-meta">{metaParts.join(' · ')}</span>
                   </div>
-                  <button
-                    className="small-button"
-                    onClick={() => openFlight({ directoryName: flight.directoryName })}
-                    type="button"
-                  >
-                    Open
-                  </button>
+                  <div className="flight-row-altimeters">
+                    {flight.altimeters.map((altimeter) => (
+                      <button
+                        className="altimeter-chip"
+                        key={altimeter.id}
+                        onClick={(event) => {
+                          event.stopPropagation();
+                          openFlight({
+                            directoryName: flight.directoryName,
+                            selectedAltimeterDirectory: altimeter.altimeterDirectory
+                          });
+                        }}
+                        type="button"
+                      >
+                        {altimeter.altimeterDirectoryName}
+                      </button>
+                    ))}
+                  </div>
                 </div>
-                <div className="dataset-list">
-                  {flight.altimeters.map((altimeter) => (
-                    <button
-                      className="dataset-row"
-                      key={altimeter.id}
-                      onClick={() =>
-                        openFlight({
-                          directoryName: flight.directoryName,
-                          selectedAltimeterDirectory: altimeter.altimeterDirectory
-                        })
-                      }
-                      type="button"
-                    >
-                      <span>{altimeter.altimeterDirectoryName}</span>
-                      <span>{altimeter.rowCount} rows</span>
-                    </button>
-                  ))}
-                </div>
-              </section>
-            ))}
-            {flights.length === 0 ? (
-              <div className="muted-text">No imported flights in this directory.</div>
+              );
+            })}
+            {filteredFlights.length === 0 ? (
+              <div className="muted-text">
+                {flights.length === 0
+                  ? 'No imported flights in this directory.'
+                  : 'No flights match the current filters.'}
+              </div>
             ) : null}
           </div>
         </section>

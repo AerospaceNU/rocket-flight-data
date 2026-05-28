@@ -10,6 +10,8 @@ import type {
 } from './importTypes';
 
 const REQUIRED_ATTRIBUTE_KEYS = ['motor'];
+const MULTILINE_ATTRIBUTE_KEYS = ['flight_notes'];
+const ENSURED_ATTRIBUTE_KEYS = [...REQUIRED_ATTRIBUTE_KEYS, ...MULTILINE_ATTRIBUTE_KEYS];
 
 type ImportWorkflowProps = {
   files: string[];
@@ -47,7 +49,7 @@ export function ImportWorkflow({
   const [hasAppliedDetection, setHasAppliedDetection] = useState(false);
   const [autoAttributeSourceKey, setAutoAttributeSourceKey] = useState('');
   const [customAttributes, setCustomAttributes] = useState<CustomAttribute[]>(() =>
-    ensureRequiredAttributes([], REQUIRED_ATTRIBUTE_KEYS)
+    ensureRequiredAttributes([], ENSURED_ATTRIBUTE_KEYS)
   );
   const [preview, setPreview] = useState<ImportPreview | null>(null);
   const [previewError, setPreviewError] = useState('');
@@ -130,7 +132,7 @@ export function ImportWorkflow({
           setPreview(result);
           if (autoAttributeSourceKey !== sourceKey) {
             const detected = Object.entries(result.attributes).map(([key, value]) => ({ key, value }));
-            setCustomAttributes(ensureRequiredAttributes(detected, REQUIRED_ATTRIBUTE_KEYS));
+            setCustomAttributes(ensureRequiredAttributes(detected, ENSURED_ATTRIBUTE_KEYS));
             setAutoAttributeSourceKey(sourceKey);
           }
         }
@@ -382,8 +384,9 @@ export function ImportWorkflow({
           <AttributeEditor
             attributes={customAttributes}
             emptyText="No additional attributes."
-            onChange={(next) => setCustomAttributes(ensureRequiredAttributes(next, REQUIRED_ATTRIBUTE_KEYS))}
+            onChange={(next) => setCustomAttributes(ensureRequiredAttributes(next, ENSURED_ATTRIBUTE_KEYS))}
             requiredKeys={REQUIRED_ATTRIBUTE_KEYS}
+            multilineKeys={MULTILINE_ATTRIBUTE_KEYS}
           />
         </div>
       </section>

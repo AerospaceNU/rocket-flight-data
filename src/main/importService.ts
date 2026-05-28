@@ -10,6 +10,9 @@ export type FlightSummary = {
   name: string;
   location: string;
   altimeterCount: number;
+  peakAltitudeMeters: number | null;
+  peakVelocityMs: number | null;
+  peakAccelerationMss: number | null;
   altimeters: ImportedAltimeterSummary[];
 };
 
@@ -28,7 +31,13 @@ export type ImportedAltimeterSummary = {
   altimeterDirectory: string;
   altimeterName: string;
   altimeterNote: string;
+  motor: string;
+  flightNotes: string;
+  peakAltitudeMeters: number | null;
+  peakVelocityMs: number | null;
+  peakAccelerationMss: number | null;
   rowCount: number;
+  attributes: Record<string, string>;
 };
 
 export type ImportedDataset = {
@@ -176,6 +185,81 @@ function attributesToRecord(attributes: CustomAttribute[]) {
   }, {});
 }
 
+type ColumnCandidate = { name: string; scale: number };
+
+const ALTITUDE_COLUMNS: ColumnCandidate[] = [
+  { name: 'altitudem', scale: 1 },
+  { name: 'altitude_m', scale: 1 },
+  { name: 'altitude', scale: 1 },
+  { name: 'height', scale: 1 },
+  { name: 'altitudeft', scale: 0.3048 },
+  { name: 'altitude_ft', scale: 0.3048 }
+];
+
+const VELOCITY_COLUMNS: ColumnCandidate[] = [
+  { name: 'velocityms', scale: 1 },
+  { name: 'velocity_ms', scale: 1 },
+  { name: 'velocityfts', scale: 0.3048 },
+  { name: 'velocity_fts', scale: 0.3048 },
+  { name: 'speed', scale: 1 }
+];
+
+const ACCELERATION_COLUMNS: ColumnCandidate[] = [
+  { name: 'accelerationmss', scale: 1 },
+  { name: 'acceleration_mss', scale: 1 },
+  { name: 'acceleration', scale: 1 }
+];
+
+function findColumn(headers: string[], candidates: ColumnCandidate[]): { index: number; scale: number } | null {
+  const normalized = headers.map((header) => header.trim().toLowerCase());
+  for (const candidate of candidates) {
+    const index = normalized.indexOf(candidate.name);
+    if (index >= 0) {
+      return { index, scale: candidate.scale };
+    }
+  }
+  return null;
+}
+
+function computePeak(
+  headers: string[],
+  rows: string[][],
+  candidates: ColumnCandidate[],
+  options: { absolute: boolean }
+): number | null {
+  const column = findColumn(headers, candidates);
+  if (!column) return null;
+
+  let peak: number | null = null;
+  for (const row of rows) {
+    const raw = row[column.index];
+    if (raw === undefined || raw === '') continue;
+    const value = Number.parseFloat(raw);
+    if (!Number.isFinite(value)) continue;
+    const scaled = (options.absolute ? Math.abs(value) : value) * column.scale;
+    if (peak === null || scaled > peak) peak = scaled;
+  }
+  return peak;
+}
+
+function computePeakAltitudeMeters(headers: string[], rows: string[][]): number | null {
+  return computePeak(headers, rows, ALTITUDE_COLUMNS, { absolute: false });
+}
+
+function computePeakVelocityMs(headers: string[], rows: string[][]): number | null {
+  return computePeak(headers, rows, VELOCITY_COLUMNS, { absolute: true });
+}
+
+function computePeakAccelerationMss(headers: string[], rows: string[][]): number | null {
+  return computePeak(headers, rows, ACCELERATION_COLUMNS, { absolute: true });
+}
+
+function parseNumberAttribute(value: string | undefined): number | null {
+  if (!value) return null;
+  const number = Number.parseFloat(value);
+  return Number.isFinite(number) ? number : null;
+}
+
 async function readLog(logPath: string) {
   const contents = await readFile(logPath, 'utf8');
   const rows = parseCsvRows(contents);
@@ -236,7 +320,14 @@ async function createImportedAltimeterSummary(
   }
 
   const attributes = attributesToRecord(await readAttributes(attributesPath));
-  const { rows } = await readLog(logPath);
+  const log = await readLog(logPath);
+
+  const peakAltitudeMeters =
+    parseNumberAttribute(attributes.peak_altitude_m) ?? computePeakAltitudeMeters(log.headers, log.rows);
+  const peakVelocityMs =
+    parseNumberAttribute(attributes.peak_velocity_ms) ?? computePeakVelocityMs(log.headers, log.rows);
+  const peakAccelerationMss =
+    parseNumberAttribute(attributes.peak_acceleration_mss) ?? computePeakAccelerationMss(log.headers, log.rows);
 
   return {
     id: path.join(flightDirectoryName, altimeterDirectoryName),
@@ -248,7 +339,13 @@ async function createImportedAltimeterSummary(
     altimeterDirectory,
     altimeterName: attributes.altimeter_name ?? altimeterDirectoryName,
     altimeterNote: attributes.altimeter_note ?? '',
-    rowCount: rows.length
+    motor: attributes.motor ?? '',
+    flightNotes: attributes.flight_notes ?? '',
+    peakAltitudeMeters,
+    peakVelocityMs,
+    peakAccelerationMss,
+    rowCount: log.rows.length,
+    attributes
   };
 }
 
@@ -289,6 +386,10 @@ export async function listFlights(outputDirectory: string): Promise<FlightSummar
     }
 
     const parsed = splitFlightDirectoryName(entry.name);
+    const maxOf = (selector: (a: ImportedAltimeterSummary) => number | null): number | null => {
+      const values = altimeters.map(selector).filter((value): value is number => value !== null);
+      return values.length > 0 ? Math.max(...values) : null;
+    };
 
     flights.push({
       directoryName: entry.name,
@@ -297,6 +398,9 @@ export async function listFlights(outputDirectory: string): Promise<FlightSummar
       name: parsed.name,
       location: altimeters[0]?.flightLocation ?? '',
       altimeterCount: altimeters.length,
+      peakAltitudeMeters: maxOf((a) => a.peakAltitudeMeters),
+      peakVelocityMs: maxOf((a) => a.peakVelocityMs),
+      peakAccelerationMss: maxOf((a) => a.peakAccelerationMss),
       altimeters
     });
   }
@@ -493,6 +597,14 @@ export async function saveImport(
   attributes.set('altimeter_note', request.altimeterNote.trim());
   attributes.set('importer_id', importer.id);
   attributes.set('imported_at', new Date().toISOString());
+
+  const peakAltitudeMeters = computePeakAltitudeMeters(parsed.headers, parsed.rows);
+  const peakVelocityMs = computePeakVelocityMs(parsed.headers, parsed.rows);
+  const peakAccelerationMss = computePeakAccelerationMss(parsed.headers, parsed.rows);
+  if (peakAltitudeMeters !== null) attributes.set('peak_altitude_m', peakAltitudeMeters.toFixed(2));
+  if (peakVelocityMs !== null) attributes.set('peak_velocity_ms', peakVelocityMs.toFixed(2));
+  if (peakAccelerationMss !== null) attributes.set('peak_acceleration_mss', peakAccelerationMss.toFixed(2));
+
   for (const attribute of request.customAttributes) {
     const key = attribute.key.trim();
     if (key) {
