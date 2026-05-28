@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { AttributeEditor } from './AttributeEditor';
+import { AttributeEditor, ensureRequiredAttributes, hasRequiredAttributes } from './AttributeEditor';
 import type {
   CustomAttribute,
   FlightSummary,
@@ -8,6 +8,8 @@ import type {
   SaveImportRequest,
   SaveImportResult
 } from './importTypes';
+
+const REQUIRED_ATTRIBUTE_KEYS = ['motor'];
 
 type ImportWorkflowProps = {
   files: string[];
@@ -44,7 +46,9 @@ export function ImportWorkflow({
   const [detectedAltimeterMessage, setDetectedAltimeterMessage] = useState('');
   const [hasAppliedDetection, setHasAppliedDetection] = useState(false);
   const [autoAttributeSourceKey, setAutoAttributeSourceKey] = useState('');
-  const [customAttributes, setCustomAttributes] = useState<CustomAttribute[]>([]);
+  const [customAttributes, setCustomAttributes] = useState<CustomAttribute[]>(() =>
+    ensureRequiredAttributes([], REQUIRED_ATTRIBUTE_KEYS)
+  );
   const [preview, setPreview] = useState<ImportPreview | null>(null);
   const [previewError, setPreviewError] = useState('');
   const [isPreviewLoading, setIsPreviewLoading] = useState(false);
@@ -125,9 +129,8 @@ export function ImportWorkflow({
         if (!ignore) {
           setPreview(result);
           if (autoAttributeSourceKey !== sourceKey) {
-            setCustomAttributes(
-              Object.entries(result.attributes).map(([key, value]) => ({ key, value }))
-            );
+            const detected = Object.entries(result.attributes).map(([key, value]) => ({ key, value }));
+            setCustomAttributes(ensureRequiredAttributes(detected, REQUIRED_ATTRIBUTE_KEYS));
             setAutoAttributeSourceKey(sourceKey);
           }
         }
@@ -153,6 +156,7 @@ export function ImportWorkflow({
     Boolean(altimeterId) &&
     Boolean(preview?.rowCount) &&
     Boolean(flightLocation.trim()) &&
+    hasRequiredAttributes(customAttributes, REQUIRED_ATTRIBUTE_KEYS) &&
     (flightMode === 'existing'
       ? Boolean(existingFlightDirectoryName)
       : Boolean(flightDate.trim()) && Boolean(flightName.trim()));
@@ -378,7 +382,8 @@ export function ImportWorkflow({
           <AttributeEditor
             attributes={customAttributes}
             emptyText="No additional attributes."
-            onChange={setCustomAttributes}
+            onChange={(next) => setCustomAttributes(ensureRequiredAttributes(next, REQUIRED_ATTRIBUTE_KEYS))}
+            requiredKeys={REQUIRED_ATTRIBUTE_KEYS}
           />
         </div>
       </section>

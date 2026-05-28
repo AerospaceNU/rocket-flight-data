@@ -1,7 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import Plotly from 'plotly.js-dist-min';
-import { AttributeEditor } from './AttributeEditor';
+import { AttributeEditor, ensureRequiredAttributes, hasRequiredAttributes } from './AttributeEditor';
 import type { CustomAttribute, FlightSummary, ImportedDataset } from './importTypes';
+
+const REQUIRED_ATTRIBUTE_KEYS = ['motor'];
 
 type FlightViewerProps = {
   flight: FlightSummary | null;
@@ -160,7 +162,7 @@ function buildEventMarkers(dataset: ImportedDataset, xValues: number[]) {
     return record;
   }, {});
   const events: EventMarker[] = [];
-  let flightStartTime: number | null = null;
+  let launchTime: number | null = null;
   let flightEndTime: number | null = null;
 
   for (let index = 1; index < dataset.rows.length; index += 1) {
@@ -189,11 +191,11 @@ function buildEventMarkers(dataset: ImportedDataset, xValues: number[]) {
         });
 
         if (
-          flightStartTime === null &&
+          launchTime === null &&
           ((flightStateIndex !== null && previousState === 0 && currentState !== 0) ||
             (easyMiniStateIndex !== null && currentState === 5))
         ) {
-          flightStartTime = xValues[index];
+          launchTime = xValues[index];
         }
 
         if (
@@ -259,7 +261,8 @@ function buildEventMarkers(dataset: ImportedDataset, xValues: number[]) {
 
   return {
     events: sortedEvents,
-    flightStartTime: flightStartTime ?? firstEventTime,
+    launchTime,
+    flightStartTime: launchTime ?? firstEventTime,
     flightEndTime: flightEndTime ?? lastEventTime
   };
 }
@@ -352,7 +355,7 @@ export function FlightViewer({
       .then((nextDataset) => {
         if (ignore) return;
         setDataset(nextDataset);
-        setAttributes(nextDataset.attributes);
+        setAttributes(ensureRequiredAttributes(nextDataset.attributes, REQUIRED_ATTRIBUTE_KEYS));
         setSelectedSeries(defaultSeries(nextDataset.headers));
         setShowFullData(false);
         setRawPage(0);
@@ -370,22 +373,52 @@ export function FlightViewer({
 
   const hasAttributeChanges = useMemo(() => {
     if (!dataset) return false;
-    return JSON.stringify(attributes) !== JSON.stringify(dataset.attributes);
+    const ensured = ensureRequiredAttributes(dataset.attributes, REQUIRED_ATTRIBUTE_KEYS);
+    return JSON.stringify(attributes) !== JSON.stringify(ensured);
   }, [attributes, dataset]);
 
-  const xAxis = useMemo(
+  const hasRequiredFilled = hasRequiredAttributes(attributes, REQUIRED_ATTRIBUTE_KEYS);
+
+  const rawXAxis = useMemo(
     () => (dataset ? buildXAxis(dataset) : { values: [], title: 'Row', hoverLabel: 'row' }),
     [dataset]
   );
+
+  const rawEventData = useMemo(() => {
+    if (!dataset) {
+      return {
+        events: [] as EventMarker[],
+        launchTime: null as number | null,
+        flightStartTime: 0,
+        flightEndTime: 0
+      };
+    }
+    return buildEventMarkers(dataset, rawXAxis.values);
+  }, [dataset, rawXAxis.values]);
+
+  const launchOffset = rawEventData.launchTime ?? 0;
+
+  const xAxis = useMemo(
+    () =>
+      launchOffset === 0
+        ? rawXAxis
+        : { ...rawXAxis, values: rawXAxis.values.map((value) => value - launchOffset) },
+    [rawXAxis, launchOffset]
+  );
   const xValues = xAxis.values;
 
-  const eventData = useMemo(() => {
-    if (!dataset) {
-      return { events: [], flightStartTime: 0, flightEndTime: 0 };
-    }
-
-    return buildEventMarkers(dataset, xValues);
-  }, [dataset, xValues]);
+  const eventData = useMemo(
+    () =>
+      launchOffset === 0
+        ? rawEventData
+        : {
+            ...rawEventData,
+            events: rawEventData.events.map((event) => ({ ...event, time: event.time - launchOffset })),
+            flightStartTime: rawEventData.flightStartTime - launchOffset,
+            flightEndTime: rawEventData.flightEndTime - launchOffset
+          },
+    [rawEventData, launchOffset]
+  );
 
   const dataWindow = useMemo(
     () => buildWindow(xValues, eventData.flightStartTime, eventData.flightEndTime),
@@ -415,6 +448,35 @@ export function FlightViewer({
       ),
     [dataWindow.end, dataWindow.start, eventData.events, showFullData]
   );
+
+  const eventLabelLevels = useMemo(() => {
+    const lastVisible = visibleXValues[visibleXValues.length - 1];
+    const firstVisible = visibleXValues[0];
+    const visibleRange =
+      typeof lastVisible === 'number' && typeof firstVisible === 'number' ? lastVisible - firstVisible : 0;
+    // Threshold roughly approximates a rotated label's horizontal footprint (~font height)
+    // expressed in time units: assume ~12px of label width on a ~800px plot.
+    const threshold = visibleRange > 0 ? Math.max(visibleRange * 0.018, 1e-6) : 0;
+
+    const indexed = visibleEvents.map((event, index) => ({ event, index }));
+    indexed.sort((left, right) => left.event.time - right.event.time);
+
+    const levels = new Array<number>(visibleEvents.length).fill(0);
+    const active: { time: number; level: number }[] = [];
+
+    for (const { event, index } of indexed) {
+      while (active.length > 0 && event.time - active[0].time > threshold) {
+        active.shift();
+      }
+      const used = new Set(active.map((entry) => entry.level));
+      let level = 0;
+      while (used.has(level)) level += 1;
+      levels[index] = level;
+      active.push({ time: event.time, level });
+    }
+
+    return levels;
+  }, [visibleEvents, visibleXValues]);
   const gpsColumns = useMemo(() => {
     if (!dataset) {
       return null;
@@ -506,10 +568,12 @@ export function FlightViewer({
           yref: 'paper',
           line: { color: event.color, width: 1, dash: 'dash' }
         })),
-        annotations: visibleEvents.map((event) => ({
+        annotations: visibleEvents.map((event, index) => ({
           x: event.time,
           y: 1,
           yref: 'paper',
+          yanchor: 'top',
+          yshift: -(eventLabelLevels[index] ?? 0) * 90,
           text: event.label,
           showarrow: false,
           textangle: -90,
@@ -569,6 +633,7 @@ export function FlightViewer({
   }, [
     activeSection,
     dataset,
+    eventLabelLevels,
     isActive,
     selectedSeries,
     visibleEvents,
@@ -680,9 +745,6 @@ export function FlightViewer({
       <header className="viewer-header">
         <div>
           <h2>{flight.directoryName}</h2>
-          <span>
-            {flight.location || 'No location set'} | {flight.altimeterCount} altimeter(s)
-          </span>
         </div>
         <button
           className="small-button"
@@ -750,14 +812,18 @@ export function FlightViewer({
               <AttributeEditor
                 attributes={attributes}
                 emptyText="No attributes."
-                onChange={setAttributes}
+                onChange={(next) => setAttributes(ensureRequiredAttributes(next, REQUIRED_ATTRIBUTE_KEYS))}
+                requiredKeys={REQUIRED_ATTRIBUTE_KEYS}
               />
               <footer className="import-actions">
                 {saveStatus ? <div className="success-text">{saveStatus}</div> : null}
                 {saveError ? <div className="error-text">{saveError}</div> : null}
+                {!hasRequiredFilled ? (
+                  <div className="warning-text">Motor is required.</div>
+                ) : null}
                 <button
                   className="primary-button"
-                  disabled={!hasAttributeChanges || isSaving}
+                  disabled={!hasAttributeChanges || !hasRequiredFilled || isSaving}
                   onClick={saveAttributes}
                   type="button"
                 >

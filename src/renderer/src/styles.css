@@ -375,6 +375,18 @@ button:disabled {
   gap: 0.45rem;
 }
 
+.custom-attribute-row .required-indicator {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #f17b7b;
+  font-weight: 600;
+}
+
+.custom-attribute-row .required-missing {
+  border-color: #f17b7b;
+}
+
 .small-button,
 .primary-button,
 .icon-button {
