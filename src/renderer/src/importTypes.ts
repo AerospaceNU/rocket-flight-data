@@ -4,10 +4,22 @@ export type CommonAttributeDefinition = {
   required: boolean;
 };
 
+export type StandardColumnRef = {
+  column: string;
+  scaleToStandard?: number;
+};
+
+export type StandardColumnMapping = {
+  altitudeMeters?: StandardColumnRef;
+  velocityMetersPerSecond?: StandardColumnRef;
+  accelerationMetersPerSecondSquared?: StandardColumnRef;
+};
+
 export type AltimeterDefinition = {
   id: string;
   name: string;
   importerId: string;
+  standardColumns: StandardColumnMapping;
 };
 
 export type ImportConfig = {

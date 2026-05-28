@@ -1,13 +1,20 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import Plotly from 'plotly.js-dist-min';
 import { AttributeEditor, ensureRequiredAttributes, hasRequiredAttributes } from './AttributeEditor';
-import type { CustomAttribute, FlightSummary, ImportedDataset } from './importTypes';
+import type {
+  CustomAttribute,
+  FlightSummary,
+  ImportConfig,
+  ImportedDataset,
+  StandardColumnMapping
+} from './importTypes';
 
 const REQUIRED_ATTRIBUTE_KEYS = ['motor'];
 const MULTILINE_ATTRIBUTE_KEYS = ['flight_notes'];
 const ENSURED_ATTRIBUTE_KEYS = [...REQUIRED_ATTRIBUTE_KEYS, ...MULTILINE_ATTRIBUTE_KEYS];
 
 type FlightViewerProps = {
+  config: ImportConfig | null;
   flight: FlightSummary | null;
   isActive: boolean;
   selectedAltimeterDirectory?: string;
@@ -54,26 +61,42 @@ const EASYMINI_STATE_NAMES: Record<number, string> = {
   7: 'main',
   8: 'landed'
 };
+// stm32-avionics StateId_e (common/system/scheduler.h)
+const FCB_STATE_NAMES: Record<number, string> = {
+  0: 'CliEraseFlash',
+  1: 'CliOffload',
+  2: 'Ascent',
+  3: 'Descent',
+  4: 'Initialize',
+  5: 'PostFlight',
+  6: 'PreFlight',
+  7: 'SimTempState'
+};
+const FCB_LAUNCH_STATE = 2;
+const FCB_END_STATE = 5;
 
-function defaultSeries(headers: string[]) {
-  const preferred = [
-    'altitudeM',
-    'altitude',
-    'velocityMS',
-    'accelerationMSS',
-    'height',
-    'speed',
-    'acceleration',
-    'altitudeFt',
-    'velocityFtS'
-  ];
+function defaultSeries(
+  headers: string[],
+  timeColumnIndex: number | null,
+  standardColumns: StandardColumnMapping | null
+) {
+  const preferred = standardColumns
+    ? [
+        standardColumns.altitudeMeters?.column,
+        standardColumns.velocityMetersPerSecond?.column,
+        standardColumns.accelerationMetersPerSecondSquared?.column
+      ].filter((column): column is string => Boolean(column))
+    : [];
   const indexes = preferred
     .map((name) => headers.indexOf(name))
-    .filter((index) => index > 0);
+    .filter((index) => index > 0 && index !== timeColumnIndex);
 
   return indexes.length > 0
     ? indexes
-    : headers.map((_, index) => index).filter((index) => index > 0).slice(0, 3);
+    : headers
+        .map((_, index) => index)
+        .filter((index) => index > 0 && index !== timeColumnIndex)
+        .slice(0, 3);
 }
 
 function parseNumber(value: string | undefined) {
@@ -153,16 +176,21 @@ function buildXAxis(dataset: ImportedDataset) {
 }
 
 function buildEventMarkers(dataset: ImportedDataset, xValues: number[]) {
-  const flightStateIndex = getColumnIndex(dataset.headers, 'flightState');
-  const easyMiniStateIndex = getColumnIndex(dataset.headers, 'state');
-  const stateIndex = flightStateIndex ?? easyMiniStateIndex;
-  const stateNameIndex = getColumnIndex(dataset.headers, 'state_name');
-  const drogueFiredIndex = getColumnIndex(dataset.headers, 'drogueFired');
-  const mainFiredIndex = getColumnIndex(dataset.headers, 'mainFired');
   const attributes = dataset.attributes.reduce<Record<string, string>>((record, attribute) => {
     record[attribute.key] = attribute.value;
     return record;
   }, {});
+  const importerId = attributes.importer_id ?? '';
+  const isFcb = importerId === 'fcb';
+
+  const flightStateIndex = isFcb ? null : getColumnIndex(dataset.headers, 'flightState');
+  const fcbStateIndex = isFcb ? getColumnIndex(dataset.headers, 'state') : null;
+  const easyMiniStateIndex =
+    isFcb || flightStateIndex !== null ? null : getColumnIndex(dataset.headers, 'state');
+  const stateIndex = flightStateIndex ?? fcbStateIndex ?? easyMiniStateIndex;
+  const stateNameIndex = getColumnIndex(dataset.headers, 'state_name');
+  const drogueFiredIndex = getColumnIndex(dataset.headers, 'drogueFired');
+  const mainFiredIndex = getColumnIndex(dataset.headers, 'mainFired');
   const events: EventMarker[] = [];
   let launchTime: number | null = null;
   let flightEndTime: number | null = null;
@@ -173,18 +201,20 @@ function buildEventMarkers(dataset: ImportedDataset, xValues: number[]) {
       const currentState = Number.parseInt(dataset.rows[index]?.[stateIndex] ?? '', 10);
 
       if (Number.isFinite(previousState) && Number.isFinite(currentState) && previousState !== currentState) {
+        const stateNames =
+          flightStateIndex !== null
+            ? FLIGHT_STATE_NAMES
+            : fcbStateIndex !== null
+              ? FCB_STATE_NAMES
+              : EASYMINI_STATE_NAMES;
         const previousName =
           stateNameIndex !== null
             ? dataset.rows[index - 1]?.[stateNameIndex]
-            : flightStateIndex !== null
-              ? FLIGHT_STATE_NAMES[previousState]
-              : EASYMINI_STATE_NAMES[previousState];
+            : stateNames[previousState];
         const currentName =
           stateNameIndex !== null
             ? dataset.rows[index]?.[stateNameIndex]
-            : flightStateIndex !== null
-              ? FLIGHT_STATE_NAMES[currentState]
-              : EASYMINI_STATE_NAMES[currentState];
+            : stateNames[currentState];
         events.push({
           label: `${previousName ?? previousState} -> ${currentName ?? currentState}`,
           time: xValues[index],
@@ -195,6 +225,7 @@ function buildEventMarkers(dataset: ImportedDataset, xValues: number[]) {
         if (
           launchTime === null &&
           ((flightStateIndex !== null && previousState === 0 && currentState !== 0) ||
+            (fcbStateIndex !== null && currentState === FCB_LAUNCH_STATE) ||
             (easyMiniStateIndex !== null && currentState === 5))
         ) {
           launchTime = xValues[index];
@@ -202,6 +233,7 @@ function buildEventMarkers(dataset: ImportedDataset, xValues: number[]) {
 
         if (
           (flightStateIndex !== null && currentState === 3) ||
+          (fcbStateIndex !== null && currentState === FCB_END_STATE) ||
           (easyMiniStateIndex !== null && currentState === 8)
         ) {
           flightEndTime = xValues[index];
@@ -302,7 +334,18 @@ function getColumnIndexByAliases(headers: string[], aliases: string[]) {
   return null;
 }
 
+function findStandardColumns(
+  config: ImportConfig | null,
+  importerId: string
+): StandardColumnMapping | null {
+  if (!config || !importerId) return null;
+  return (
+    config.altimeters.find((altimeter) => altimeter.importerId === importerId)?.standardColumns ?? null
+  );
+}
+
 export function FlightViewer({
+  config,
   flight,
   isActive,
   selectedAltimeterDirectory,
@@ -358,7 +401,15 @@ export function FlightViewer({
         if (ignore) return;
         setDataset(nextDataset);
         setAttributes(ensureRequiredAttributes(nextDataset.attributes, ENSURED_ATTRIBUTE_KEYS));
-        setSelectedSeries(defaultSeries(nextDataset.headers));
+        const importerId =
+          nextDataset.attributes.find((attr) => attr.key === 'importer_id')?.value ?? '';
+        setSelectedSeries(
+          defaultSeries(
+            nextDataset.headers,
+            getTimeColumn(nextDataset.headers)?.index ?? null,
+            findStandardColumns(config, importerId)
+          )
+        );
         setShowFullData(false);
         setRawPage(0);
       })
@@ -484,9 +535,25 @@ export function FlightViewer({
       return null;
     }
 
-    const latitudeIndex = getColumnIndexByAliases(dataset.headers, ['latitude', 'lat']);
-    const longitudeIndex = getColumnIndexByAliases(dataset.headers, ['longitude', 'lon', 'lng']);
-    const altitudeIndex = getColumnIndexByAliases(dataset.headers, ['altitude', 'altitude_m', 'altitudem']);
+    const latitudeIndex = getColumnIndexByAliases(dataset.headers, [
+      'gps_lat_mod',
+      'latitude',
+      'lat',
+      'gps_lat'
+    ]);
+    const longitudeIndex = getColumnIndexByAliases(dataset.headers, [
+      'gps_long_mod',
+      'longitude',
+      'lon',
+      'lng',
+      'gps_long'
+    ]);
+    const altitudeIndex = getColumnIndexByAliases(dataset.headers, [
+      'altitude',
+      'altitude_m',
+      'altitudem',
+      'gps_alt'
+    ]);
 
     if (latitudeIndex === null || longitudeIndex === null || altitudeIndex === null) {
       return null;

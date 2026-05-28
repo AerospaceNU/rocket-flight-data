@@ -373,6 +373,7 @@ export function App() {
 
     return (
       <FlightViewer
+        config={config}
         flight={flights.find((flight) => flight.directoryName === tab.flightDirectoryName) ?? null}
         isActive={isActive}
         onDatasetUpdated={refreshFlights}

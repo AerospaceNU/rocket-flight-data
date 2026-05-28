@@ -6,6 +6,8 @@ import {
   getImporterForAltimeter
 } from './importers/registry';
 import type { ImportPreview, ParsedImport } from './importers/types';
+import type { StandardColumnMapping, StandardColumnRef } from '../shared/importConfig';
+import { getStandardColumnsForImporter } from '../shared/importConfig';
 
 export type FlightSummary = {
   directoryName: string;
@@ -197,73 +199,55 @@ function attributesToRecord(attributes: CustomAttribute[]) {
   }, {});
 }
 
-type ColumnCandidate = { name: string; scale: number };
-
-const ALTITUDE_COLUMNS: ColumnCandidate[] = [
-  { name: 'altitudem', scale: 1 },
-  { name: 'altitude_m', scale: 1 },
-  { name: 'altitude', scale: 1 },
-  { name: 'height', scale: 1 },
-  { name: 'altitudeft', scale: 0.3048 },
-  { name: 'altitude_ft', scale: 0.3048 }
-];
-
-const VELOCITY_COLUMNS: ColumnCandidate[] = [
-  { name: 'velocityms', scale: 1 },
-  { name: 'velocity_ms', scale: 1 },
-  { name: 'velocityfts', scale: 0.3048 },
-  { name: 'velocity_fts', scale: 0.3048 },
-  { name: 'speed', scale: 1 }
-];
-
-const ACCELERATION_COLUMNS: ColumnCandidate[] = [
-  { name: 'accelerationmss', scale: 1 },
-  { name: 'acceleration_mss', scale: 1 },
-  { name: 'acceleration', scale: 1 }
-];
-
-function findColumn(headers: string[], candidates: ColumnCandidate[]): { index: number; scale: number } | null {
-  const normalized = headers.map((header) => header.trim().toLowerCase());
-  for (const candidate of candidates) {
-    const index = normalized.indexOf(candidate.name);
-    if (index >= 0) {
-      return { index, scale: candidate.scale };
-    }
-  }
-  return null;
-}
-
-function computePeak(
+function computePeakFromRef(
   headers: string[],
   rows: string[][],
-  candidates: ColumnCandidate[],
+  ref: StandardColumnRef | undefined,
   options: { absolute: boolean }
 ): number | null {
-  const column = findColumn(headers, candidates);
-  if (!column) return null;
+  if (!ref) return null;
+  const index = headers.indexOf(ref.column);
+  if (index < 0) return null;
+  const scale = ref.scaleToStandard ?? 1;
 
   let peak: number | null = null;
   for (const row of rows) {
-    const raw = row[column.index];
+    const raw = row[index];
     if (raw === undefined || raw === '') continue;
     const value = Number.parseFloat(raw);
     if (!Number.isFinite(value)) continue;
-    const scaled = (options.absolute ? Math.abs(value) : value) * column.scale;
+    const scaled = (options.absolute ? Math.abs(value) : value) * scale;
     if (peak === null || scaled > peak) peak = scaled;
   }
   return peak;
 }
 
-function computePeakAltitudeMeters(headers: string[], rows: string[][]): number | null {
-  return computePeak(headers, rows, ALTITUDE_COLUMNS, { absolute: false });
-}
-
-function computePeakVelocityMs(headers: string[], rows: string[][]): number | null {
-  return computePeak(headers, rows, VELOCITY_COLUMNS, { absolute: true });
-}
-
-function computePeakAccelerationMss(headers: string[], rows: string[][]): number | null {
-  return computePeak(headers, rows, ACCELERATION_COLUMNS, { absolute: true });
+function computeStandardPeaks(
+  mapping: StandardColumnMapping | null,
+  headers: string[],
+  rows: string[][]
+): {
+  peakAltitudeMeters: number | null;
+  peakVelocityMs: number | null;
+  peakAccelerationMss: number | null;
+} {
+  if (!mapping) {
+    return {
+      peakAltitudeMeters: null,
+      peakVelocityMs: null,
+      peakAccelerationMss: null
+    };
+  }
+  return {
+    peakAltitudeMeters: computePeakFromRef(headers, rows, mapping.altitudeMeters, { absolute: false }),
+    peakVelocityMs: computePeakFromRef(headers, rows, mapping.velocityMetersPerSecond, { absolute: true }),
+    peakAccelerationMss: computePeakFromRef(
+      headers,
+      rows,
+      mapping.accelerationMetersPerSecondSquared,
+      { absolute: true }
+    )
+  };
 }
 
 function parseNumberAttribute(value: string | undefined): number | null {
@@ -335,12 +319,14 @@ function metricsFromAttributes(attributes: Record<string, string>): Partial<Cach
   return result;
 }
 
-function computeMetricsFromParsed(parsed: { headers: string[]; rows: string[][] }): CachedMetrics {
+function computeMetricsFromParsed(
+  parsed: { headers: string[]; rows: string[][] },
+  mapping: StandardColumnMapping | null
+): CachedMetrics {
+  const peaks = computeStandardPeaks(mapping, parsed.headers, parsed.rows);
   return {
     rowCount: parsed.rows.length,
-    peakAltitudeMeters: computePeakAltitudeMeters(parsed.headers, parsed.rows),
-    peakVelocityMs: computePeakVelocityMs(parsed.headers, parsed.rows),
-    peakAccelerationMss: computePeakAccelerationMss(parsed.headers, parsed.rows)
+    ...peaks
   };
 }
 
@@ -364,11 +350,24 @@ async function resolveMetrics(
   attributesPath: string,
   attributes: Record<string, string>
 ): Promise<{ metrics: CachedMetrics; attributes: Record<string, string> }> {
+  const importerId = attributes.importer_id;
+  const mapping = importerId ? getStandardColumnsForImporter(importerId) : null;
   const cached = metricsFromAttributes(attributes);
-  if (cached.rowCount !== undefined) {
+
+  // If the importer's mapping defines a metric but it's not yet cached, force a recompute
+  // (catches legacy imports written before the mapping existed).
+  const altitudeStale = !!mapping?.altitudeMeters && cached.peakAltitudeMeters === undefined;
+  const velocityStale =
+    !!mapping?.velocityMetersPerSecond && cached.peakVelocityMs === undefined;
+  const accelStale =
+    !!mapping?.accelerationMetersPerSecondSquared && cached.peakAccelerationMss === undefined;
+  const rowCountStale = cached.rowCount === undefined;
+  const needsRefresh = rowCountStale || altitudeStale || velocityStale || accelStale;
+
+  if (!needsRefresh) {
     return {
       metrics: {
-        rowCount: cached.rowCount,
+        rowCount: cached.rowCount ?? 0,
         peakAltitudeMeters: cached.peakAltitudeMeters ?? null,
         peakVelocityMs: cached.peakVelocityMs ?? null,
         peakAccelerationMss: cached.peakAccelerationMss ?? null
@@ -377,7 +376,6 @@ async function resolveMetrics(
     };
   }
 
-  const importerId = attributes.importer_id;
   if (!importerId) {
     return {
       metrics: {
@@ -391,7 +389,7 @@ async function resolveMetrics(
   }
 
   const parsed = await parseAltimeterOriginals(altimeterDirectory, importerId);
-  const metrics = computeMetricsFromParsed(parsed);
+  const metrics = computeMetricsFromParsed(parsed, mapping);
 
   const nextAttributes = { ...attributes };
   nextAttributes.row_count = String(metrics.rowCount);
@@ -620,6 +618,17 @@ function detectFromText(filePath: string, contents: string): AltimeterDetectionR
     };
   }
 
+  if (
+    lowerFirstLines.includes('packettype,timestamp_ms') &&
+    lowerFirstLines.includes('imu1_accel_x')
+  ) {
+    return {
+      altimeterId: 'fcb',
+      confidence: 'high',
+      reason: 'FCB CSV header detected.'
+    };
+  }
+
   return {
     altimeterId: null,
     confidence: 'none',
@@ -698,12 +707,12 @@ export async function saveImport(
   attributes.set('imported_at', new Date().toISOString());
   attributes.set('row_count', String(parsed.rows.length));
 
-  const peakAltitudeMeters = computePeakAltitudeMeters(parsed.headers, parsed.rows);
-  const peakVelocityMs = computePeakVelocityMs(parsed.headers, parsed.rows);
-  const peakAccelerationMss = computePeakAccelerationMss(parsed.headers, parsed.rows);
-  if (peakAltitudeMeters !== null) attributes.set('peak_altitude_m', peakAltitudeMeters.toFixed(2));
-  if (peakVelocityMs !== null) attributes.set('peak_velocity_ms', peakVelocityMs.toFixed(2));
-  if (peakAccelerationMss !== null) attributes.set('peak_acceleration_mss', peakAccelerationMss.toFixed(2));
+  const peaks = computeStandardPeaks(altimeter.standardColumns, parsed.headers, parsed.rows);
+  if (peaks.peakAltitudeMeters !== null) attributes.set('peak_altitude_m', peaks.peakAltitudeMeters.toFixed(2));
+  if (peaks.peakVelocityMs !== null) attributes.set('peak_velocity_ms', peaks.peakVelocityMs.toFixed(2));
+  if (peaks.peakAccelerationMss !== null) {
+    attributes.set('peak_acceleration_mss', peaks.peakAccelerationMss.toFixed(2));
+  }
 
   for (const attribute of request.customAttributes) {
     const key = attribute.key.trim();
