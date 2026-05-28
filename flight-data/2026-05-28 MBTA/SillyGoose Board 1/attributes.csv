@@ -1,0 +1,10 @@
+key,value
+altimeter_name,SillyGoose
+flight_location,St. Albans
+flight_date,2026-05-28
+flight_name,MBTA
+altimeter_note,Board 1
+importer_id,sillygoose
+imported_at,2026-05-28T15:41:20.234Z
+source_files,C:\Users\patri\Documents\Software\rocket-flight-data\data\2025-11-15 MBTA\2025-11-15 V1 MBTA ridealong board1.txt
+BOARD_NAME,SillyGooseV2

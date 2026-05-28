@@ -1,6 +1,34 @@
-import { contextBridge } from 'electron';
+import { contextBridge, ipcRenderer } from 'electron';
 
 contextBridge.exposeInMainWorld('appInfo', {
   name: 'Rocket Flight Data',
   version: '0.1.0'
+});
+
+contextBridge.exposeInMainWorld('appBridge', {
+  getImportConfig: () => ipcRenderer.invoke('import:get-config'),
+  getOutputDirectory: () => ipcRenderer.invoke('import:get-output-directory'),
+  listFlights: () => ipcRenderer.invoke('import:list-flights'),
+  detectAltimeter: (filePaths: string[]) => ipcRenderer.invoke('import:detect-altimeter', filePaths),
+  readDataset: (datasetDirectory: string) => ipcRenderer.invoke('dataset:read', datasetDirectory),
+  saveDatasetAttributes: (request: unknown) =>
+    ipcRenderer.invoke('dataset:save-attributes', request),
+  previewImport: (request: { altimeterId: string; filePaths: string[] }) =>
+    ipcRenderer.invoke('import:preview', request),
+  saveImport: (request: unknown) => ipcRenderer.invoke('import:save', request),
+  onImportRequested: (callback: (paths: string[]) => void) => {
+    const listener = (_event: Electron.IpcRendererEvent, paths: string[]) => callback(paths);
+    ipcRenderer.on('menu:import', listener);
+    return () => {
+      ipcRenderer.removeListener('menu:import', listener);
+    };
+  },
+  onOutputDirectoryChanged: (callback: (path: string) => void) => {
+    const listener = (_event: Electron.IpcRendererEvent, outputDirectory: string) =>
+      callback(outputDirectory);
+    ipcRenderer.on('directory:changed', listener);
+    return () => {
+      ipcRenderer.removeListener('directory:changed', listener);
+    };
+  }
 });
