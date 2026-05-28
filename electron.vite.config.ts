@@ -2,27 +2,31 @@ import { defineConfig } from 'electron-vite';
 import react from '@vitejs/plugin-react';
 import { resolve } from 'node:path';
 
+const projectRoot = __dirname;
+
 export default defineConfig({
   main: {
     build: {
-      outDir: 'dist-electron/main'
+      outDir: resolve(projectRoot, 'dist-electron/main')
     }
   },
   preload: {
     build: {
-      outDir: 'dist-electron/preload'
+      outDir: resolve(projectRoot, 'dist-electron/preload')
     }
   },
   renderer: {
-    root: 'src/renderer',
+    root: resolve(projectRoot, 'src/renderer'),
+    base: './',
     plugins: [react()],
     resolve: {
       alias: {
-        '@renderer': resolve('src/renderer/src')
+        '@renderer': resolve(projectRoot, 'src/renderer/src')
       }
     },
     build: {
-      outDir: '../../dist/renderer'
+      outDir: resolve(projectRoot, 'dist/renderer'),
+      emptyOutDir: true
     }
   }
 });

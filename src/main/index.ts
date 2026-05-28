@@ -1,4 +1,5 @@
 import { app, BrowserWindow, Menu, dialog, ipcMain } from 'electron';
+import fs from 'node:fs';
 import path from 'node:path';
 import { getImportConfig } from './importers/registry';
 import {
@@ -12,7 +13,74 @@ import {
   type SaveImportRequest
 } from './importService';
 
-let outputDirectory = path.join(process.cwd(), 'flight-data');
+const portableExecutableDir = process.env.PORTABLE_EXECUTABLE_DIR ?? null;
+
+function getConfigDirectory(): string {
+  if (portableExecutableDir) return portableExecutableDir;
+  if (!app.isPackaged) return app.getAppPath();
+  return app.getPath('userData');
+}
+
+function findFlightDataUpwards(startDir: string, maxLevels = 5): string | null {
+  let current = path.resolve(startDir);
+  for (let i = 0; i <= maxLevels; i++) {
+    const candidate = path.join(current, 'flight-data');
+    try {
+      if (fs.statSync(candidate).isDirectory()) return candidate;
+    } catch {
+      // candidate doesn't exist at this level
+    }
+    const parent = path.dirname(current);
+    if (parent === current) break;
+    current = parent;
+  }
+  return null;
+}
+
+function getDefaultOutputDirectory(): string {
+  const base = getConfigDirectory();
+  // Portable exe + dev: walk up looking for an existing flight-data/ so the
+  // exe can sit in release/ (or anywhere inside a repo) and still locate it.
+  if (portableExecutableDir || !app.isPackaged) {
+    const found = findFlightDataUpwards(base);
+    if (found) return found;
+  }
+  return path.join(base, 'flight-data');
+}
+
+function getConfigFilePath(): string {
+  return path.join(getConfigDirectory(), 'config.json');
+}
+
+function readPersistedOutputDirectory(): string | null {
+  try {
+    const raw = fs.readFileSync(getConfigFilePath(), 'utf-8');
+    const config = JSON.parse(raw);
+    const dir = config?.outputDirectory;
+    return typeof dir === 'string' && dir.length > 0 ? dir : null;
+  } catch {
+    return null;
+  }
+}
+
+function persistOutputDirectory(dir: string): void {
+  const configFile = getConfigFilePath();
+  let config: Record<string, unknown> = {};
+  try {
+    config = JSON.parse(fs.readFileSync(configFile, 'utf-8'));
+  } catch {
+    // start fresh if missing or unreadable
+  }
+  config.outputDirectory = dir;
+  try {
+    fs.mkdirSync(path.dirname(configFile), { recursive: true });
+    fs.writeFileSync(configFile, JSON.stringify(config, null, 2), 'utf-8');
+  } catch (err) {
+    console.error('Failed to persist output directory:', err);
+  }
+}
+
+let outputDirectory = readPersistedOutputDirectory() ?? getDefaultOutputDirectory();
 
 function buildAppMenu(mainWindow: BrowserWindow) {
   const menu = Menu.buildFromTemplate([
@@ -43,8 +111,9 @@ function buildAppMenu(mainWindow: BrowserWindow) {
             });
 
             if (!result.canceled && result.filePaths[0]) {
-              outputDirectory = result.filePaths[0];
+              outputDirectory = path.resolve(result.filePaths[0]);
               await ensureOutputDirectory(outputDirectory);
+              persistOutputDirectory(outputDirectory);
               mainWindow.webContents.send('directory:changed', outputDirectory);
             }
           }
@@ -73,7 +142,7 @@ function createWindow() {
   if (process.env.ELECTRON_RENDERER_URL) {
     mainWindow.loadURL(process.env.ELECTRON_RENDERER_URL);
   } else {
-    mainWindow.loadFile(path.join(__dirname, '../../renderer/index.html'));
+    mainWindow.loadFile(path.join(__dirname, '../../dist/renderer/index.html'));
   }
 
   buildAppMenu(mainWindow);
