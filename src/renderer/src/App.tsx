@@ -112,6 +112,48 @@ export function App() {
   }, [refreshFlights]);
 
   useEffect(() => {
+    void window.appBridge.debugLog('renderer:mounted', { userAgent: navigator.userAgent });
+
+    const onError = (event: ErrorEvent) => {
+      void window.appBridge.debugLog('renderer:error', {
+        message: event.message,
+        filename: event.filename,
+        line: event.lineno,
+        column: event.colno
+      });
+    };
+    const onRejection = (event: PromiseRejectionEvent) => {
+      void window.appBridge.debugLog('renderer:unhandled-rejection', {
+        reason:
+          event.reason instanceof Error
+            ? { message: event.reason.message, stack: event.reason.stack }
+            : String(event.reason)
+      });
+    };
+
+    let previousTick = performance.now();
+    const watchdog = window.setInterval(() => {
+      const now = performance.now();
+      const delta = now - previousTick;
+      previousTick = now;
+      if (delta > 2500) {
+        void window.appBridge.debugLog('renderer:event-loop-lag', {
+          deltaMs: Math.round(delta)
+        });
+      }
+    }, 1000);
+
+    window.addEventListener('error', onError);
+    window.addEventListener('unhandledrejection', onRejection);
+
+    return () => {
+      window.removeEventListener('error', onError);
+      window.removeEventListener('unhandledrejection', onRejection);
+      window.clearInterval(watchdog);
+    };
+  }, []);
+
+  useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
   }, [theme]);
 

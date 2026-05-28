@@ -17,6 +17,7 @@ contextBridge.exposeInMainWorld('appBridge', {
   previewImport: (request: { altimeterId: string; filePaths: string[] }) =>
     ipcRenderer.invoke('import:preview', request),
   saveImport: (request: unknown) => ipcRenderer.invoke('import:save', request),
+  debugLog: (message: string, data?: unknown) => ipcRenderer.invoke('debug:log', { message, data }),
   onImportRequested: (callback: (paths: string[]) => void) => {
     const listener = (_event: Electron.IpcRendererEvent, paths: string[]) => callback(paths);
     ipcRenderer.on('menu:import', listener);

@@ -70,7 +70,8 @@
     "vite": "^5.4.11"
   },
   "dependencies": {
-    "plotly.js-dist-min": "^3.5.1",
+    "plotly.js-basic-dist-min": "^3.5.1",
+    "plotly.js-gl3d-dist-min": "^3.1.2",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
   }

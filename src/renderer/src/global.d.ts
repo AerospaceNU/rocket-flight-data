@@ -34,6 +34,7 @@ declare global {
         filePaths: string[];
       }) => Promise<ImportPreview>;
       saveImport: (request: SaveImportRequest) => Promise<SaveImportResult>;
+      debugLog: (message: string, data?: unknown) => Promise<void>;
       onImportRequested: (callback: (paths: string[]) => void) => () => void;
       onOutputDirectoryChanged: (callback: (path: string) => void) => () => void;
       onThemeChanged: (callback: (theme: ThemeId) => void) => () => void;

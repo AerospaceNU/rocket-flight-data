@@ -1,0 +1,14 @@
+key,value
+altimeter_name,FCB
+flight_location,CRMRC
+flight_date,2022-10-15
+flight_name,Beanboozler
+altimeter_note,FCBV0
+importer_id,fcb
+imported_at,2026-05-28T21:45:54.092Z
+row_count,4259
+motor,unknown
+flight_notes,
+peak_altitude_m,2099.09
+peak_velocity_ms,312.90
+peak_acceleration_mss,705.17

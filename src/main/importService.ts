@@ -1,4 +1,4 @@
-import { access, copyFile, mkdir, readdir, readFile, writeFile } from 'node:fs/promises';
+import { access, copyFile, mkdir, open, readdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import {
   getAltimeterDefinition,
@@ -164,7 +164,7 @@ async function writeAttributes(attributesPath: string, attributes: CustomAttribu
   await writeFile(attributesPath, `${attributesCsv}\n`, 'utf8');
 }
 
-const RESERVED_FILE_NAMES = new Set(['attributes.csv']);
+const RESERVED_FILE_NAMES = new Set(['attributes.csv', 'log.csv']);
 
 async function copyOriginalFiles(filePaths: string[], destinationDirectory: string) {
   await mkdir(destinationDirectory, { recursive: true });
@@ -345,6 +345,90 @@ async function parseAltimeterOriginals(
   return importer.parse(filePaths);
 }
 
+async function readSavedLogDataset(
+  altimeterDirectory: string
+): Promise<{ headers: string[]; rows: string[][] } | null> {
+  const logPath = path.join(altimeterDirectory, 'log.csv');
+  try {
+    await access(logPath);
+  } catch {
+    return null;
+  }
+
+  const contents = await readFile(logPath, 'utf8');
+  const parsedRows = parseCsvRows(contents);
+  if (parsedRows.length === 0) {
+    return null;
+  }
+
+  const headers = parsedRows[0]?.map((header) => header.trim()) ?? [];
+  const rows = parsedRows
+    .slice(1)
+    .filter((row) => row.some((cell) => cell.length > 0))
+    .map((row) => headers.map((_, index) => row[index] ?? ''));
+
+  if (headers.length === 0) {
+    return null;
+  }
+
+  return { headers, rows };
+}
+
+async function readDatasetRows(
+  altimeterDirectory: string,
+  importerId: string
+): Promise<{ headers: string[]; rows: string[][] }> {
+  const savedLog = await readSavedLogDataset(altimeterDirectory);
+  if (savedLog) {
+    return savedLog;
+  }
+
+  const parsed = await parseAltimeterOriginals(altimeterDirectory, importerId);
+  return { headers: parsed.headers, rows: parsed.rows };
+}
+
+async function resolveDatasetImporterId(
+  altimeterDirectory: string,
+  storedImporterId: string
+): Promise<string> {
+  const filePaths = await listOriginalFilePaths(altimeterDirectory);
+  if (filePaths.length === 0) {
+    return storedImporterId;
+  }
+
+  const detected = await detectAltimeter(filePaths);
+  if (!detected.altimeterId || detected.confidence !== 'high') {
+    return storedImporterId;
+  }
+
+  try {
+    return getImporterForAltimeter(detected.altimeterId).importer.id;
+  } catch {
+    return storedImporterId;
+  }
+}
+
+function replaceAttribute(attributes: CustomAttribute[], key: string, value: string): CustomAttribute[] {
+  let replaced = false;
+  const next = attributes.map((attribute) => {
+    if (attribute.key !== key) return attribute;
+    replaced = true;
+    return { key, value };
+  });
+
+  return replaced ? next : [...next, { key, value }];
+}
+
+async function writeSavedLogDataset(
+  altimeterDirectory: string,
+  headers: string[],
+  rows: string[][]
+): Promise<void> {
+  const logPath = path.join(altimeterDirectory, 'log.csv');
+  const csvContents = [csvLine(headers), ...rows.map((row) => csvLine(row))].join('\n');
+  await writeFile(logPath, `${csvContents}\n`, 'utf8');
+}
+
 async function resolveMetrics(
   altimeterDirectory: string,
   attributesPath: string,
@@ -388,7 +472,7 @@ async function resolveMetrics(
     };
   }
 
-  const parsed = await parseAltimeterOriginals(altimeterDirectory, importerId);
+  const parsed = await readDatasetRows(altimeterDirectory, importerId);
   const metrics = computeMetricsFromParsed(parsed, mapping);
 
   const nextAttributes = { ...attributes };
@@ -525,16 +609,29 @@ export async function readImportedDataset(
   }
 
   const attributes = await readAttributes(path.join(altimeterDirectory, 'attributes.csv'));
-  const importerId = summary.attributes.importer_id;
-  if (!importerId) {
+  const storedImporterId = summary.attributes.importer_id;
+  if (!storedImporterId) {
     throw new Error('Dataset is missing importer_id attribute; cannot parse originals.');
   }
 
-  const parsed = await parseAltimeterOriginals(altimeterDirectory, importerId);
+  const importerId = await resolveDatasetImporterId(altimeterDirectory, storedImporterId);
+  const parsed = await readDatasetRows(altimeterDirectory, importerId);
+  const effectiveAttributes =
+    importerId === storedImporterId ? attributes : replaceAttribute(attributes, 'importer_id', importerId);
+  const effectiveSummary =
+    importerId === storedImporterId
+      ? summary
+      : {
+          ...summary,
+          attributes: {
+            ...summary.attributes,
+            importer_id: importerId
+          }
+        };
 
   return {
-    summary,
-    attributes,
+    summary: effectiveSummary,
+    attributes: effectiveAttributes,
     headers: parsed.headers,
     rows: parsed.rows
   };
@@ -564,7 +661,7 @@ export async function previewImport(altimeterId: string, filePaths: string[]): P
   };
 }
 
-function detectFromText(filePath: string, contents: string): AltimeterDetectionResult {
+function detectFromText(contents: string): AltimeterDetectionResult {
   const firstLines = contents.split(/\r?\n/).slice(0, 30).join('\n');
   const lowerFirstLines = firstLines.toLowerCase();
 
@@ -599,6 +696,18 @@ function detectFromText(filePath: string, contents: string): AltimeterDetectionR
   }
 
   if (
+    lowerFirstLines.includes('packettype') &&
+    lowerFirstLines.includes('timestamp_ms') &&
+    lowerFirstLines.includes('imu1_accel_x')
+  ) {
+    return {
+      altimeterId: 'fcb',
+      confidence: 'high',
+      reason: 'FCB CSV header detected.'
+    };
+  }
+
+  if (
     lowerFirstLines.includes('timestampms') &&
     lowerFirstLines.includes('pressurepa') &&
     lowerFirstLines.includes('altitudem')
@@ -618,17 +727,6 @@ function detectFromText(filePath: string, contents: string): AltimeterDetectionR
     };
   }
 
-  if (
-    lowerFirstLines.includes('packettype,timestamp_ms') &&
-    lowerFirstLines.includes('imu1_accel_x')
-  ) {
-    return {
-      altimeterId: 'fcb',
-      confidence: 'high',
-      reason: 'FCB CSV header detected.'
-    };
-  }
-
   return {
     altimeterId: null,
     confidence: 'none',
@@ -638,8 +736,16 @@ function detectFromText(filePath: string, contents: string): AltimeterDetectionR
 
 export async function detectAltimeter(filePaths: string[]): Promise<AltimeterDetectionResult> {
   for (const filePath of filePaths) {
-    const contents = await readFile(filePath, 'utf8');
-    const result = detectFromText(filePath, contents);
+    const handle = await open(filePath, 'r');
+    let contents = '';
+    try {
+      const buffer = Buffer.alloc(64 * 1024);
+      const { bytesRead } = await handle.read(buffer, 0, buffer.length, 0);
+      contents = buffer.subarray(0, bytesRead).toString('utf8');
+    } finally {
+      await handle.close();
+    }
+    const result = detectFromText(contents);
 
     if (result.altimeterId && getAltimeterDefinition(result.altimeterId)) {
       return result;
@@ -722,6 +828,7 @@ export async function saveImport(
   }
 
   await copyOriginalFiles(parsed.sourceFiles, altimeterDirectory);
+  await writeSavedLogDataset(altimeterDirectory, parsed.headers, parsed.rows);
   await writeAttributes(
     attributesPath,
     Array.from(attributes.entries()).map(([key, value]) => ({ key, value }))

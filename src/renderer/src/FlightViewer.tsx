@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import Plotly from 'plotly.js-dist-min';
+import Plotly2D from 'plotly.js-basic-dist-min';
+import Plotly3D from 'plotly.js-gl3d-dist-min';
 import { AttributeEditor, ensureRequiredAttributes, hasRequiredAttributes } from './AttributeEditor';
 import type {
   CustomAttribute,
@@ -74,6 +75,7 @@ const FCB_STATE_NAMES: Record<number, string> = {
 };
 const FCB_LAUNCH_STATE = 2;
 const FCB_END_STATE = 5;
+const MAX_EVENT_MARKERS = 200;
 
 function defaultSeries(
   headers: string[],
@@ -130,22 +132,95 @@ function normalizedHeader(header: string) {
   return header.trim().toLowerCase();
 }
 
-function getTimeColumn(headers: string[]) {
+function timeColumnStats(rows: string[][], columnIndex: number) {
+  let first: number | null = null;
+  let min: number | null = null;
+  let max: number | null = null;
+  let previous: number | null = null;
+  const deltas: number[] = [];
+
+  for (const row of rows) {
+    const value = parseNumber(row[columnIndex]);
+    if (value === null) continue;
+    if (first === null) first = value;
+    if (min === null || value < min) min = value;
+    if (max === null || value > max) max = value;
+    if (previous !== null) {
+      const delta = Math.abs(value - previous);
+      if (delta > 0) deltas.push(delta);
+    }
+    previous = value;
+  }
+
+  const sortedDeltas = deltas.sort((left, right) => left - right);
+  const medianDelta = sortedDeltas[Math.floor(sortedDeltas.length / 2)] ?? null;
+
+  return { first, min, max, medianDelta };
+}
+
+function isLikelyMillisecondTimestamp(
+  header: string,
+  relativeToFirstValue: boolean,
+  secondsPerUnit: number,
+  stats: { first: number | null; min: number | null; max: number | null; medianDelta: number | null }
+) {
+  if (!relativeToFirstValue || secondsPerUnit !== 1) return false;
+  if (stats.min === null || stats.max === null || stats.medianDelta === null) return false;
+
+  const normalized = normalizedHeader(header);
+  const looksLikeSecondField =
+    normalized.includes('timestamp_s') ||
+    normalized === 'timestamp' ||
+    normalized === 'timestamps' ||
+    normalized === 'time_s' ||
+    normalized === 'time';
+  if (!looksLikeSecondField) return false;
+
+  const rawRange = Math.abs(stats.max - stats.min);
+  const medianDeltaAsSeconds = stats.medianDelta;
+  const medianDeltaAsMilliseconds = stats.medianDelta * 0.001;
+  return rawRange > 10_000 && medianDeltaAsSeconds > 1 && medianDeltaAsMilliseconds <= 10;
+}
+
+function getTimeColumn(headers: string[], rows: string[][] = []) {
   const normalizedHeaders = headers.map(normalizedHeader);
+  const candidates: Array<TimeColumnDefinition & { index: number; rangeSeconds: number }> = [];
 
   for (const definition of TIME_COLUMNS) {
     const index = normalizedHeaders.findIndex((header) => definition.names.includes(header));
 
     if (index >= 0) {
-      return { ...definition, index };
+      const stats = rows.length > 0 ? timeColumnStats(rows, index) : null;
+      const adjustedSecondsPerUnit =
+        stats && isLikelyMillisecondTimestamp(headers[index] ?? '', definition.relativeToFirstValue, definition.secondsPerUnit, stats)
+          ? 0.001
+          : definition.secondsPerUnit;
+      const rangeSeconds =
+        stats && stats.min !== null && stats.max !== null
+          ? Math.abs(stats.max - stats.min) * adjustedSecondsPerUnit
+          : 0;
+
+      candidates.push({
+        ...definition,
+        secondsPerUnit: adjustedSecondsPerUnit,
+        index,
+        rangeSeconds
+      });
     }
   }
 
-  return null;
+  if (candidates.length === 0) return null;
+  if (rows.length === 0) return candidates[0];
+
+  return (
+    candidates
+      .filter((candidate) => candidate.rangeSeconds > 0.001)
+      .sort((left, right) => right.rangeSeconds - left.rangeSeconds)[0] ?? candidates[0]
+  );
 }
 
 function buildXAxis(dataset: ImportedDataset) {
-  const timeColumn = getTimeColumn(dataset.headers);
+  const timeColumn = getTimeColumn(dataset.headers, dataset.rows);
 
   if (!timeColumn) {
     return {
@@ -215,14 +290,20 @@ function buildEventMarkers(dataset: ImportedDataset, xValues: number[]) {
           stateNameIndex !== null
             ? dataset.rows[index]?.[stateNameIndex]
             : stateNames[currentState];
-        events.push({
-          label: `${previousName ?? previousState} -> ${currentName ?? currentState}`,
-          time: xValues[index],
-          rowIndex: index,
-          color: '#74c69d'
-        });
+        const hasKnownState =
+          Boolean(previousName) || Boolean(currentName) || stateNameIndex !== null;
+
+        if (hasKnownState) {
+          events.push({
+            label: `${previousName ?? previousState} -> ${currentName ?? currentState}`,
+            time: xValues[index],
+            rowIndex: index,
+            color: '#74c69d'
+          });
+        }
 
         if (
+          hasKnownState &&
           launchTime === null &&
           ((flightStateIndex !== null && previousState === 0 && currentState !== 0) ||
             (fcbStateIndex !== null && currentState === FCB_LAUNCH_STATE) ||
@@ -232,9 +313,10 @@ function buildEventMarkers(dataset: ImportedDataset, xValues: number[]) {
         }
 
         if (
-          (flightStateIndex !== null && currentState === 3) ||
-          (fcbStateIndex !== null && currentState === FCB_END_STATE) ||
-          (easyMiniStateIndex !== null && currentState === 8)
+          hasKnownState &&
+          ((flightStateIndex !== null && currentState === 3) ||
+            (fcbStateIndex !== null && currentState === FCB_END_STATE) ||
+            (easyMiniStateIndex !== null && currentState === 8))
         ) {
           flightEndTime = xValues[index];
         }
@@ -289,7 +371,9 @@ function buildEventMarkers(dataset: ImportedDataset, xValues: number[]) {
     });
   }
 
-  const sortedEvents = events.sort((left, right) => left.time - right.time);
+  const sortedEvents = events
+    .sort((left, right) => left.time - right.time)
+    .slice(0, MAX_EVENT_MARKERS);
   const firstEventTime = sortedEvents[0]?.time ?? xValues[0] ?? 0;
   const lastEventTime = sortedEvents[sortedEvents.length - 1]?.time ?? xValues[xValues.length - 1] ?? 0;
 
@@ -394,6 +478,10 @@ export function FlightViewer({
 
     let ignore = false;
     setLoadError('');
+    const started = performance.now();
+    void window.appBridge.debugLog('viewer:read-dataset:start', {
+      selectedDirectory
+    });
 
     window.appBridge
       .readDataset(selectedDirectory)
@@ -406,16 +494,27 @@ export function FlightViewer({
         setSelectedSeries(
           defaultSeries(
             nextDataset.headers,
-            getTimeColumn(nextDataset.headers)?.index ?? null,
+            getTimeColumn(nextDataset.headers, nextDataset.rows)?.index ?? null,
             findStandardColumns(config, importerId)
           )
         );
         setShowFullData(false);
         setRawPage(0);
+        void window.appBridge.debugLog('viewer:read-dataset:ok', {
+          selectedDirectory,
+          durationMs: Math.round(performance.now() - started),
+          rowCount: nextDataset.rows.length,
+          headerCount: nextDataset.headers.length
+        });
       })
       .catch((error: Error) => {
         if (!ignore) {
           setLoadError(error.message);
+          void window.appBridge.debugLog('viewer:read-dataset:error', {
+            selectedDirectory,
+            durationMs: Math.round(performance.now() - started),
+            message: error.message
+          });
         }
       });
 
@@ -608,6 +707,13 @@ export function FlightViewer({
     if (!isActive || !plotElement || !dataset || activeSection !== 'plot2d') {
       return;
     }
+    const started = performance.now();
+    void window.appBridge.debugLog('viewer:plot2d:start', {
+      selectedDirectory,
+      selectedSeriesCount: selectedSeries.length,
+      visiblePointCount: visibleRows.length,
+      visibleEventCount: visibleEvents.length
+    });
 
     const traces = selectedSeries.map((seriesIndex) => ({
       x: visibleXValues,
@@ -618,7 +724,7 @@ export function FlightViewer({
       hoverinfo: 'none'
     }));
 
-    Plotly.newPlot(
+    Plotly2D.newPlot(
       plotElement,
       traces,
       {
@@ -677,6 +783,13 @@ export function FlightViewer({
         scrollZoom: true
       }
     ).then(() => {
+      void window.appBridge.debugLog('viewer:plot2d:ok', {
+        selectedDirectory,
+        durationMs: Math.round(performance.now() - started),
+        selectedSeriesCount: selectedSeries.length,
+        visiblePointCount: visibleRows.length,
+        visibleEventCount: visibleEvents.length
+      });
       const interactivePlot = plotElement as PlotElement;
       interactivePlot.removeAllListeners?.('plotly_hover');
       interactivePlot.removeAllListeners?.('plotly_unhover');
@@ -693,11 +806,11 @@ export function FlightViewer({
       interactivePlot.on?.('plotly_unhover', () => {
         setHoverText('Hover over the chart to inspect values.');
       });
-      Plotly.Plots.resize(plotElement);
+      Plotly2D.Plots.resize(plotElement);
     });
 
     return () => {
-      Plotly.purge(plotElement);
+      Plotly2D.purge(plotElement);
     };
   }, [
     activeSection,
@@ -718,7 +831,7 @@ export function FlightViewer({
       return;
     }
 
-    Plotly.newPlot(
+    Plotly3D.newPlot(
       plotElement,
       [
         {
@@ -764,11 +877,11 @@ export function FlightViewer({
         scrollZoom: true
       }
     ).then(() => {
-      Plotly.Plots.resize(plotElement);
+      Plotly3D.Plots.resize(plotElement);
     });
 
     return () => {
-      Plotly.purge(plotElement);
+      Plotly3D.purge(plotElement);
     };
   }, [activeSection, dataset, gpsAspectRatio, gpsColumns, gpsPoints, isActive]);
 

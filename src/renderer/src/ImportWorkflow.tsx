@@ -12,6 +12,7 @@ import type {
 const REQUIRED_ATTRIBUTE_KEYS = ['motor'];
 const MULTILINE_ATTRIBUTE_KEYS = ['flight_notes'];
 const ENSURED_ATTRIBUTE_KEYS = [...REQUIRED_ATTRIBUTE_KEYS, ...MULTILINE_ATTRIBUTE_KEYS];
+const FORBIDDEN_PATH_CHARS = /[<>:"/\\|?*\x00-\x1F]/g;
 
 type ImportWorkflowProps = {
   files: string[];
@@ -29,6 +30,47 @@ function todayString() {
 
 function fileName(filePath: string) {
   return filePath.split(/[\\/]/).pop() ?? filePath;
+}
+
+function sanitizePathInput(value: string) {
+  return value.replace(FORBIDDEN_PATH_CHARS, '');
+}
+
+function fileDirectory(filePath: string) {
+  const parts = filePath.split(/[\\/]/);
+  return parts.slice(0, -1).join('\\');
+}
+
+function extractDateFromText(text: string): string | null {
+  const dashed = text.match(/\b(20\d{2})[-_](\d{2})[-_](\d{2})\b/);
+  if (dashed) {
+    return `${dashed[1]}-${dashed[2]}-${dashed[3]}`;
+  }
+
+  const compact = text.match(/\b(20\d{2})(\d{2})(\d{2})\b/);
+  if (compact) {
+    return `${compact[1]}-${compact[2]}-${compact[3]}`;
+  }
+
+  return null;
+}
+
+function detectImportDate(files: string[]): string | null {
+  const dateCounts = new Map<string, number>();
+
+  for (const filePath of files) {
+    const candidate =
+      extractDateFromText(fileDirectory(filePath)) ?? extractDateFromText(fileName(filePath));
+    if (!candidate) continue;
+    dateCounts.set(candidate, (dateCounts.get(candidate) ?? 0) + 1);
+  }
+
+  const best = Array.from(dateCounts.entries()).sort((left, right) => {
+    if (right[1] !== left[1]) return right[1] - left[1];
+    return right[0].localeCompare(left[0]);
+  })[0];
+
+  return best?.[0] ?? null;
 }
 
 export function ImportWorkflow({
@@ -72,6 +114,13 @@ export function ImportWorkflow({
       setAltimeterId(config.altimeters[0].id);
     }
   }, [altimeterId, config]);
+
+  useEffect(() => {
+    const detectedDate = detectImportDate(files);
+    if (detectedDate) {
+      setFlightDate(detectedDate);
+    }
+  }, [files]);
 
   useEffect(() => {
     if (files.length === 0 || hasAppliedDetection) {
@@ -226,7 +275,7 @@ export function ImportWorkflow({
             Altimeter note
             <input
               value={altimeterNote}
-              onChange={(event) => setAltimeterNote(event.target.value)}
+              onChange={(event) => setAltimeterNote(sanitizePathInput(event.target.value))}
               placeholder="Booster, sustainer, payload bay"
             />
           </label>
@@ -291,7 +340,7 @@ export function ImportWorkflow({
               Flight name
               <input
                 value={flightName}
-                onChange={(event) => setFlightName(event.target.value)}
+                onChange={(event) => setFlightName(sanitizePathInput(event.target.value))}
                 placeholder="Flight name"
               />
             </label>
@@ -315,7 +364,8 @@ export function ImportWorkflow({
         <ul className="file-list">
           {files.map((file) => (
             <li key={file} title={file}>
-              {fileName(file)}
+              <div className="file-entry-name">{fileName(file)}</div>
+              <div className="file-entry-dir">{fileDirectory(file)}</div>
             </li>
           ))}
         </ul>

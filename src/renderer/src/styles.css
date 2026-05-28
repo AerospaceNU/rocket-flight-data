@@ -428,6 +428,15 @@ button:disabled {
   overflow-wrap: anywhere;
 }
 
+.file-entry-name {
+  color: var(--text-body);
+}
+
+.file-entry-dir {
+  color: var(--text-muted);
+  font-size: 0.76rem;
+}
+
 .attribute-table {
   display: grid;
   border: 1px solid var(--border);

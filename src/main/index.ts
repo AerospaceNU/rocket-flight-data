@@ -5,6 +5,12 @@ import os from 'node:os';
 import path from 'node:path';
 import { getImportConfig } from './importers/registry';
 import {
+  initLogger,
+  logMain,
+  logMainError,
+  logRenderer
+} from './logger';
+import {
   detectAltimeter,
   ensureOutputDirectory,
   listFlights,
@@ -101,6 +107,13 @@ const persistedConfig = readConfig();
 let outputDirectory = getPersistedOutputDirectory(persistedConfig) ?? getDefaultOutputDirectory();
 let currentTheme: ThemeId = normalizeTheme(persistedConfig.theme);
 
+initLogger(getConfigDirectory());
+logMain('app bootstrap', {
+  version: app.getVersion(),
+  isPackaged: app.isPackaged,
+  outputDirectory
+});
+
 function persistOutputDirectory(dir: string): void {
   const config = readConfig();
   config.outputDirectory = dir;
@@ -117,8 +130,29 @@ function persistTheme(theme: ThemeId): void {
   writeConfig(config);
 }
 
+async function runLogged<T>(
+  operation: string,
+  metadata: Record<string, unknown>,
+  work: () => Promise<T>
+): Promise<T> {
+  const started = Date.now();
+  logMain(`${operation}:start`, metadata);
+  try {
+    const result = await work();
+    logMain(`${operation}:ok`, { ...metadata, durationMs: Date.now() - started });
+    return result;
+  } catch (error) {
+    logMainError(`${operation}:error`, error, {
+      ...metadata,
+      durationMs: Date.now() - started
+    });
+    throw error;
+  }
+}
+
 function runGitCommand(args: string[], cwd?: string): Promise<void> {
   return new Promise((resolve, reject) => {
+    logMain('git:start', { args, cwd });
     const child = spawn('git', args, {
       cwd,
       windowsHide: true
@@ -133,9 +167,11 @@ function runGitCommand(args: string[], cwd?: string): Promise<void> {
     });
     child.on('close', (code) => {
       if (code === 0) {
+        logMain('git:ok', { args, cwd });
         resolve();
         return;
       }
+      logMain('git:fail', { args, cwd, code, stderr: stderr.trim() });
       reject(new Error(stderr.trim() || `git ${args.join(' ')} failed with exit code ${code}`));
     });
   });
@@ -325,35 +361,97 @@ function createWindow() {
     mainWindow.loadFile(path.join(__dirname, '../../dist/renderer/index.html'));
   }
 
+  mainWindow.on('unresponsive', () => {
+    logMain('window:unresponsive');
+  });
+  mainWindow.on('responsive', () => {
+    logMain('window:responsive');
+  });
+  mainWindow.webContents.on('render-process-gone', (_event, details) => {
+    logMain('window:render-process-gone', details);
+  });
+  mainWindow.webContents.on('did-finish-load', () => {
+    logMain('window:did-finish-load');
+  });
+
   buildAppMenu(mainWindow);
 }
 
 ipcMain.handle('import:get-config', () => getImportConfig());
 ipcMain.handle('import:get-output-directory', () => outputDirectory);
 ipcMain.handle('theme:get', () => currentTheme);
-ipcMain.handle('import:list-flights', () => listFlights(outputDirectory));
+ipcMain.handle('import:list-flights', () =>
+  runLogged('ipc:import:list-flights', { outputDirectory }, () => listFlights(outputDirectory))
+);
 ipcMain.handle('import:detect-altimeter', (_event, filePaths: string[]) =>
-  detectAltimeter(filePaths)
+  runLogged(
+    'ipc:import:detect-altimeter',
+    { fileCount: filePaths.length, filePaths },
+    () => detectAltimeter(filePaths)
+  )
 );
 ipcMain.handle('dataset:read', (_event, datasetDirectory: string) =>
-  readImportedDataset(outputDirectory, datasetDirectory)
+  runLogged(
+    'ipc:dataset:read',
+    { datasetDirectory, outputDirectory },
+    () => readImportedDataset(outputDirectory, datasetDirectory)
+  )
 );
 ipcMain.handle(
   'dataset:save-attributes',
   (_event, request: { datasetDirectory: string; attributes: { key: string; value: string }[] }) =>
-    saveImportedDatasetAttributes(outputDirectory, request.datasetDirectory, request.attributes)
+    runLogged(
+      'ipc:dataset:save-attributes',
+      {
+        datasetDirectory: request.datasetDirectory,
+        outputDirectory,
+        attributeCount: request.attributes.length
+      },
+      () => saveImportedDatasetAttributes(outputDirectory, request.datasetDirectory, request.attributes)
+    )
 );
 ipcMain.handle(
   'import:preview',
   (_event, request: { altimeterId: string; filePaths: string[] }) =>
-    previewImport(request.altimeterId, request.filePaths)
+    runLogged(
+      'ipc:import:preview',
+      {
+        altimeterId: request.altimeterId,
+        fileCount: request.filePaths.length,
+        filePaths: request.filePaths
+      },
+      () => previewImport(request.altimeterId, request.filePaths)
+    )
 );
 ipcMain.handle('import:save', (_event, request: SaveImportRequest) =>
-  saveImport(outputDirectory, request)
+  runLogged(
+    'ipc:import:save',
+    {
+      altimeterId: request.altimeterId,
+      fileCount: request.filePaths.length,
+      flightMode: request.flightMode,
+      outputDirectory
+    },
+    () => saveImport(outputDirectory, request)
+  )
 );
+ipcMain.handle('debug:log', (_event, payload: { message: string; data?: unknown }) => {
+  logRenderer(payload.message, payload.data);
+});
+
+process.on('uncaughtException', (error) => {
+  logMainError('process:uncaught-exception', error);
+});
+process.on('unhandledRejection', (reason) => {
+  logMainError('process:unhandled-rejection', reason);
+});
+app.on('child-process-gone', (_event, details) => {
+  logMain('app:child-process-gone', details);
+});
 
 app.whenReady().then(async () => {
   await ensureOutputDirectory(outputDirectory);
+  logMain('app:ready');
   createWindow();
 
   app.on('activate', () => {
@@ -364,6 +462,7 @@ app.whenReady().then(async () => {
 });
 
 app.on('window-all-closed', () => {
+  logMain('app:window-all-closed', { platform: process.platform });
   if (process.platform !== 'darwin') {
     app.quit();
   }
