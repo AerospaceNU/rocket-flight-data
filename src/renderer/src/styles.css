@@ -1,7 +1,80 @@
-:root {
+﻿:root {
   font-family: Inter, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
-  color: #e4e7eb;
-  background-color: #111315;
+  --bg-app: #111315;
+  --bg-tabbar: #171a1e;
+  --bg-panel: #181b1f;
+  --bg-surface: #20242a;
+  --bg-input: #101214;
+  --border: #30343a;
+  --border-strong: #3a4048;
+  --text-primary: #e4e7eb;
+  --text-secondary: #aab2bd;
+  --text-muted: #89919c;
+  --text-body: #cbd2da;
+  --accent: #3fb2a7;
+  --accent-contrast: #07110f;
+  --success: #74c69d;
+  --warning: #e2b95b;
+  --error: #f17b7b;
+  color: var(--text-primary);
+  background-color: var(--bg-app);
+}
+
+:root[data-theme='slate-light'] {
+  --bg-app: #edf1f5;
+  --bg-tabbar: #d7e0e8;
+  --bg-panel: #ffffff;
+  --bg-surface: #f5f8fb;
+  --bg-input: #ffffff;
+  --border: #b7c4d1;
+  --border-strong: #9fb0c2;
+  --text-primary: #1f2a36;
+  --text-secondary: #3c4b5a;
+  --text-muted: #556678;
+  --text-body: #2b3a49;
+  --accent: #2e86de;
+  --accent-contrast: #f3f8ff;
+  --success: #198754;
+  --warning: #b07a10;
+  --error: #c24141;
+}
+
+:root[data-theme='forest-dark'] {
+  --bg-app: #0f1613;
+  --bg-tabbar: #17231e;
+  --bg-panel: #1b2a23;
+  --bg-surface: #22352c;
+  --bg-input: #131d18;
+  --border: #2f463a;
+  --border-strong: #3a5748;
+  --text-primary: #e3efe8;
+  --text-secondary: #b4c7bc;
+  --text-muted: #8aa093;
+  --text-body: #c8d9cf;
+  --accent: #6dc08d;
+  --accent-contrast: #0d1a13;
+  --success: #7bd4a0;
+  --warning: #d9bf73;
+  --error: #e08181;
+}
+
+:root[data-theme='amber-dark'] {
+  --bg-app: #17120d;
+  --bg-tabbar: #221910;
+  --bg-panel: #2b2014;
+  --bg-surface: #352719;
+  --bg-input: #1d150e;
+  --border: #4a3825;
+  --border-strong: #5b442c;
+  --text-primary: #f3e6d5;
+  --text-secondary: #ddc5a4;
+  --text-muted: #b79a78;
+  --text-body: #ead9c2;
+  --accent: #d79a3c;
+  --accent-contrast: #1f1307;
+  --success: #9acb7f;
+  --warning: #f1c76c;
+  --error: #e68a7d;
 }
 
 html,
@@ -24,13 +97,13 @@ body {
   min-height: 0;
   display: grid;
   grid-template-rows: auto 1fr;
-  background-color: #111315;
+  background-color: var(--bg-app);
   overflow: hidden;
 }
 
 p {
   margin: 0 0 0.5rem;
-  color: #aab2bd;
+  color: var(--text-secondary);
 }
 
 h2 {
@@ -43,8 +116,8 @@ h2 {
   display: flex;
   gap: 0.25rem;
   padding: 0.35rem 0.5rem 0;
-  border-bottom: 1px solid #30343a;
-  background-color: #171a1e;
+  border-bottom: 1px solid var(--border);
+  background-color: var(--bg-tabbar);
 }
 
 .tab {
@@ -54,18 +127,18 @@ h2 {
   gap: 0.5rem;
   min-width: 6.5rem;
   min-height: 2rem;
-  border: 1px solid #30343a;
+  border: 1px solid var(--border);
   border-bottom: none;
-  background: #20242a;
-  color: #aab2bd;
+  background: var(--bg-surface);
+  color: var(--text-secondary);
   padding: 0.35rem 0.75rem;
   border-radius: 6px 6px 0 0;
   cursor: pointer;
 }
 
 .tab.active {
-  background: #111315;
-  color: #e4e7eb;
+  background: var(--bg-app);
+  color: var(--text-primary);
 }
 
 .tab-close {
@@ -74,13 +147,13 @@ h2 {
   width: 1.1rem;
   height: 1.1rem;
   border-radius: 50%;
-  color: #89919c;
+  color: var(--text-muted);
   line-height: 1;
 }
 
 .tab-close:hover {
-  background-color: #30343a;
-  color: #e4e7eb;
+  background-color: var(--border);
+  color: var(--text-primary);
 }
 
 .tab-content {
@@ -105,7 +178,7 @@ h2 {
 
 ul {
   margin-top: 0.5rem;
-  color: #cbd2da;
+  color: var(--text-body);
 }
 
 button,
@@ -119,10 +192,10 @@ select,
 textarea {
   width: 100%;
   min-height: 2.1rem;
-  border: 1px solid #3a4048;
+  border: 1px solid var(--border-strong);
   border-radius: 6px;
-  background-color: #101214;
-  color: #e4e7eb;
+  background-color: var(--bg-input);
+  color: var(--text-primary);
   padding: 0.35rem 0.55rem;
   font: inherit;
 }
@@ -133,22 +206,22 @@ textarea {
 
 input:disabled,
 textarea:disabled {
-  color: #89919c;
+  color: var(--text-muted);
   opacity: 1;
 }
 
 label {
   display: grid;
   gap: 0.3rem;
-  color: #aab2bd;
+  color: var(--text-secondary);
   font-size: 0.78rem;
 }
 
 .home-panel,
 .panel {
-  border: 1px solid #30343a;
+  border: 1px solid var(--border);
   border-radius: 8px;
-  background-color: #181b1f;
+  background-color: var(--bg-panel);
   padding: 0.9rem;
 }
 
@@ -172,7 +245,7 @@ label {
 
 .summary-label,
 .section-title {
-  color: #89919c;
+  color: var(--text-muted);
   font-size: 0.72rem;
   font-weight: 600;
   text-transform: uppercase;
@@ -209,16 +282,16 @@ label {
   grid-template-columns: minmax(0, 1fr) minmax(12rem, 22rem);
   align-items: center;
   gap: 0.75rem;
-  border: 1px solid #30343a;
+  border: 1px solid var(--border);
   border-radius: 6px;
-  background-color: #20242a;
+  background-color: var(--bg-surface);
   padding: 0.45rem 0.7rem;
   cursor: pointer;
 }
 
 .flight-row:hover,
 .flight-row:focus-visible {
-  border-color: #3fb2a7;
+  border-color: var(--accent);
   outline: none;
 }
 
@@ -235,7 +308,7 @@ label {
 }
 
 .flight-row-meta {
-  color: #89919c;
+  color: var(--text-muted);
   font-size: 0.78rem;
   overflow-wrap: anywhere;
 }
@@ -251,9 +324,9 @@ label {
   font-size: 0.74rem;
   padding: 0.18rem 0.65rem;
   border-radius: 999px;
-  background-color: #2a2f36;
-  border: 1px solid #3a4049;
-  color: #cfd5dd;
+  background-color: color-mix(in srgb, var(--bg-surface) 85%, var(--border) 15%);
+  border: 1px solid var(--border-strong);
+  color: var(--text-body);
   cursor: pointer;
   white-space: nowrap;
   min-width: 6rem;
@@ -262,7 +335,7 @@ label {
 
 .altimeter-chip:hover,
 .altimeter-chip:focus-visible {
-  border-color: #3fb2a7;
+  border-color: var(--accent);
   color: #fff;
   outline: none;
 }
@@ -287,7 +360,7 @@ label {
 
 .panel-header span {
   min-width: 0;
-  color: #89919c;
+  color: var(--text-muted);
   font-size: 0.78rem;
   overflow-wrap: anywhere;
   text-align: right;
@@ -306,7 +379,7 @@ label {
 .segmented-control {
   display: inline-flex;
   width: fit-content;
-  border: 1px solid #3a4048;
+  border: 1px solid var(--border-strong);
   border-radius: 7px;
   overflow: hidden;
 }
@@ -315,9 +388,9 @@ label {
 .small-button,
 .primary-button,
 .icon-button {
-  border: 1px solid #3a4048;
-  background-color: #20242a;
-  color: #e4e7eb;
+  border: 1px solid var(--border-strong);
+  background-color: var(--bg-surface);
+  color: var(--text-primary);
   cursor: pointer;
 }
 
@@ -325,7 +398,7 @@ label {
   min-width: 6rem;
   min-height: 2rem;
   border: none;
-  border-right: 1px solid #3a4048;
+  border-right: 1px solid var(--border-strong);
 }
 
 .segmented-control button:last-child {
@@ -334,9 +407,9 @@ label {
 
 .segmented-control button.selected,
 .primary-button {
-  background-color: #3fb2a7;
-  border-color: #3fb2a7;
-  color: #07110f;
+  background-color: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-contrast);
 }
 
 button:disabled {
@@ -357,7 +430,7 @@ button:disabled {
 
 .attribute-table {
   display: grid;
-  border: 1px solid #30343a;
+  border: 1px solid var(--border);
   border-radius: 6px;
   overflow: hidden;
 }
@@ -367,7 +440,7 @@ button:disabled {
   grid-template-columns: minmax(12rem, 20rem) minmax(0, 1fr);
   gap: 0.75rem;
   padding: 0.45rem 0.6rem;
-  border-bottom: 1px solid #30343a;
+  border-bottom: 1px solid var(--border);
 }
 
 .attribute-row:last-child {
@@ -380,7 +453,7 @@ button:disabled {
 }
 
 .attribute-row span:first-child {
-  color: #89919c;
+  color: var(--text-muted);
 }
 
 .custom-attributes {
@@ -413,12 +486,12 @@ button:disabled {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  color: #f17b7b;
+  color: var(--error);
   font-weight: 600;
 }
 
 .custom-attribute-row .required-missing {
-  border-color: #f17b7b;
+  border-color: var(--error);
 }
 
 .custom-attribute-row .multiline-value {
@@ -460,20 +533,20 @@ button:disabled {
 }
 
 .muted-text {
-  color: #89919c;
+  color: var(--text-muted);
   padding: 0.5rem;
 }
 
 .warning-text {
-  color: #e2b95b;
+  color: var(--warning);
 }
 
 .error-text {
-  color: #f17b7b;
+  color: var(--error);
 }
 
 .success-text {
-  color: #74c69d;
+  color: var(--success);
   overflow-wrap: anywhere;
 }
 
@@ -498,7 +571,7 @@ button:disabled {
 }
 
 .viewer-header span {
-  color: #89919c;
+  color: var(--text-muted);
   font-size: 0.8rem;
   overflow-wrap: anywhere;
 }
@@ -508,24 +581,24 @@ button:disabled {
   gap: 0.35rem;
   min-width: 0;
   overflow-x: auto;
-  border-bottom: 1px solid #30343a;
+  border-bottom: 1px solid var(--border);
 }
 
 .altimeter-tabbar button {
   min-height: 2rem;
   white-space: nowrap;
-  border: 1px solid #30343a;
+  border: 1px solid var(--border);
   border-bottom: none;
   border-radius: 6px 6px 0 0;
-  background-color: #20242a;
-  color: #aab2bd;
+  background-color: var(--bg-surface);
+  color: var(--text-secondary);
   padding: 0.35rem 0.75rem;
   cursor: pointer;
 }
 
 .altimeter-tabbar button.active {
-  background-color: #181b1f;
-  color: #e4e7eb;
+  background-color: var(--bg-panel);
+  color: var(--text-primary);
 }
 
 .viewer-body {
@@ -542,9 +615,9 @@ button:disabled {
   display: grid;
   align-content: start;
   gap: 0.35rem;
-  border: 1px solid #30343a;
+  border: 1px solid var(--border);
   border-radius: 8px;
-  background-color: #181b1f;
+  background-color: var(--bg-panel);
   padding: 0.45rem;
 }
 
@@ -553,16 +626,16 @@ button:disabled {
   border: 1px solid transparent;
   border-radius: 6px;
   background-color: transparent;
-  color: #aab2bd;
+  color: var(--text-secondary);
   cursor: pointer;
   padding: 0.35rem 0.55rem;
   text-align: left;
 }
 
 .view-sidebar button.active {
-  border-color: #3fb2a7;
-  background-color: #20242a;
-  color: #e4e7eb;
+  border-color: var(--accent);
+  background-color: var(--bg-surface);
+  color: var(--text-primary);
 }
 
 .viewer-content {
@@ -577,31 +650,31 @@ button:disabled {
 .secondary-tabbar {
   display: flex;
   gap: 0.35rem;
-  border-bottom: 1px solid #30343a;
+  border-bottom: 1px solid var(--border);
 }
 
 .secondary-tabbar button {
   min-height: 2rem;
-  border: 1px solid #30343a;
+  border: 1px solid var(--border);
   border-bottom: none;
   border-radius: 6px 6px 0 0;
-  background-color: #20242a;
-  color: #aab2bd;
+  background-color: var(--bg-surface);
+  color: var(--text-secondary);
   padding: 0.35rem 0.75rem;
   cursor: pointer;
 }
 
 .secondary-tabbar button.active {
-  background-color: #181b1f;
-  color: #e4e7eb;
+  background-color: var(--bg-panel);
+  color: var(--text-primary);
 }
 
 .viewer-panel,
 .raw-data-panel {
   min-height: 0;
-  border: 1px solid #30343a;
+  border: 1px solid var(--border);
   border-radius: 8px;
-  background-color: #181b1f;
+  background-color: var(--bg-panel);
   padding: 0.9rem;
   overflow: auto;
 }
@@ -628,9 +701,9 @@ button:disabled {
   min-height: 0;
   height: 100%;
   max-height: 100%;
-  border: 1px solid #30343a;
+  border: 1px solid var(--border);
   border-radius: 8px;
-  background-color: #181b1f;
+  background-color: var(--bg-panel);
   padding: 0.75rem;
   overflow: hidden;
 }
@@ -652,7 +725,7 @@ button:disabled {
   align-items: center;
   gap: 0.45rem;
   min-height: 1.6rem;
-  color: #cbd2da;
+  color: var(--text-body);
   font-size: 0.8rem;
 }
 
@@ -673,10 +746,10 @@ button:disabled {
 
 .hover-dashboard {
   min-height: 2rem;
-  border: 1px solid #30343a;
+  border: 1px solid var(--border);
   border-radius: 6px;
-  background-color: #181b1f;
-  color: #aab2bd;
+  background-color: var(--bg-panel);
+  color: var(--text-secondary);
   padding: 0.45rem 0.6rem;
   overflow-wrap: anywhere;
   font-size: 0.82rem;
@@ -686,9 +759,9 @@ button:disabled {
   min-width: 0;
   min-height: 0;
   height: 100%;
-  border: 1px solid #30343a;
+  border: 1px solid var(--border);
   border-radius: 8px;
-  background-color: #181b1f;
+  background-color: var(--bg-panel);
 }
 
 .plot3d-layout {
@@ -715,7 +788,7 @@ button:disabled {
   justify-content: space-between;
   gap: 1rem;
   align-items: center;
-  color: #89919c;
+  color: var(--text-muted);
   font-size: 0.82rem;
 }
 
@@ -734,8 +807,8 @@ button:disabled {
 
 .data-table th,
 .data-table td {
-  border-right: 1px solid #30343a;
-  border-bottom: 1px solid #30343a;
+  border-right: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
   padding: 0.35rem 0.5rem;
   text-align: right;
   white-space: nowrap;
@@ -745,13 +818,13 @@ button:disabled {
   position: sticky;
   top: 0;
   z-index: 1;
-  background-color: #20242a;
-  color: #e4e7eb;
+  background-color: var(--bg-surface);
+  color: var(--text-primary);
   font-weight: 600;
 }
 
 .data-table td {
-  color: #cbd2da;
+  color: var(--text-body);
 }
 
 @media (max-width: 760px) {
@@ -781,3 +854,6 @@ button:disabled {
     overflow-x: auto;
   }
 }
+
+
+

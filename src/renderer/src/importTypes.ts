@@ -4,6 +4,8 @@ export type CommonAttributeDefinition = {
   required: boolean;
 };
 
+export type ThemeId = 'default-dark' | 'slate-light' | 'forest-dark' | 'amber-dark';
+
 export type StandardColumnRef = {
   column: string;
   scaleToStandard?: number;

@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { FlightViewer } from './FlightViewer';
 import { ImportWorkflow } from './ImportWorkflow';
-import type { FlightSummary, ImportConfig, SaveImportResult } from './importTypes';
+import type { FlightSummary, ImportConfig, SaveImportResult, ThemeId } from './importTypes';
 
 type BaseTab = {
   id: string;
@@ -36,6 +36,7 @@ export function App() {
   const [outputDirectory, setOutputDirectory] = useState('');
   const [config, setConfig] = useState<ImportConfig | null>(null);
   const [flights, setFlights] = useState<FlightSummary[]>([]);
+  const [theme, setTheme] = useState<ThemeId>('default-dark');
   const [searchKeyword, setSearchKeyword] = useState('');
   const [altimeterTypeFilter, setAltimeterTypeFilter] = useState('');
   const [altitudeMinInput, setAltitudeMinInput] = useState('');
@@ -106,8 +107,13 @@ export function App() {
   useEffect(() => {
     window.appBridge.getImportConfig().then(setConfig);
     window.appBridge.getOutputDirectory().then(setOutputDirectory);
+    window.appBridge.getTheme().then(setTheme);
     refreshFlights();
   }, [refreshFlights]);
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme);
+  }, [theme]);
 
   useEffect(() => {
     const removeImportListener = window.appBridge.onImportRequested((files) => {
@@ -128,10 +134,14 @@ export function App() {
       setOutputDirectory(directory);
       refreshFlights();
     });
+    const removeThemeListener = window.appBridge.onThemeChanged((nextTheme) => {
+      setTheme(nextTheme);
+    });
 
     return () => {
       removeImportListener();
       removeDirectoryListener();
+      removeThemeListener();
     };
   }, [refreshFlights]);
 

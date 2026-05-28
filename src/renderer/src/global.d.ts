@@ -7,6 +7,7 @@ import type {
   ImportPreview,
   CustomAttribute,
   AltimeterDetectionResult,
+  ThemeId,
   SaveImportRequest,
   SaveImportResult
 } from './importTypes';
@@ -20,6 +21,7 @@ declare global {
     appBridge: {
       getImportConfig: () => Promise<ImportConfig>;
       getOutputDirectory: () => Promise<string>;
+      getTheme: () => Promise<ThemeId>;
       listFlights: () => Promise<FlightSummary[]>;
       detectAltimeter: (filePaths: string[]) => Promise<AltimeterDetectionResult>;
       readDataset: (datasetDirectory: string) => Promise<ImportedDataset>;
@@ -34,6 +36,7 @@ declare global {
       saveImport: (request: SaveImportRequest) => Promise<SaveImportResult>;
       onImportRequested: (callback: (paths: string[]) => void) => () => void;
       onOutputDirectoryChanged: (callback: (path: string) => void) => () => void;
+      onThemeChanged: (callback: (theme: ThemeId) => void) => () => void;
     };
   }
 }

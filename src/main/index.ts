@@ -14,6 +14,9 @@ import {
 } from './importService';
 
 const portableExecutableDir = process.env.PORTABLE_EXECUTABLE_DIR ?? null;
+const THEME_IDS = ['default-dark', 'slate-light', 'forest-dark', 'amber-dark'] as const;
+type ThemeId = (typeof THEME_IDS)[number];
+const DEFAULT_THEME: ThemeId = 'default-dark';
 
 function getConfigDirectory(): string {
   if (portableExecutableDir) return portableExecutableDir;
@@ -52,37 +55,81 @@ function getConfigFilePath(): string {
   return path.join(getConfigDirectory(), 'config.json');
 }
 
-function readPersistedOutputDirectory(): string | null {
+type AppConfig = {
+  outputDirectory?: string;
+  theme?: ThemeId;
+};
+
+function readConfig(): AppConfig {
   try {
     const raw = fs.readFileSync(getConfigFilePath(), 'utf-8');
-    const config = JSON.parse(raw);
-    const dir = config?.outputDirectory;
-    return typeof dir === 'string' && dir.length > 0 ? dir : null;
+    const config = JSON.parse(raw) as AppConfig;
+    return config && typeof config === 'object' ? config : {};
   } catch {
-    return null;
+    return {};
   }
 }
 
-function persistOutputDirectory(dir: string): void {
+function writeConfig(config: AppConfig): void {
   const configFile = getConfigFilePath();
-  let config: Record<string, unknown> = {};
-  try {
-    config = JSON.parse(fs.readFileSync(configFile, 'utf-8'));
-  } catch {
-    // start fresh if missing or unreadable
-  }
-  config.outputDirectory = dir;
   try {
     fs.mkdirSync(path.dirname(configFile), { recursive: true });
     fs.writeFileSync(configFile, JSON.stringify(config, null, 2), 'utf-8');
   } catch (err) {
-    console.error('Failed to persist output directory:', err);
+    console.error('Failed to write app config:', err);
   }
 }
 
-let outputDirectory = readPersistedOutputDirectory() ?? getDefaultOutputDirectory();
+function normalizeTheme(value: unknown): ThemeId {
+  if (typeof value === 'string' && THEME_IDS.includes(value as ThemeId)) {
+    return value as ThemeId;
+  }
+  return DEFAULT_THEME;
+}
+
+function getPersistedOutputDirectory(config: AppConfig): string | null {
+  const dir = config.outputDirectory;
+  return typeof dir === 'string' && dir.length > 0 ? dir : null;
+}
+
+const persistedConfig = readConfig();
+let outputDirectory = getPersistedOutputDirectory(persistedConfig) ?? getDefaultOutputDirectory();
+let currentTheme: ThemeId = normalizeTheme(persistedConfig.theme);
+
+function persistOutputDirectory(dir: string): void {
+  const config = readConfig();
+  config.outputDirectory = dir;
+  if (!config.theme) {
+    config.theme = currentTheme;
+  }
+  writeConfig(config);
+}
+
+function persistTheme(theme: ThemeId): void {
+  const config = readConfig();
+  config.outputDirectory = outputDirectory;
+  config.theme = theme;
+  writeConfig(config);
+}
 
 function buildAppMenu(mainWindow: BrowserWindow) {
+  const themeItems: Electron.MenuItemConstructorOptions[] = [
+    { id: 'default-dark', label: 'Default Dark' },
+    { id: 'slate-light', label: 'Slate Light' },
+    { id: 'forest-dark', label: 'Forest Dark' },
+    { id: 'amber-dark', label: 'Amber Dark' }
+  ].map((item) => ({
+    type: 'radio',
+    label: item.label,
+    checked: currentTheme === item.id,
+    click: () => {
+      currentTheme = item.id as ThemeId;
+      persistTheme(currentTheme);
+      mainWindow.webContents.send('theme:changed', currentTheme);
+      buildAppMenu(mainWindow);
+    }
+  }));
+
   const menu = Menu.buildFromTemplate([
     {
       label: 'File',
@@ -119,6 +166,10 @@ function buildAppMenu(mainWindow: BrowserWindow) {
           }
         }
       ]
+    },
+    {
+      label: 'Theme',
+      submenu: themeItems
     }
   ]);
 
@@ -150,6 +201,7 @@ function createWindow() {
 
 ipcMain.handle('import:get-config', () => getImportConfig());
 ipcMain.handle('import:get-output-directory', () => outputDirectory);
+ipcMain.handle('theme:get', () => currentTheme);
 ipcMain.handle('import:list-flights', () => listFlights(outputDirectory));
 ipcMain.handle('import:detect-altimeter', (_event, filePaths: string[]) =>
   detectAltimeter(filePaths)

@@ -8,6 +8,7 @@ contextBridge.exposeInMainWorld('appInfo', {
 contextBridge.exposeInMainWorld('appBridge', {
   getImportConfig: () => ipcRenderer.invoke('import:get-config'),
   getOutputDirectory: () => ipcRenderer.invoke('import:get-output-directory'),
+  getTheme: () => ipcRenderer.invoke('theme:get'),
   listFlights: () => ipcRenderer.invoke('import:list-flights'),
   detectAltimeter: (filePaths: string[]) => ipcRenderer.invoke('import:detect-altimeter', filePaths),
   readDataset: (datasetDirectory: string) => ipcRenderer.invoke('dataset:read', datasetDirectory),
@@ -29,6 +30,13 @@ contextBridge.exposeInMainWorld('appBridge', {
     ipcRenderer.on('directory:changed', listener);
     return () => {
       ipcRenderer.removeListener('directory:changed', listener);
+    };
+  },
+  onThemeChanged: (callback: (theme: string) => void) => {
+    const listener = (_event: Electron.IpcRendererEvent, theme: string) => callback(theme);
+    ipcRenderer.on('theme:changed', listener);
+    return () => {
+      ipcRenderer.removeListener('theme:changed', listener);
     };
   }
 });
