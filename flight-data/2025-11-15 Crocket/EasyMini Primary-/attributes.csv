@@ -11,6 +11,6 @@ serial,9895
 flight,5
 source_format,AltOS CSV
 row_count,3269
-peak_altitude_m,2019.90
+peak_altitude_m,1919.61
 peak_velocity_ms,223.21
 peak_acceleration_mss,131.06

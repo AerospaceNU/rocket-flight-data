@@ -445,8 +445,9 @@ async function resolveMetrics(
     !!mapping?.velocityMetersPerSecond && cached.peakVelocityMs === undefined;
   const accelStale =
     !!mapping?.accelerationMetersPerSecondSquared && cached.peakAccelerationMss === undefined;
+  const easyMiniAltitudeStale = importerId === 'easymini' && !!mapping?.altitudeMeters;
   const rowCountStale = cached.rowCount === undefined;
-  const needsRefresh = rowCountStale || altitudeStale || velocityStale || accelStale;
+  const needsRefresh = rowCountStale || altitudeStale || velocityStale || accelStale || easyMiniAltitudeStale;
 
   if (!needsRefresh) {
     return {

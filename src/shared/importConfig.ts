@@ -51,7 +51,7 @@ export const ALTIMETERS: AltimeterDefinition[] = [
     name: 'EasyMini',
     importerId: 'easymini',
     standardColumns: {
-      altitudeMeters: { column: 'altitude' },
+      altitudeMeters: { column: 'height' },
       velocityMetersPerSecond: { column: 'speed' },
       accelerationMetersPerSecondSquared: { column: 'acceleration' }
     }
