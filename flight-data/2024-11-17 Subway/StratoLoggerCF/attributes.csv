@@ -1,0 +1,31 @@
+key,value
+altimeter_name,StratoLoggerCF
+flight_location,CRMRC
+flight_date,2025-11-17
+flight_name,Subway
+altimeter_note,
+importer_id,stratologgercf
+imported_at,2026-05-29T20:17:12.947Z
+row_count,1072
+peak_altitude_m,470.92
+peak_velocity_ms,114.30
+has_gps_data,false
+parser_cache_version,4
+product,PerfectFlite SLCF
+firmware,1.0
+software,1.16
+serial_number,3808
+apogee,1530' AGL
+ground_elevation,-101' MSL
+numsamps,1072
+flight_number,6
+main_setting,450' AGL
+apogee_delay,2 Seconds
+drogue_at,12.20 Seconds
+main_at,27.55 Seconds
+max_drogue_current,1 Amps
+max_main_current,0 Amps
+comments,
+motor,unknown
+flight_notes,
+source_fingerprint,Log2NovLaunch.pf2:32040:1780085801211
