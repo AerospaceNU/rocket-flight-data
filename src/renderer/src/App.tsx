@@ -39,6 +39,7 @@ export function App() {
   const [theme, setTheme] = useState<ThemeId>('default-dark');
   const [searchKeyword, setSearchKeyword] = useState('');
   const [altimeterTypeFilter, setAltimeterTypeFilter] = useState('');
+  const [gpsDataFilter, setGpsDataFilter] = useState<'all' | 'with-gps' | 'without-gps'>('all');
   const [altitudeMinInput, setAltitudeMinInput] = useState('');
   const [altitudeMaxInput, setAltitudeMaxInput] = useState('');
   const [velocityMinInput, setVelocityMinInput] = useState('');
@@ -71,6 +72,8 @@ export function App() {
         );
         if (!hasMatch) return false;
       }
+      if (gpsDataFilter === 'with-gps' && !flight.hasGpsData) return false;
+      if (gpsDataFilter === 'without-gps' && flight.hasGpsData) return false;
       if (keyword) {
         const haystacks: string[] = [
           flight.directoryName,
@@ -90,6 +93,7 @@ export function App() {
     flights,
     searchKeyword,
     altimeterTypeFilter,
+    gpsDataFilter,
     altitudeMinInput,
     altitudeMaxInput,
     velocityMinInput,
@@ -290,6 +294,19 @@ export function App() {
                     {altimeter.name}
                   </option>
                 ))}
+              </select>
+            </label>
+            <label>
+              <span className="summary-label">3D data</span>
+              <select
+                value={gpsDataFilter}
+                onChange={(event) =>
+                  setGpsDataFilter(event.target.value as 'all' | 'with-gps' | 'without-gps')
+                }
+              >
+                <option value="all">All</option>
+                <option value="with-gps">Has GPS / 3D</option>
+                <option value="without-gps">No GPS / 3D</option>
               </select>
             </label>
             <label>

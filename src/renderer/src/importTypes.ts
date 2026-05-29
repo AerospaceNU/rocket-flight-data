@@ -36,6 +36,7 @@ export type FlightSummary = {
   name: string;
   location: string;
   altimeterCount: number;
+  hasGpsData: boolean;
   peakAltitudeMeters: number | null;
   peakVelocityMs: number | null;
   peakAccelerationMss: number | null;
@@ -54,6 +55,7 @@ export type ImportedAltimeterSummary = {
   altimeterNote: string;
   motor: string;
   flightNotes: string;
+  hasGpsData: boolean;
   peakAltitudeMeters: number | null;
   peakVelocityMs: number | null;
   peakAccelerationMss: number | null;

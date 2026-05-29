@@ -16,6 +16,7 @@ export type FlightSummary = {
   name: string;
   location: string;
   altimeterCount: number;
+  hasGpsData: boolean;
   peakAltitudeMeters: number | null;
   peakVelocityMs: number | null;
   peakAccelerationMss: number | null;
@@ -39,6 +40,7 @@ export type ImportedAltimeterSummary = {
   altimeterNote: string;
   motor: string;
   flightNotes: string;
+  hasGpsData: boolean;
   peakAltitudeMeters: number | null;
   peakVelocityMs: number | null;
   peakAccelerationMss: number | null;
@@ -197,6 +199,30 @@ function attributesToRecord(attributes: CustomAttribute[]) {
     record[attribute.key] = attribute.value;
     return record;
   }, {});
+}
+
+function normalizedHeader(header: string) {
+  return header.trim().toLowerCase();
+}
+
+function getColumnIndexByAliases(headers: string[], aliases: string[]) {
+  const normalizedHeaders = headers.map(normalizedHeader);
+
+  for (const alias of aliases) {
+    const index = normalizedHeaders.indexOf(alias.toLowerCase());
+    if (index >= 0) {
+      return index;
+    }
+  }
+
+  return null;
+}
+
+function datasetHasGpsHeaders(headers: string[]) {
+  const latitudeIndex = getColumnIndexByAliases(headers, ['gps_lat_mod', 'latitude', 'lat', 'gps_lat']);
+  const longitudeIndex = getColumnIndexByAliases(headers, ['gps_long_mod', 'longitude', 'lon', 'lng', 'gps_long']);
+  const altitudeIndex = getColumnIndexByAliases(headers, ['altitude', 'altitude_m', 'altitudem', 'gps_alt']);
+  return latitudeIndex !== null && longitudeIndex !== null && altitudeIndex !== null;
 }
 
 function computePeakFromRef(
@@ -374,6 +400,45 @@ async function readSavedLogDataset(
   return { headers, rows };
 }
 
+async function readSavedLogHeaders(altimeterDirectory: string): Promise<string[] | null> {
+  const logPath = path.join(altimeterDirectory, 'log.csv');
+  try {
+    const handle = await open(logPath, 'r');
+    try {
+      const buffer = Buffer.alloc(64 * 1024);
+      const { bytesRead } = await handle.read(buffer, 0, buffer.length, 0);
+      const contents = buffer.subarray(0, bytesRead).toString('utf8');
+      const firstLine = contents.split(/\r?\n/, 1)[0]?.trim();
+      return firstLine ? parseCsvLine(firstLine).map((header) => header.trim()) : null;
+    } finally {
+      await handle.close();
+    }
+  } catch {
+    return null;
+  }
+}
+
+async function resolveHasGpsData(
+  altimeterDirectory: string,
+  importerId: string | undefined
+): Promise<boolean> {
+  const savedHeaders = await readSavedLogHeaders(altimeterDirectory);
+  if (savedHeaders) {
+    return datasetHasGpsHeaders(savedHeaders);
+  }
+
+  if (!importerId) {
+    return false;
+  }
+
+  try {
+    const parsed = await parseAltimeterOriginals(altimeterDirectory, importerId);
+    return datasetHasGpsHeaders(parsed.headers);
+  } catch {
+    return false;
+  }
+}
+
 async function readDatasetRows(
   altimeterDirectory: string,
   importerId: string
@@ -511,6 +576,7 @@ async function createImportedAltimeterSummary(
 
   const initialAttributes = attributesToRecord(await readAttributes(attributesPath));
   const { metrics, attributes } = await resolveMetrics(altimeterDirectory, attributesPath, initialAttributes);
+  const hasGpsData = await resolveHasGpsData(altimeterDirectory, attributes.importer_id);
 
   return {
     id: path.join(flightDirectoryName, altimeterDirectoryName),
@@ -524,6 +590,7 @@ async function createImportedAltimeterSummary(
     altimeterNote: attributes.altimeter_note ?? '',
     motor: attributes.motor ?? '',
     flightNotes: attributes.flight_notes ?? '',
+    hasGpsData,
     peakAltitudeMeters: metrics.peakAltitudeMeters,
     peakVelocityMs: metrics.peakVelocityMs,
     peakAccelerationMss: metrics.peakAccelerationMss,
@@ -581,6 +648,7 @@ export async function listFlights(outputDirectory: string): Promise<FlightSummar
       name: parsed.name,
       location: altimeters[0]?.flightLocation ?? '',
       altimeterCount: altimeters.length,
+      hasGpsData: altimeters.some((altimeter) => altimeter.hasGpsData),
       peakAltitudeMeters: maxOf((a) => a.peakAltitudeMeters),
       peakVelocityMs: maxOf((a) => a.peakVelocityMs),
       peakAccelerationMss: maxOf((a) => a.peakAccelerationMss),

@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import Plotly2D from 'plotly.js-basic-dist-min';
 import Plotly3D from 'plotly.js-gl3d-dist-min';
 import { AttributeEditor, ensureRequiredAttributes, hasRequiredAttributes } from './AttributeEditor';
+import { GpsMapView, type GpsEventMarker, type GpsMapPoint } from './GpsMapView';
 import type {
   CustomAttribute,
   FlightSummary,
@@ -22,13 +23,20 @@ type FlightViewerProps = {
   onDatasetUpdated: () => Promise<FlightSummary[]>;
 };
 
-type ViewerSection = 'attributes' | 'plot2d' | 'plot3d' | 'raw';
+type ViewerSection = 'attributes' | 'plot2d' | 'plot3d' | 'map2d' | 'map3d' | 'raw';
 
 type EventMarker = {
   label: string;
   time: number;
   rowIndex: number;
   color: string;
+};
+
+type FlightEventMarker = EventMarker & {
+  canonicalLabel: string;
+  sourceImporterId: string;
+  sourceLabel: string;
+  priority: number;
 };
 
 type PlotHoverPoint = {
@@ -76,6 +84,12 @@ const FCB_STATE_NAMES: Record<number, string> = {
 const FCB_LAUNCH_STATE = 2;
 const FCB_END_STATE = 5;
 const MAX_EVENT_MARKERS = 200;
+const EVENT_SOURCE_PRIORITY: Record<string, number> = {
+  fcb: 4,
+  sillygoose: 3,
+  easymini: 2,
+  stratologgercf: 1
+};
 
 function defaultSeries(
   headers: string[],
@@ -418,6 +432,180 @@ function getColumnIndexByAliases(headers: string[], aliases: string[]) {
   return null;
 }
 
+function estimateGpsLaunchTime(
+  rows: string[][],
+  xValues: number[],
+  altitudeIndex: number
+): number | null {
+  if (rows.length < 5 || xValues.length !== rows.length) {
+    return null;
+  }
+
+  const altitudes = rows.map((row) => parseNumber(row[altitudeIndex]));
+  const baselineSample = altitudes
+    .slice(0, Math.min(30, Math.max(5, Math.floor(altitudes.length * 0.1))))
+    .filter((value): value is number => value !== null);
+
+  if (baselineSample.length < 5) {
+    return null;
+  }
+
+  const sortedBaseline = [...baselineSample].sort((left, right) => left - right);
+  const baseline = sortedBaseline[Math.floor(sortedBaseline.length / 2)] ?? baselineSample[0];
+  const threshold = baseline + 15;
+
+  for (let index = 0; index < altitudes.length; index += 1) {
+    const altitude = altitudes[index];
+    if (altitude === null || altitude < threshold) {
+      continue;
+    }
+
+    const nextAltitudes = altitudes
+      .slice(index, Math.min(index + 4, altitudes.length))
+      .filter((value): value is number => value !== null);
+
+    if (nextAltitudes.length >= 3 && nextAltitudes.every((value) => value >= baseline + 10)) {
+      return xValues[index] ?? null;
+    }
+  }
+
+  return null;
+}
+
+function getImporterId(dataset: ImportedDataset) {
+  return dataset.attributes.find((attribute) => attribute.key === 'importer_id')?.value ??
+    dataset.summary.attributes.importer_id ??
+    '';
+}
+
+function isEventSourceImporter(importerId: string) {
+  return importerId in EVENT_SOURCE_PRIORITY;
+}
+
+function normalizeEventLabel(label: string) {
+  const normalized = label.trim().toUpperCase();
+  if (normalized.includes('DROGUE')) return 'DROGUE';
+  if (normalized.includes('MAIN')) return 'MAIN';
+  if (normalized.includes('LAND') || normalized.includes('POST_FLIGHT')) return 'LANDING';
+  if (normalized.includes('COAST')) return 'COAST';
+  if (normalized.includes('BOOST')) return 'BOOST';
+  if (normalized.includes('ASCENT')) return 'ASCENT';
+  if (normalized.includes('DESCENT')) return 'DESCENT';
+  return normalized;
+}
+
+function relativeEventMarkers(dataset: ImportedDataset): FlightEventMarker[] {
+  const rawXAxis = buildXAxis(dataset);
+  const rawEventData = buildEventMarkers(dataset, rawXAxis.values);
+  const launchOffset = rawEventData.launchTime ?? 0;
+  const importerId = getImporterId(dataset);
+  const priority = EVENT_SOURCE_PRIORITY[importerId] ?? 0;
+  const sourceLabel = dataset.summary.altimeterDirectoryName;
+
+  return rawEventData.events.map((event) => ({
+    ...event,
+    time: event.time - launchOffset,
+    canonicalLabel: normalizeEventLabel(event.label),
+    sourceImporterId: importerId,
+    sourceLabel,
+    priority
+  }));
+}
+
+function interpolateGpsPoint(points: GpsMapPoint[], targetTime: number): GpsMapPoint | null {
+  if (points.length === 0) return null;
+  if (targetTime < points[0].time || targetTime > points[points.length - 1].time) {
+    return null;
+  }
+
+  for (let index = 0; index < points.length; index += 1) {
+    const current = points[index];
+    if (Math.abs(current.time - targetTime) < 1e-6) {
+      return current;
+    }
+
+    const next = points[index + 1];
+    if (!next) {
+      return current;
+    }
+
+    if (targetTime > current.time && targetTime < next.time) {
+      const span = next.time - current.time;
+      if (span <= 0) {
+        return current;
+      }
+      const ratio = (targetTime - current.time) / span;
+      return {
+        latitude: current.latitude + (next.latitude - current.latitude) * ratio,
+        longitude: current.longitude + (next.longitude - current.longitude) * ratio,
+        altitude: current.altitude + (next.altitude - current.altitude) * ratio,
+        height: current.height + (next.height - current.height) * ratio,
+        time: targetTime
+      };
+    }
+  }
+
+  return points[points.length - 1] ?? null;
+}
+
+function dedupeFlightEventMarkers(markers: FlightEventMarker[]) {
+  const deduped: FlightEventMarker[] = [];
+
+  for (const marker of markers.sort((left, right) => left.time - right.time || right.priority - left.priority)) {
+    const existingIndex = deduped.findIndex(
+      (candidate) =>
+        candidate.canonicalLabel === marker.canonicalLabel && Math.abs(candidate.time - marker.time) <= 1.5
+    );
+
+    if (existingIndex < 0) {
+      deduped.push(marker);
+      continue;
+    }
+
+    const existing = deduped[existingIndex];
+    if (
+      marker.priority > existing.priority ||
+      (marker.priority === existing.priority && marker.sourceLabel < existing.sourceLabel)
+    ) {
+      deduped[existingIndex] = marker;
+    }
+  }
+
+  return deduped.slice(0, MAX_EVENT_MARKERS);
+}
+
+function eventColorForLabel(label: string): [number, number, number, number] {
+  if (label === 'DROGUE') return [176, 124, 255, 245];
+  if (label === 'MAIN') return [105, 167, 255, 245];
+  if (label === 'LANDING') return [255, 110, 110, 245];
+  return [255, 191, 102, 240];
+}
+
+function buildGpsEventMarkers(points: GpsMapPoint[], datasets: ImportedDataset[]): GpsEventMarker[] {
+  const deduped = dedupeFlightEventMarkers(
+    datasets
+      .filter((dataset) => isEventSourceImporter(getImporterId(dataset)))
+      .flatMap((dataset) => relativeEventMarkers(dataset))
+  );
+
+  return deduped
+    .map((event, index) => {
+      const point = interpolateGpsPoint(points, event.time);
+      if (!point) {
+        return null;
+      }
+
+      return {
+        ...point,
+        label: event.label,
+        sourceLabel: event.sourceLabel,
+        color: eventColorForLabel(event.canonicalLabel),
+        labelOffsetY: 12 + (index % 3) * 10
+      };
+    })
+    .filter((marker): marker is GpsEventMarker => marker !== null);
+}
+
 function findStandardColumns(
   config: ImportConfig | null,
   importerId: string
@@ -447,6 +635,7 @@ export function FlightViewer({
   const [saveStatus, setSaveStatus] = useState('');
   const [saveError, setSaveError] = useState('');
   const [isSaving, setIsSaving] = useState(false);
+  const [eventDatasets, setEventDatasets] = useState<ImportedDataset[]>([]);
   const plot2dRef = useRef<HTMLDivElement | null>(null);
   const plot3dRef = useRef<HTMLDivElement | null>(null);
 
@@ -547,8 +736,47 @@ export function FlightViewer({
     }
     return buildEventMarkers(dataset, rawXAxis.values);
   }, [dataset, rawXAxis.values]);
+  const gpsColumns = useMemo(() => {
+    if (!dataset) {
+      return null;
+    }
 
-  const launchOffset = rawEventData.launchTime ?? 0;
+    const latitudeIndex = getColumnIndexByAliases(dataset.headers, [
+      'latitude',
+      'lat',
+      'gps_lat',
+      'gps_lat_mod'
+    ]);
+    const longitudeIndex = getColumnIndexByAliases(dataset.headers, [
+      'longitude',
+      'lon',
+      'lng',
+      'gps_long',
+      'gps_long_mod'
+    ]);
+    const altitudeIndex = getColumnIndexByAliases(dataset.headers, [
+      'altitude',
+      'altitude_m',
+      'altitudem',
+      'gps_alt'
+    ]);
+
+    if (latitudeIndex === null || longitudeIndex === null || altitudeIndex === null) {
+      return null;
+    }
+
+    return { latitudeIndex, longitudeIndex, altitudeIndex };
+  }, [dataset]);
+  const launchOffset = useMemo(() => {
+    if (rawEventData.launchTime !== null) {
+      return rawEventData.launchTime;
+    }
+    if (!dataset || !gpsColumns) {
+      return 0;
+    }
+
+    return estimateGpsLaunchTime(dataset.rows, rawXAxis.values, gpsColumns.altitudeIndex) ?? 0;
+  }, [dataset, gpsColumns, rawEventData.launchTime, rawXAxis.values]);
 
   const xAxis = useMemo(
     () =>
@@ -629,41 +857,15 @@ export function FlightViewer({
 
     return levels;
   }, [visibleEvents, visibleXValues]);
-  const gpsColumns = useMemo(() => {
-    if (!dataset) {
-      return null;
-    }
-
-    const latitudeIndex = getColumnIndexByAliases(dataset.headers, [
-      'gps_lat_mod',
-      'latitude',
-      'lat',
-      'gps_lat'
-    ]);
-    const longitudeIndex = getColumnIndexByAliases(dataset.headers, [
-      'gps_long_mod',
-      'longitude',
-      'lon',
-      'lng',
-      'gps_long'
-    ]);
-    const altitudeIndex = getColumnIndexByAliases(dataset.headers, [
-      'altitude',
-      'altitude_m',
-      'altitudem',
-      'gps_alt'
-    ]);
-
-    if (latitudeIndex === null || longitudeIndex === null || altitudeIndex === null) {
-      return null;
-    }
-
-    return { latitudeIndex, longitudeIndex, altitudeIndex };
-  }, [dataset]);
   const gpsPoints = useMemo(() => {
     if (!gpsColumns) {
       return [];
     }
+
+    const launchAltitude =
+      visibleRows
+        .map((row) => parseNumber(row[gpsColumns.altitudeIndex]))
+        .find((value) => value !== null) ?? 0;
 
     return visibleRows
       .map((row, index) => ({
@@ -678,7 +880,11 @@ export function FlightViewer({
           point.longitude !== null &&
           point.altitude !== null &&
           Number.isFinite(point.time)
-      );
+      )
+      .map((point) => ({
+        ...point,
+        height: Math.max(0, point.altitude - launchAltitude)
+      }));
   }, [gpsColumns, visibleRows, visibleXValues]);
   const gpsAspectRatio = useMemo(() => {
     if (gpsPoints.length === 0) {
@@ -697,6 +903,42 @@ export function FlightViewer({
       z: 1
     };
   }, [gpsPoints]);
+  const gpsViewActive =
+    activeSection === 'plot3d' || activeSection === 'map2d' || activeSection === 'map3d';
+
+  useEffect(() => {
+    if (!flight || !dataset || !gpsColumns || !gpsViewActive) {
+      setEventDatasets([]);
+      return;
+    }
+
+    let ignore = false;
+    const relevantAltimeters = flight.altimeters.filter((altimeter) =>
+      isEventSourceImporter(altimeter.attributes.importer_id ?? '')
+    );
+
+    Promise.all(
+      relevantAltimeters.map((altimeter) => {
+        if (altimeter.altimeterDirectory === selectedDirectory) {
+          return Promise.resolve(dataset);
+        }
+
+        return window.appBridge.readDataset(altimeter.altimeterDirectory).catch(() => null);
+      })
+    ).then((datasets) => {
+      if (ignore) return;
+      setEventDatasets(datasets.filter((entry): entry is ImportedDataset => entry !== null));
+    });
+
+    return () => {
+      ignore = true;
+    };
+  }, [dataset, flight, gpsColumns, gpsViewActive, selectedDirectory]);
+
+  const gpsEventMarkers = useMemo(
+    () => buildGpsEventMarkers(gpsPoints, eventDatasets),
+    [eventDatasets, gpsPoints]
+  );
 
   useEffect(() => {
     setRawPage(0);
@@ -855,6 +1097,29 @@ export function FlightViewer({
             showscale: true,
             colorbar: { title: 'Time (s)' }
           }
+        },
+        {
+          type: 'scatter3d',
+          mode: 'markers+text',
+          x: gpsEventMarkers.map((point) => point.longitude),
+          y: gpsEventMarkers.map((point) => point.latitude),
+          z: gpsEventMarkers.map((point) => point.altitude),
+          text: gpsEventMarkers.map((point) => point.label),
+          textposition: 'top center',
+          hovertemplate:
+            '%{text}<br>Source: %{customdata}<br>Lon: %{x:.6f}<br>Lat: %{y:.6f}<br>Alt: %{z:.2f} m<br>Time: %{meta:.2f} s<extra></extra>',
+          customdata: gpsEventMarkers.map((point) => point.sourceLabel),
+          meta: gpsEventMarkers.map((point) => point.time),
+          marker: {
+            size: 5,
+            color: gpsEventMarkers.map(
+              (point) => `rgba(${point.color[0]}, ${point.color[1]}, ${point.color[2]}, ${point.color[3] / 255})`
+            ),
+            line: {
+              color: '#ffffff',
+              width: 1
+            }
+          }
         }
       ],
       {
@@ -883,7 +1148,7 @@ export function FlightViewer({
     return () => {
       Plotly3D.purge(plotElement);
     };
-  }, [activeSection, dataset, gpsAspectRatio, gpsColumns, gpsPoints, isActive]);
+  }, [activeSection, dataset, gpsAspectRatio, gpsColumns, gpsEventMarkers, gpsPoints, isActive]);
 
   const saveAttributes = async () => {
     if (!dataset || !hasAttributeChanges) return;
@@ -971,7 +1236,21 @@ export function FlightViewer({
             onClick={() => setActiveSection('plot3d')}
             type="button"
           >
-            3D Plot
+            3D Graph
+          </button>
+          <button
+            className={activeSection === 'map2d' ? 'active' : ''}
+            onClick={() => setActiveSection('map2d')}
+            type="button"
+          >
+            Flight Map
+          </button>
+          <button
+            className={activeSection === 'map3d' ? 'active' : ''}
+            onClick={() => setActiveSection('map3d')}
+            type="button"
+          >
+            Flight Map 3D
           </button>
           <button
             className={activeSection === 'raw' ? 'active' : ''}
@@ -1054,6 +1333,42 @@ export function FlightViewer({
                 <div className="viewer-panel">
                   <h2>3D Plot</h2>
                   <p>No GPS 3D dataset is available for this altimeter.</p>
+                </div>
+              )}
+            </section>
+          ) : null}
+
+          {dataset && activeSection === 'map2d' ? (
+            <section className="plot3d-layout">
+              {gpsColumns ? (
+                <GpsMapView
+                  eventMarkers={gpsEventMarkers}
+                  isActive={isActive}
+                  mode="map2d"
+                  points={gpsPoints}
+                />
+              ) : (
+                <div className="viewer-panel">
+                  <h2>Flight Map</h2>
+                  <p>No GPS dataset is available for this altimeter.</p>
+                </div>
+              )}
+            </section>
+          ) : null}
+
+          {dataset && activeSection === 'map3d' ? (
+            <section className="plot3d-layout">
+              {gpsColumns ? (
+                <GpsMapView
+                  eventMarkers={gpsEventMarkers}
+                  isActive={isActive}
+                  mode="map3d"
+                  points={gpsPoints}
+                />
+              ) : (
+                <div className="viewer-panel">
+                  <h2>Flight Map 3D</h2>
+                  <p>No GPS dataset is available for this altimeter.</p>
                 </div>
               )}
             </section>
