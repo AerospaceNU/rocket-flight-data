@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import Plotly2D from 'plotly.js-basic-dist-min';
 import Plotly3D from 'plotly.js-gl3d-dist-min';
 import { AttributeEditor, ensureRequiredAttributes, hasRequiredAttributes } from './AttributeEditor';
+import { FcbRocketReplayMap, type RocketPosePoint } from './FcbRocketReplayMap';
 import { GpsMapView, type GpsEventMarker, type GpsMapPoint } from './GpsMapView';
 import type {
   CustomAttribute,
@@ -23,7 +24,7 @@ type FlightViewerProps = {
   onDatasetUpdated: () => Promise<FlightSummary[]>;
 };
 
-type ViewerSection = 'attributes' | 'plot2d' | 'plot3d' | 'map2d' | 'map3d' | 'raw';
+type ViewerSection = 'attributes' | 'plot2d' | 'plot3d' | 'map2d' | 'map3d' | 'rocketReplay' | 'raw';
 
 type EventMarker = {
   label: string;
@@ -432,6 +433,121 @@ function getColumnIndexByAliases(headers: string[], aliases: string[]) {
   return null;
 }
 
+function isValidLatitude(value: number | null): value is number {
+  return value !== null && value >= -90 && value <= 90;
+}
+
+function isValidLongitude(value: number | null): value is number {
+  return value !== null && value >= -180 && value <= 180;
+}
+
+function scoreGpsColumnPair(rows: string[][], latitudeIndex: number, longitudeIndex: number) {
+  let validCount = 0;
+  let localLookingCount = 0;
+
+  for (const row of rows) {
+    const latitude = parseNumber(row[latitudeIndex]);
+    const longitude = parseNumber(row[longitudeIndex]);
+
+    if (!isValidLatitude(latitude) || !isValidLongitude(longitude)) {
+      continue;
+    }
+
+    validCount += 1;
+
+    if (Math.abs(latitude) < 5 && Math.abs(longitude) < 5) {
+      localLookingCount += 1;
+    }
+  }
+
+  return { validCount, localLookingCount };
+}
+
+function findGpsColumns(headers: string[], rows: string[][]) {
+  const pairs = [
+    { latitudeAliases: ['latitude'], longitudeAliases: ['longitude'] },
+    { latitudeAliases: ['lat'], longitudeAliases: ['lon', 'lng'] },
+    { latitudeAliases: ['gps_lat'], longitudeAliases: ['gps_long'] },
+    { latitudeAliases: ['gps_lat_mod'], longitudeAliases: ['gps_long_mod'] }
+  ];
+
+  const candidates = pairs
+    .map((pair, preferenceIndex) => {
+      const latitudeIndex = getColumnIndexByAliases(headers, pair.latitudeAliases);
+      const longitudeIndex = getColumnIndexByAliases(headers, pair.longitudeAliases);
+
+      if (latitudeIndex === null || longitudeIndex === null) {
+        return null;
+      }
+
+      return {
+        latitudeIndex,
+        longitudeIndex,
+        preferenceIndex,
+        ...scoreGpsColumnPair(rows, latitudeIndex, longitudeIndex)
+      };
+    })
+    .filter((candidate): candidate is NonNullable<typeof candidate> => candidate !== null)
+    .filter((candidate) => candidate.validCount > 0);
+
+  if (candidates.length === 0) {
+    return null;
+  }
+
+  candidates.sort((left, right) => {
+    const leftLocalRatio = left.localLookingCount / left.validCount;
+    const rightLocalRatio = right.localLookingCount / right.validCount;
+    const leftIsMostlyLocal = leftLocalRatio > 0.95;
+    const rightIsMostlyLocal = rightLocalRatio > 0.95;
+
+    if (leftIsMostlyLocal !== rightIsMostlyLocal) {
+      return leftIsMostlyLocal ? 1 : -1;
+    }
+
+    if (left.validCount !== right.validCount) {
+      return right.validCount - left.validCount;
+    }
+
+    return left.preferenceIndex - right.preferenceIndex;
+  });
+
+  const best = candidates[0];
+  return {
+    latitudeIndex: best.latitudeIndex,
+    longitudeIndex: best.longitudeIndex
+  };
+}
+
+function quaternionToEulerDegrees(x: number, y: number, z: number, w: number) {
+  const magnitude = Math.hypot(x, y, z, w);
+  if (!Number.isFinite(magnitude) || magnitude < 1e-9) {
+    return null;
+  }
+
+  const qx = x / magnitude;
+  const qy = y / magnitude;
+  const qz = z / magnitude;
+  const qw = w / magnitude;
+
+  const rollRad = Math.atan2(
+    2 * (qw * qx + qy * qz),
+    1 - 2 * (qx * qx + qy * qy)
+  );
+  const pitchInput = 2 * (qw * qy - qz * qx);
+  const pitchRad =
+    Math.abs(pitchInput) >= 1 ? Math.sign(pitchInput) * (Math.PI / 2) : Math.asin(pitchInput);
+  const yawRad = Math.atan2(
+    2 * (qw * qz + qx * qy),
+    1 - 2 * (qy * qy + qz * qz)
+  );
+
+  return {
+    yawDeg: (yawRad * 180) / Math.PI,
+    pitchDeg: (pitchRad * 180) / Math.PI,
+    rollDeg: (rollRad * 180) / Math.PI
+  };
+}
+
 function estimateGpsLaunchTime(
   rows: string[][],
   xValues: number[],
@@ -741,19 +857,7 @@ export function FlightViewer({
       return null;
     }
 
-    const latitudeIndex = getColumnIndexByAliases(dataset.headers, [
-      'latitude',
-      'lat',
-      'gps_lat',
-      'gps_lat_mod'
-    ]);
-    const longitudeIndex = getColumnIndexByAliases(dataset.headers, [
-      'longitude',
-      'lon',
-      'lng',
-      'gps_long',
-      'gps_long_mod'
-    ]);
+    const gpsPositionColumns = findGpsColumns(dataset.headers, dataset.rows);
     const altitudeIndex = getColumnIndexByAliases(dataset.headers, [
       'altitude',
       'altitude_m',
@@ -761,11 +865,11 @@ export function FlightViewer({
       'gps_alt'
     ]);
 
-    if (latitudeIndex === null || longitudeIndex === null || altitudeIndex === null) {
+    if (!gpsPositionColumns || altitudeIndex === null) {
       return null;
     }
 
-    return { latitudeIndex, longitudeIndex, altitudeIndex };
+    return { ...gpsPositionColumns, altitudeIndex };
   }, [dataset]);
   const launchOffset = useMemo(() => {
     if (rawEventData.launchTime !== null) {
@@ -879,6 +983,8 @@ export function FlightViewer({
           point.latitude !== null &&
           point.longitude !== null &&
           point.altitude !== null &&
+          isValidLatitude(point.latitude) &&
+          isValidLongitude(point.longitude) &&
           Number.isFinite(point.time)
       )
       .map((point) => ({
@@ -903,8 +1009,73 @@ export function FlightViewer({
       z: 1
     };
   }, [gpsPoints]);
+  const selectedImporterId = dataset ? getImporterId(dataset) : '';
+  const fcbRocketSamples = useMemo((): RocketPosePoint[] => {
+    if (!dataset || selectedImporterId !== 'fcb' || !gpsColumns) {
+      return [];
+    }
+
+    const qxIndex = getColumnIndexByAliases(dataset.headers, ['q_x', 'quaternion_x']);
+    const qyIndex = getColumnIndexByAliases(dataset.headers, ['q_y', 'quaternion_y']);
+    const qzIndex = getColumnIndexByAliases(dataset.headers, ['q_z', 'quaternion_z']);
+    const qwIndex = getColumnIndexByAliases(dataset.headers, ['q_w', 'quaternion_w']);
+
+    if (qxIndex === null || qyIndex === null || qzIndex === null || qwIndex === null) {
+      return [];
+    }
+
+    const launchAltitude =
+      visibleRows
+        .map((row) => parseNumber(row[gpsColumns.altitudeIndex]))
+        .find((value) => value !== null) ?? 0;
+
+    return visibleRows
+      .map((row, index) => {
+        const latitude = parseNumber(row[gpsColumns.latitudeIndex]);
+        const longitude = parseNumber(row[gpsColumns.longitudeIndex]);
+        const altitude = parseNumber(row[gpsColumns.altitudeIndex]);
+        const qx = parseNumber(row[qxIndex]);
+        const qy = parseNumber(row[qyIndex]);
+        const qz = parseNumber(row[qzIndex]);
+        const qw = parseNumber(row[qwIndex]);
+        const time = visibleXValues[index];
+
+        if (
+          latitude === null ||
+          longitude === null ||
+          altitude === null ||
+          !isValidLatitude(latitude) ||
+          !isValidLongitude(longitude) ||
+          qx === null ||
+          qy === null ||
+          qz === null ||
+          qw === null ||
+          !Number.isFinite(time)
+        ) {
+          return null;
+        }
+
+        const orientation = quaternionToEulerDegrees(qx, qy, qz, qw);
+        if (!orientation) {
+          return null;
+        }
+
+        return {
+          latitude,
+          longitude,
+          altitude,
+          height: Math.max(0, altitude - launchAltitude),
+          time,
+          ...orientation
+        };
+      })
+      .filter((sample): sample is RocketPosePoint => sample !== null);
+  }, [dataset, gpsColumns, selectedImporterId, visibleRows, visibleXValues]);
   const gpsViewActive =
-    activeSection === 'plot3d' || activeSection === 'map2d' || activeSection === 'map3d';
+    activeSection === 'plot3d' ||
+    activeSection === 'map2d' ||
+    activeSection === 'map3d' ||
+    activeSection === 'rocketReplay';
 
   useEffect(() => {
     if (!flight || !dataset || !gpsColumns || !gpsViewActive) {
@@ -1253,6 +1424,13 @@ export function FlightViewer({
             Flight Map 3D
           </button>
           <button
+            className={activeSection === 'rocketReplay' ? 'active' : ''}
+            onClick={() => setActiveSection('rocketReplay')}
+            type="button"
+          >
+            Rocket Replay
+          </button>
+          <button
             className={activeSection === 'raw' ? 'active' : ''}
             onClick={() => setActiveSection('raw')}
             type="button"
@@ -1369,6 +1547,23 @@ export function FlightViewer({
                 <div className="viewer-panel">
                   <h2>Flight Map 3D</h2>
                   <p>No GPS dataset is available for this altimeter.</p>
+                </div>
+              )}
+            </section>
+          ) : null}
+
+          {dataset && activeSection === 'rocketReplay' ? (
+            <section className="plot3d-layout">
+              {selectedImporterId === 'fcb' ? (
+                <FcbRocketReplayMap
+                  eventMarkers={gpsEventMarkers}
+                  isActive={isActive}
+                  samples={fcbRocketSamples}
+                />
+              ) : (
+                <div className="viewer-panel">
+                  <h2>Rocket Replay</h2>
+                  <p>Rocket replay is currently only supported for FCB altimeters.</p>
                 </div>
               )}
             </section>

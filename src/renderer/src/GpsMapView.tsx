@@ -44,7 +44,7 @@ type Bounds = {
   north: number;
 };
 
-const SATELLITE_STYLE: maplibregl.StyleSpecification = {
+export const SATELLITE_STYLE: maplibregl.StyleSpecification = {
   version: 8,
   sources: {
     satellite: {
