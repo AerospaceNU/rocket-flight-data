@@ -10,6 +10,10 @@ import type {
   StandardColumnRef
 } from './importTypes';
 import type { GpsMapPoint } from './GpsMapView';
+import { axisRange, parseNumber } from './telemetry/core';
+import { buildEventWindow, getImporterId } from './telemetry/events';
+import { buildGpsPoints, findAltitudeIndex, findGpsColumns } from './telemetry/gps';
+import { buildXAxis } from './telemetry/time';
 
 type CompareViewProps = {
   config: ImportConfig | null;
@@ -19,12 +23,6 @@ type CompareViewProps = {
 
 type CompareMode = 'plot2d' | 'plot3d' | 'map2d' | 'map3d';
 type CompareMetric = 'altitude' | 'velocity' | 'acceleration' | 'all';
-
-type TimeColumnDefinition = {
-  names: string[];
-  secondsPerUnit: number;
-  relativeToFirstValue: boolean;
-};
 
 type CompareDataset = {
   id: string;
@@ -39,17 +37,6 @@ type CompareDataset = {
   gpsPoints: GpsMapPoint[];
   color: [number, number, number, number];
 };
-
-const TIME_COLUMNS: TimeColumnDefinition[] = [
-  { names: ['timestampms', 'timestamp_ms'], secondsPerUnit: 0.001, relativeToFirstValue: true },
-  { names: ['timestampus', 'timestamp_us'], secondsPerUnit: 0.000001, relativeToFirstValue: true },
-  { names: ['timestampns', 'timestamp_ns'], secondsPerUnit: 0.000000001, relativeToFirstValue: true },
-  { names: ['timestamp', 'timestamps', 'timestamp_s'], secondsPerUnit: 1, relativeToFirstValue: true },
-  { names: ['timems', 'time_ms', 'elapsedms', 'elapsed_ms'], secondsPerUnit: 0.001, relativeToFirstValue: false },
-  { names: ['timeus', 'time_us', 'elapsedus', 'elapsed_us'], secondsPerUnit: 0.000001, relativeToFirstValue: false },
-  { names: ['timens', 'time_ns', 'elapsedns', 'elapsed_ns'], secondsPerUnit: 0.000000001, relativeToFirstValue: false },
-  { names: ['time', 'times', 'time_s', 'elapseds', 'elapsed_s', 'elapsedtime', 'elapsed_time'], secondsPerUnit: 1, relativeToFirstValue: false }
-];
 
 const COLORS: Array<[number, number, number, number]> = [
   [74, 214, 193, 245],
@@ -68,316 +55,6 @@ const METRIC_LABELS: Record<CompareMetric, string> = {
   acceleration: 'Acceleration',
   all: 'All standard metrics'
 };
-
-function parseNumber(value: string | undefined) {
-  const number = Number.parseFloat(value ?? '');
-  return Number.isFinite(number) ? number : null;
-}
-
-function normalizedHeader(header: string) {
-  return header.trim().toLowerCase();
-}
-
-function getColumnIndexByAliases(headers: string[], aliases: string[]) {
-  const normalizedHeaders = headers.map(normalizedHeader);
-  for (const alias of aliases) {
-    const index = normalizedHeaders.indexOf(alias.toLowerCase());
-    if (index >= 0) return index;
-  }
-  return null;
-}
-
-function getColumnIndex(headers: string[], name: string) {
-  const index = headers.indexOf(name);
-  return index >= 0 ? index : null;
-}
-
-function timeColumnStats(rows: string[][], columnIndex: number) {
-  let first: number | null = null;
-  let min: number | null = null;
-  let max: number | null = null;
-  let previous: number | null = null;
-  const deltas: number[] = [];
-
-  for (const row of rows) {
-    const value = parseNumber(row[columnIndex]);
-    if (value === null) continue;
-    if (first === null) first = value;
-    if (min === null || value < min) min = value;
-    if (max === null || value > max) max = value;
-    if (previous !== null) {
-      const delta = Math.abs(value - previous);
-      if (delta > 0) deltas.push(delta);
-    }
-    previous = value;
-  }
-
-  const sortedDeltas = deltas.sort((left, right) => left - right);
-  return {
-    first,
-    min,
-    max,
-    medianDelta: sortedDeltas[Math.floor(sortedDeltas.length / 2)] ?? null
-  };
-}
-
-function isLikelyMillisecondTimestamp(
-  header: string,
-  relativeToFirstValue: boolean,
-  secondsPerUnit: number,
-  stats: { min: number | null; max: number | null; medianDelta: number | null }
-) {
-  if (!relativeToFirstValue || secondsPerUnit !== 1) return false;
-  if (stats.min === null || stats.max === null || stats.medianDelta === null) return false;
-  const normalized = normalizedHeader(header);
-  const looksLikeSecondField =
-    normalized.includes('timestamp_s') ||
-    normalized === 'timestamp' ||
-    normalized === 'timestamps' ||
-    normalized === 'time_s' ||
-    normalized === 'time';
-  if (!looksLikeSecondField) return false;
-  return Math.abs(stats.max - stats.min) > 10_000 && stats.medianDelta > 1 && stats.medianDelta * 0.001 <= 10;
-}
-
-function getTimeColumn(headers: string[], rows: string[][] = []) {
-  const normalizedHeaders = headers.map(normalizedHeader);
-  const candidates: Array<TimeColumnDefinition & { index: number; rangeSeconds: number }> = [];
-
-  for (const definition of TIME_COLUMNS) {
-    const index = normalizedHeaders.findIndex((header) => definition.names.includes(header));
-    if (index < 0) continue;
-    const stats = rows.length > 0 ? timeColumnStats(rows, index) : null;
-    const secondsPerUnit =
-      stats && isLikelyMillisecondTimestamp(headers[index] ?? '', definition.relativeToFirstValue, definition.secondsPerUnit, stats)
-        ? 0.001
-        : definition.secondsPerUnit;
-    const rangeSeconds =
-      stats && stats.min !== null && stats.max !== null ? Math.abs(stats.max - stats.min) * secondsPerUnit : 0;
-    candidates.push({ ...definition, secondsPerUnit, index, rangeSeconds });
-  }
-
-  if (candidates.length === 0) return null;
-  if (rows.length === 0) return candidates[0];
-  return (
-    candidates
-      .filter((candidate) => candidate.rangeSeconds > 0.001)
-      .sort((left, right) => right.rangeSeconds - left.rangeSeconds)[0] ?? candidates[0]
-  );
-}
-
-function buildXAxis(dataset: ImportedDataset) {
-  const timeColumn = getTimeColumn(dataset.headers, dataset.rows);
-  if (!timeColumn) {
-    return dataset.rows.map((_, index) => index);
-  }
-
-  const firstTimeValue =
-    dataset.rows
-      .map((row) => parseNumber(row[timeColumn.index]))
-      .find((value) => value !== null) ?? 0;
-
-  return dataset.rows.map((row, index) => {
-    const timeValue = parseNumber(row[timeColumn.index]);
-    if (timeValue === null) return index;
-    const relativeValue = timeColumn.relativeToFirstValue ? timeValue - firstTimeValue : timeValue;
-    return relativeValue * timeColumn.secondsPerUnit;
-  });
-}
-
-function estimateLaunchTimeFromAltitude(dataset: ImportedDataset, xValues: number[]) {
-  if (dataset.rows.length < 5 || dataset.rows.length !== xValues.length) {
-    return null;
-  }
-
-  const altitudeIndex = getColumnIndexByAliases(dataset.headers, [
-    'altitude',
-    'altitude_m',
-    'height',
-    'height_m',
-    'altitudem',
-    'gps_alt'
-  ]);
-  const velocityIndex = getColumnIndexByAliases(dataset.headers, [
-    'velocity_m_s',
-    'velocity',
-    'vertical_velocity',
-    'speed_m_s'
-  ]);
-  if (altitudeIndex === null) {
-    return null;
-  }
-
-  const altitudes = dataset.rows.map((row) => parseNumber(row[altitudeIndex]));
-  const baselineSample = altitudes
-    .slice(0, Math.min(30, Math.max(5, Math.floor(altitudes.length * 0.1))))
-    .filter((value): value is number => value !== null);
-  if (baselineSample.length < 5) {
-    return null;
-  }
-
-  const sortedBaseline = [...baselineSample].sort((left, right) => left - right);
-  const baseline = sortedBaseline[Math.floor(sortedBaseline.length / 2)] ?? baselineSample[0];
-
-  if (velocityIndex !== null) {
-    for (let index = 0; index < altitudes.length; index += 1) {
-      const altitude = altitudes[index];
-      const velocity = parseNumber(dataset.rows[index]?.[velocityIndex]);
-      if (altitude === null || velocity === null || altitude < baseline + 0.25 || velocity < 5) {
-        continue;
-      }
-
-      const nextRows = dataset.rows.slice(index, Math.min(index + 7, dataset.rows.length));
-      let lastAltitude: number | null = null;
-      const sustained = nextRows.filter((row) => {
-        const nextAltitude = parseNumber(row[altitudeIndex]);
-        const nextVelocity = parseNumber(row[velocityIndex]);
-        if (nextAltitude !== null) {
-          lastAltitude = nextAltitude;
-        }
-        return nextAltitude !== null && nextVelocity !== null && nextAltitude >= baseline + 0.25 && nextVelocity > 2;
-      });
-
-      if (sustained.length >= 4 && lastAltitude !== null && lastAltitude >= baseline + 8) {
-        return xValues[index] ?? null;
-      }
-    }
-  }
-
-  for (let index = 0; index < altitudes.length; index += 1) {
-    const altitude = altitudes[index];
-    const velocity = velocityIndex === null ? null : parseNumber(dataset.rows[index]?.[velocityIndex]);
-    if (altitude === null || altitude < baseline + 8 || (velocity !== null && velocity < 2)) {
-      continue;
-    }
-
-    const nextRows = dataset.rows.slice(index, Math.min(index + 5, dataset.rows.length));
-    const sustained = nextRows.filter((row) => {
-      const nextAltitude = parseNumber(row[altitudeIndex]);
-      const nextVelocity = velocityIndex === null ? null : parseNumber(row[velocityIndex]);
-      return nextAltitude !== null && nextAltitude >= baseline + 8 && (nextVelocity === null || nextVelocity > 0);
-    });
-
-    if (sustained.length >= 3) {
-      return xValues[index] ?? null;
-    }
-  }
-
-  return null;
-}
-
-function getImporterId(dataset: ImportedDataset) {
-  return dataset.attributes.find((attribute) => attribute.key === 'importer_id')?.value ??
-    dataset.summary.attributes.importer_id ??
-    '';
-}
-
-function buildEventWindow(dataset: ImportedDataset, xValues: number[]) {
-  const importerId = getImporterId(dataset);
-  const isFcb = importerId === 'fcb';
-  const isFcbGroundStation = importerId === 'fcbgroundstation';
-  const stateIndex = isFcb
-    ? getColumnIndex(dataset.headers, 'state')
-    : isFcbGroundStation
-      ? null
-      : getColumnIndex(dataset.headers, 'flightState') ?? getColumnIndex(dataset.headers, 'state');
-  let launchTime: number | null = null;
-  let endTime: number | null = null;
-
-  if (stateIndex !== null) {
-    for (let index = 1; index < dataset.rows.length; index += 1) {
-      const previousState = Number.parseInt(dataset.rows[index - 1]?.[stateIndex] ?? '', 10);
-      const currentState = Number.parseInt(dataset.rows[index]?.[stateIndex] ?? '', 10);
-      if (!Number.isFinite(previousState) || !Number.isFinite(currentState) || previousState === currentState) {
-        continue;
-      }
-      if (
-        launchTime === null &&
-        ((isFcb && currentState === 2) || (!isFcb && previousState === 0 && currentState !== 0) || currentState === 5)
-      ) {
-        launchTime = xValues[index];
-      }
-      if ((isFcb && currentState === 5) || (!isFcb && currentState === 3) || currentState === 8) {
-        endTime = xValues[index];
-      }
-    }
-  }
-
-  const first = xValues[0] ?? 0;
-  const last = xValues[xValues.length - 1] ?? first;
-  if (launchTime === null) {
-    launchTime = estimateLaunchTimeFromAltitude(dataset, xValues);
-  }
-  const start = launchTime ?? first;
-  const end = endTime ?? last;
-  return { launchOffset: launchTime ?? 0, start, end };
-}
-
-function isValidLatitude(value: number | null): value is number {
-  return value !== null && value >= -90 && value <= 90;
-}
-
-function isValidLongitude(value: number | null): value is number {
-  return value !== null && value >= -180 && value <= 180;
-}
-
-function scoreGpsColumnPair(rows: string[][], latitudeIndex: number, longitudeIndex: number) {
-  let validCount = 0;
-  let localLookingCount = 0;
-
-  for (const row of rows) {
-    const latitude = parseNumber(row[latitudeIndex]);
-    const longitude = parseNumber(row[longitudeIndex]);
-    if (!isValidLatitude(latitude) || !isValidLongitude(longitude)) continue;
-    validCount += 1;
-    if (Math.abs(latitude) < 5 && Math.abs(longitude) < 5) localLookingCount += 1;
-  }
-
-  return { validCount, localLookingCount };
-}
-
-function findGpsColumns(headers: string[], rows: string[][]) {
-  const pairs = [
-    { latitudeAliases: ['latitude'], longitudeAliases: ['longitude'] },
-    { latitudeAliases: ['lat'], longitudeAliases: ['lon', 'lng'] },
-    { latitudeAliases: ['gps_lat'], longitudeAliases: ['gps_long'] },
-    { latitudeAliases: ['gps_lat_mod'], longitudeAliases: ['gps_long_mod'] }
-  ];
-
-  const candidates = pairs
-    .map((pair, preferenceIndex) => {
-      const latitudeIndex = getColumnIndexByAliases(headers, pair.latitudeAliases);
-      const longitudeIndex = getColumnIndexByAliases(headers, pair.longitudeAliases);
-      if (latitudeIndex === null || longitudeIndex === null) return null;
-      return {
-        latitudeIndex,
-        longitudeIndex,
-        preferenceIndex,
-        ...scoreGpsColumnPair(rows, latitudeIndex, longitudeIndex)
-      };
-    })
-    .filter((candidate): candidate is NonNullable<typeof candidate> => candidate !== null)
-    .filter((candidate) => candidate.validCount > 0);
-
-  if (candidates.length === 0) return null;
-
-  candidates.sort((left, right) => {
-    const leftIsMostlyLocal = left.localLookingCount / left.validCount > 0.95;
-    const rightIsMostlyLocal = right.localLookingCount / right.validCount > 0.95;
-    if (leftIsMostlyLocal !== rightIsMostlyLocal) return leftIsMostlyLocal ? 1 : -1;
-    if (left.validCount !== right.validCount) return right.validCount - left.validCount;
-    return left.preferenceIndex - right.preferenceIndex;
-  });
-
-  return {
-    latitudeIndex: candidates[0].latitudeIndex,
-    longitudeIndex: candidates[0].longitudeIndex
-  };
-}
-
-function findAltitudeIndex(headers: string[]) {
-  return getColumnIndexByAliases(headers, ['altitude', 'altitude_m', 'altitudem', 'gps_alt', 'pos_z', 'height']);
-}
 
 function standardRefForMetric(config: ImportConfig | null, importerId: string, metric: Exclude<CompareMetric, 'all'>) {
   const mapping = config?.altimeters.find((altimeter) => altimeter.importerId === importerId)?.standardColumns;
@@ -408,10 +85,11 @@ function prepareDataset(
   altimeter: ImportedAltimeterSummary,
   config: ImportConfig | null,
   showFullData: boolean,
-  color: [number, number, number, number]
+  color: [number, number, number, number],
+  automaticChecks: boolean
 ): CompareDataset {
-  const rawXValues = buildXAxis(dataset);
-  const window = buildEventWindow(dataset, rawXValues);
+  const rawXValues = buildXAxis(dataset, { automaticChecks }).values;
+  const window = buildEventWindow(dataset, rawXValues, { automaticChecks });
   const xValues = rawXValues.map((value) => value - window.launchOffset);
   const minTime = xValues[0] ?? 0;
   const maxTime = xValues[xValues.length - 1] ?? minTime;
@@ -425,7 +103,7 @@ function prepareDataset(
         .map(({ index }) => index);
   const visibleRows = visibleIndexes.map((index) => dataset.rows[index] ?? []);
   const visibleXValues = visibleIndexes.map((index) => xValues[index]);
-  const gpsPositionColumns = findGpsColumns(dataset.headers, dataset.rows);
+  const gpsPositionColumns = findGpsColumns(dataset.headers, dataset.rows, { automaticChecks });
   const altitudeIndex = findAltitudeIndex(dataset.headers);
   const launchAltitude =
     altitudeIndex === null
@@ -433,24 +111,12 @@ function prepareDataset(
       : visibleRows.map((row) => parseNumber(row[altitudeIndex])).find((value) => value !== null) ?? 0;
   const gpsPoints =
     gpsPositionColumns && altitudeIndex !== null
-      ? visibleRows
-          .map((row, index) => ({
-            latitude: parseNumber(row[gpsPositionColumns.latitudeIndex]),
-            longitude: parseNumber(row[gpsPositionColumns.longitudeIndex]),
-            altitude: parseNumber(row[altitudeIndex]),
-            time: visibleXValues[index]
-          }))
-          .filter(
-            (point): point is { latitude: number; longitude: number; altitude: number; time: number } =>
-              isValidLatitude(point.latitude) &&
-              isValidLongitude(point.longitude) &&
-              point.altitude !== null &&
-              Number.isFinite(point.time)
-          )
-          .map((point) => ({
-            ...point,
-            height: Math.max(0, point.altitude - launchAltitude)
-          }))
+      ? buildGpsPoints(
+          visibleRows,
+          visibleXValues,
+          { ...gpsPositionColumns, altitudeIndex },
+          launchAltitude
+        )
       : [];
 
   return {
@@ -478,17 +144,13 @@ function seriesValues(entry: CompareDataset, ref: StandardColumnRef) {
   });
 }
 
-function axisRange(values: number[]) {
-  if (values.length === 0) return 0;
-  return Math.max(0, Math.max(...values) - Math.min(...values));
-}
-
 export function CompareView({ config, flights, isActive }: CompareViewProps) {
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [searchText, setSearchText] = useState('');
   const [mode, setMode] = useState<CompareMode>('plot2d');
   const [metric, setMetric] = useState<CompareMetric>('altitude');
   const [showFullData, setShowFullData] = useState(false);
+  const [automaticChecks, setAutomaticChecks] = useState(true);
   const [datasets, setDatasets] = useState<CompareDataset[]>([]);
   const [loadError, setLoadError] = useState('');
   const plotRef = useRef<HTMLDivElement | null>(null);
@@ -537,8 +199,15 @@ export function CompareView({ config, flights, isActive }: CompareViewProps) {
       selectedIds.map(async (id, index) => {
         const altimeter = altimeters.find((entry) => entry.altimeterDirectory === id);
         if (!altimeter) return null;
-        const dataset = await window.appBridge.readDataset(id);
-        return prepareDataset(dataset, altimeter, config, showFullData, COLORS[index % COLORS.length]);
+        const dataset = await window.appBridge.readDataset(id, { sanitize: automaticChecks });
+        return prepareDataset(
+          dataset,
+          altimeter,
+          config,
+          showFullData,
+          COLORS[index % COLORS.length],
+          automaticChecks
+        );
       })
     )
       .then((entries) => {
@@ -552,7 +221,7 @@ export function CompareView({ config, flights, isActive }: CompareViewProps) {
     return () => {
       ignore = true;
     };
-  }, [altimeters, config, selectedIds, showFullData]);
+  }, [altimeters, automaticChecks, config, selectedIds, showFullData]);
 
   const traces2d = useMemo(() => {
     const selectedMetrics: Array<Exclude<CompareMetric, 'all'>> =
@@ -753,6 +422,14 @@ export function CompareView({ config, flights, isActive }: CompareViewProps) {
           <button className="small-button" onClick={() => setShowFullData((current) => !current)} type="button">
             {showFullData ? 'Flight Window' : 'Full Data'}
           </button>
+          <label className="checkbox-row toolbar-checkbox">
+            <input
+              checked={automaticChecks}
+              onChange={(event) => setAutomaticChecks(event.target.checked)}
+              type="checkbox"
+            />
+            <span>Auto cleanup</span>
+          </label>
         </header>
 
         <div className="compare-status">

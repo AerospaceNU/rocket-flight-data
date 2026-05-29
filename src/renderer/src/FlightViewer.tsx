@@ -12,6 +12,23 @@ import type {
   ImportedDataset,
   StandardColumnMapping
 } from './importTypes';
+import {
+  axisRange,
+  getColumnIndexByAliases,
+  isValidLatitude,
+  isValidLongitude,
+  parseNumber
+} from './telemetry/core';
+import {
+  buildEventMarkers,
+  buildWindow,
+  estimateGpsLaunchTime,
+  getImporterId,
+  normalizeEventLabel,
+  type EventMarker
+} from './telemetry/events';
+import { buildGpsPoints, findGpsColumns } from './telemetry/gps';
+import { buildXAxis, getTimeColumn } from './telemetry/time';
 
 const REQUIRED_ATTRIBUTE_KEYS = ['motor'];
 const MULTILINE_ATTRIBUTE_KEYS = ['flight_notes'];
@@ -26,13 +43,6 @@ type FlightViewerProps = {
 };
 
 type ViewerSection = 'attributes' | 'plot2d' | 'plot3d' | 'map2d' | 'map3d' | 'rocketReplay' | 'raw';
-
-type EventMarker = {
-  label: string;
-  time: number;
-  rowIndex: number;
-  color: string;
-};
 
 type FlightEventMarker = EventMarker & {
   canonicalLabel: string;
@@ -59,32 +69,6 @@ type PlotElement = HTMLElement & {
 };
 
 const PAGE_SIZE = 250;
-const FLIGHT_STATE_NAMES: Record<number, string> = {
-  0: 'PRE_FLIGHT',
-  1: 'ASCENT',
-  2: 'DESCENT',
-  3: 'POST_FLIGHT'
-};
-const EASYMINI_STATE_NAMES: Record<number, string> = {
-  3: 'boost',
-  5: 'coast',
-  6: 'drogue',
-  7: 'main',
-  8: 'landed'
-};
-// stm32-avionics StateId_e (common/system/scheduler.h)
-const FCB_STATE_NAMES: Record<number, string> = {
-  0: 'CliEraseFlash',
-  1: 'CliOffload',
-  2: 'Ascent',
-  3: 'Descent',
-  4: 'Initialize',
-  5: 'PostFlight',
-  6: 'PreFlight',
-  7: 'SimTempState'
-};
-const FCB_LAUNCH_STATE = 2;
-const FCB_END_STATE = 5;
 const MAX_EVENT_MARKERS = 200;
 const EVENT_SOURCE_PRIORITY: Record<string, number> = {
   fcb: 4,
@@ -116,409 +100,6 @@ function defaultSeries(
         .map((_, index) => index)
         .filter((index) => index > 0 && index !== timeColumnIndex)
         .slice(0, 3);
-}
-
-function parseNumber(value: string | undefined) {
-  const number = Number.parseFloat(value ?? '');
-  return Number.isFinite(number) ? number : null;
-}
-
-function getColumnIndex(headers: string[], name: string) {
-  const index = headers.indexOf(name);
-  return index >= 0 ? index : null;
-}
-
-type TimeColumnDefinition = {
-  names: string[];
-  secondsPerUnit: number;
-  relativeToFirstValue: boolean;
-};
-
-const TIME_COLUMNS: TimeColumnDefinition[] = [
-  { names: ['timestampms', 'timestamp_ms'], secondsPerUnit: 0.001, relativeToFirstValue: true },
-  { names: ['timestampus', 'timestamp_us'], secondsPerUnit: 0.000001, relativeToFirstValue: true },
-  { names: ['timestampns', 'timestamp_ns'], secondsPerUnit: 0.000000001, relativeToFirstValue: true },
-  { names: ['timestamp', 'timestamps', 'timestamp_s'], secondsPerUnit: 1, relativeToFirstValue: true },
-  { names: ['timems', 'time_ms', 'elapsedms', 'elapsed_ms'], secondsPerUnit: 0.001, relativeToFirstValue: false },
-  { names: ['timeus', 'time_us', 'elapsedus', 'elapsed_us'], secondsPerUnit: 0.000001, relativeToFirstValue: false },
-  { names: ['timens', 'time_ns', 'elapsedns', 'elapsed_ns'], secondsPerUnit: 0.000000001, relativeToFirstValue: false },
-  { names: ['time', 'times', 'time_s', 'elapseds', 'elapsed_s', 'elapsedtime', 'elapsed_time'], secondsPerUnit: 1, relativeToFirstValue: false }
-];
-
-function normalizedHeader(header: string) {
-  return header.trim().toLowerCase();
-}
-
-function timeColumnStats(rows: string[][], columnIndex: number) {
-  let first: number | null = null;
-  let min: number | null = null;
-  let max: number | null = null;
-  let previous: number | null = null;
-  const deltas: number[] = [];
-
-  for (const row of rows) {
-    const value = parseNumber(row[columnIndex]);
-    if (value === null) continue;
-    if (first === null) first = value;
-    if (min === null || value < min) min = value;
-    if (max === null || value > max) max = value;
-    if (previous !== null) {
-      const delta = Math.abs(value - previous);
-      if (delta > 0) deltas.push(delta);
-    }
-    previous = value;
-  }
-
-  const sortedDeltas = deltas.sort((left, right) => left - right);
-  const medianDelta = sortedDeltas[Math.floor(sortedDeltas.length / 2)] ?? null;
-
-  return { first, min, max, medianDelta };
-}
-
-function isLikelyMillisecondTimestamp(
-  header: string,
-  relativeToFirstValue: boolean,
-  secondsPerUnit: number,
-  stats: { first: number | null; min: number | null; max: number | null; medianDelta: number | null }
-) {
-  if (!relativeToFirstValue || secondsPerUnit !== 1) return false;
-  if (stats.min === null || stats.max === null || stats.medianDelta === null) return false;
-
-  const normalized = normalizedHeader(header);
-  const looksLikeSecondField =
-    normalized.includes('timestamp_s') ||
-    normalized === 'timestamp' ||
-    normalized === 'timestamps' ||
-    normalized === 'time_s' ||
-    normalized === 'time';
-  if (!looksLikeSecondField) return false;
-
-  const rawRange = Math.abs(stats.max - stats.min);
-  const medianDeltaAsSeconds = stats.medianDelta;
-  const medianDeltaAsMilliseconds = stats.medianDelta * 0.001;
-  return rawRange > 10_000 && medianDeltaAsSeconds > 1 && medianDeltaAsMilliseconds <= 10;
-}
-
-function getTimeColumn(headers: string[], rows: string[][] = []) {
-  const normalizedHeaders = headers.map(normalizedHeader);
-  const candidates: Array<TimeColumnDefinition & { index: number; rangeSeconds: number }> = [];
-
-  for (const definition of TIME_COLUMNS) {
-    const index = normalizedHeaders.findIndex((header) => definition.names.includes(header));
-
-    if (index >= 0) {
-      const stats = rows.length > 0 ? timeColumnStats(rows, index) : null;
-      const adjustedSecondsPerUnit =
-        stats && isLikelyMillisecondTimestamp(headers[index] ?? '', definition.relativeToFirstValue, definition.secondsPerUnit, stats)
-          ? 0.001
-          : definition.secondsPerUnit;
-      const rangeSeconds =
-        stats && stats.min !== null && stats.max !== null
-          ? Math.abs(stats.max - stats.min) * adjustedSecondsPerUnit
-          : 0;
-
-      candidates.push({
-        ...definition,
-        secondsPerUnit: adjustedSecondsPerUnit,
-        index,
-        rangeSeconds
-      });
-    }
-  }
-
-  if (candidates.length === 0) return null;
-  if (rows.length === 0) return candidates[0];
-
-  return (
-    candidates
-      .filter((candidate) => candidate.rangeSeconds > 0.001)
-      .sort((left, right) => right.rangeSeconds - left.rangeSeconds)[0] ?? candidates[0]
-  );
-}
-
-function buildXAxis(dataset: ImportedDataset) {
-  const timeColumn = getTimeColumn(dataset.headers, dataset.rows);
-
-  if (!timeColumn) {
-    return {
-      values: dataset.rows.map((_, index) => index),
-      title: 'Row',
-      hoverLabel: 'row'
-    };
-  }
-
-  const firstTimeValue =
-    dataset.rows
-      .map((row) => parseNumber(row[timeColumn.index]))
-      .find((value) => value !== null) ?? 0;
-
-  return {
-    values: dataset.rows.map((row, index) => {
-      const timeValue = parseNumber(row[timeColumn.index]);
-      if (timeValue === null) {
-        return index;
-      }
-
-      const relativeValue = timeColumn.relativeToFirstValue ? timeValue - firstTimeValue : timeValue;
-      return relativeValue * timeColumn.secondsPerUnit;
-    }),
-    title: 'Time (s)',
-    hoverLabel: 'time'
-  };
-}
-
-function buildEventMarkers(dataset: ImportedDataset, xValues: number[]) {
-  const attributes = dataset.attributes.reduce<Record<string, string>>((record, attribute) => {
-    record[attribute.key] = attribute.value;
-    return record;
-  }, {});
-  const importerId = attributes.importer_id ?? '';
-  const isFcbGroundStation = importerId === 'fcbgroundstation';
-  const isFcb = importerId === 'fcb';
-
-  const flightStateIndex = isFcb || isFcbGroundStation ? null : getColumnIndex(dataset.headers, 'flightState');
-  const fcbStateIndex = isFcb ? getColumnIndex(dataset.headers, 'state') : null;
-  const easyMiniStateIndex =
-    isFcb || isFcbGroundStation || flightStateIndex !== null ? null : getColumnIndex(dataset.headers, 'state');
-  const stateIndex = flightStateIndex ?? fcbStateIndex ?? easyMiniStateIndex;
-  const stateNameIndex = getColumnIndex(dataset.headers, 'state_name');
-  const drogueFiredIndex = getColumnIndex(dataset.headers, 'drogueFired');
-  const mainFiredIndex = getColumnIndex(dataset.headers, 'mainFired');
-  const events: EventMarker[] = [];
-  let launchTime: number | null = null;
-  let flightEndTime: number | null = null;
-
-  for (let index = 1; index < dataset.rows.length; index += 1) {
-    if (stateIndex !== null) {
-      const previousState = Number.parseInt(dataset.rows[index - 1]?.[stateIndex] ?? '', 10);
-      const currentState = Number.parseInt(dataset.rows[index]?.[stateIndex] ?? '', 10);
-
-      if (Number.isFinite(previousState) && Number.isFinite(currentState) && previousState !== currentState) {
-        const stateNames =
-          flightStateIndex !== null
-            ? FLIGHT_STATE_NAMES
-            : fcbStateIndex !== null
-              ? FCB_STATE_NAMES
-              : EASYMINI_STATE_NAMES;
-        const previousName =
-          stateNameIndex !== null
-            ? dataset.rows[index - 1]?.[stateNameIndex]
-            : stateNames[previousState];
-        const currentName =
-          stateNameIndex !== null
-            ? dataset.rows[index]?.[stateNameIndex]
-            : stateNames[currentState];
-        const hasKnownState =
-          Boolean(previousName) || Boolean(currentName) || stateNameIndex !== null;
-
-        if (hasKnownState) {
-          events.push({
-            label: `${previousName ?? previousState} -> ${currentName ?? currentState}`,
-            time: xValues[index],
-            rowIndex: index,
-            color: '#74c69d'
-          });
-        }
-
-        if (
-          hasKnownState &&
-          launchTime === null &&
-          ((flightStateIndex !== null && previousState === 0 && currentState !== 0) ||
-            (fcbStateIndex !== null && currentState === FCB_LAUNCH_STATE) ||
-            (easyMiniStateIndex !== null && currentState === 5))
-        ) {
-          launchTime = xValues[index];
-        }
-
-        if (
-          hasKnownState &&
-          ((flightStateIndex !== null && currentState === 3) ||
-            (fcbStateIndex !== null && currentState === FCB_END_STATE) ||
-            (easyMiniStateIndex !== null && currentState === 8))
-        ) {
-          flightEndTime = xValues[index];
-        }
-      }
-    }
-
-    if (
-      drogueFiredIndex !== null &&
-      dataset.rows[index - 1]?.[drogueFiredIndex] === '0' &&
-      dataset.rows[index]?.[drogueFiredIndex] === '1'
-    ) {
-      events.push({
-        label: 'DROGUE FIRED',
-        time: xValues[index],
-        rowIndex: index,
-        color: '#b07cff'
-      });
-    }
-
-    if (
-      mainFiredIndex !== null &&
-      dataset.rows[index - 1]?.[mainFiredIndex] === '0' &&
-      dataset.rows[index]?.[mainFiredIndex] === '1'
-    ) {
-      events.push({
-        label: 'MAIN FIRED',
-        time: xValues[index],
-        rowIndex: index,
-        color: '#69a7ff'
-      });
-    }
-  }
-
-  const drogueAt = parseNumber(attributes.drogue_at?.replace(/[^0-9.+-]/g, ''));
-  const mainAt = parseNumber(attributes.main_at?.replace(/[^0-9.+-]/g, ''));
-
-  if (drogueAt !== null) {
-    events.push({
-      label: 'DROGUE',
-      time: drogueAt,
-      rowIndex: xValues.findIndex((time) => time >= drogueAt),
-      color: '#b07cff'
-    });
-  }
-
-  if (mainAt !== null) {
-    events.push({
-      label: 'MAIN',
-      time: mainAt,
-      rowIndex: xValues.findIndex((time) => time >= mainAt),
-      color: '#69a7ff'
-    });
-  }
-
-  const sortedEvents = events
-    .sort((left, right) => left.time - right.time)
-    .slice(0, MAX_EVENT_MARKERS);
-  const firstEventTime = sortedEvents[0]?.time ?? xValues[0] ?? 0;
-  const lastEventTime = sortedEvents[sortedEvents.length - 1]?.time ?? xValues[xValues.length - 1] ?? 0;
-
-  return {
-    events: sortedEvents,
-    launchTime,
-    flightStartTime: launchTime ?? firstEventTime,
-    flightEndTime: flightEndTime ?? lastEventTime
-  };
-}
-
-function buildWindow(xValues: number[], flightStartTime: number, flightEndTime: number) {
-  const minTime = xValues[0] ?? 0;
-  const maxTime = xValues[xValues.length - 1] ?? minTime;
-
-  return {
-    start: Math.max(minTime, flightStartTime - 20),
-    end: Math.min(maxTime, flightEndTime + 20)
-  };
-}
-
-function axisRange(values: number[]) {
-  if (values.length === 0) {
-    return 0;
-  }
-
-  const min = Math.min(...values);
-  const max = Math.max(...values);
-  return Math.max(0, max - min);
-}
-
-function getColumnIndexByAliases(headers: string[], aliases: string[]) {
-  const normalizedHeaders = headers.map(normalizedHeader);
-
-  for (const alias of aliases) {
-    const index = normalizedHeaders.indexOf(alias.toLowerCase());
-    if (index >= 0) {
-      return index;
-    }
-  }
-
-  return null;
-}
-
-function isValidLatitude(value: number | null): value is number {
-  return value !== null && value >= -90 && value <= 90;
-}
-
-function isValidLongitude(value: number | null): value is number {
-  return value !== null && value >= -180 && value <= 180;
-}
-
-function scoreGpsColumnPair(rows: string[][], latitudeIndex: number, longitudeIndex: number) {
-  let validCount = 0;
-  let localLookingCount = 0;
-
-  for (const row of rows) {
-    const latitude = parseNumber(row[latitudeIndex]);
-    const longitude = parseNumber(row[longitudeIndex]);
-
-    if (!isValidLatitude(latitude) || !isValidLongitude(longitude)) {
-      continue;
-    }
-
-    validCount += 1;
-
-    if (Math.abs(latitude) < 5 && Math.abs(longitude) < 5) {
-      localLookingCount += 1;
-    }
-  }
-
-  return { validCount, localLookingCount };
-}
-
-function findGpsColumns(headers: string[], rows: string[][]) {
-  const pairs = [
-    { latitudeAliases: ['latitude'], longitudeAliases: ['longitude'] },
-    { latitudeAliases: ['lat'], longitudeAliases: ['lon', 'lng'] },
-    { latitudeAliases: ['gps_lat'], longitudeAliases: ['gps_long'] },
-    { latitudeAliases: ['gps_lat_mod'], longitudeAliases: ['gps_long_mod'] }
-  ];
-
-  const candidates = pairs
-    .map((pair, preferenceIndex) => {
-      const latitudeIndex = getColumnIndexByAliases(headers, pair.latitudeAliases);
-      const longitudeIndex = getColumnIndexByAliases(headers, pair.longitudeAliases);
-
-      if (latitudeIndex === null || longitudeIndex === null) {
-        return null;
-      }
-
-      return {
-        latitudeIndex,
-        longitudeIndex,
-        preferenceIndex,
-        ...scoreGpsColumnPair(rows, latitudeIndex, longitudeIndex)
-      };
-    })
-    .filter((candidate): candidate is NonNullable<typeof candidate> => candidate !== null)
-    .filter((candidate) => candidate.validCount > 0);
-
-  if (candidates.length === 0) {
-    return null;
-  }
-
-  candidates.sort((left, right) => {
-    const leftLocalRatio = left.localLookingCount / left.validCount;
-    const rightLocalRatio = right.localLookingCount / right.validCount;
-    const leftIsMostlyLocal = leftLocalRatio > 0.95;
-    const rightIsMostlyLocal = rightLocalRatio > 0.95;
-
-    if (leftIsMostlyLocal !== rightIsMostlyLocal) {
-      return leftIsMostlyLocal ? 1 : -1;
-    }
-
-    if (left.validCount !== right.validCount) {
-      return right.validCount - left.validCount;
-    }
-
-    return left.preferenceIndex - right.preferenceIndex;
-  });
-
-  const best = candidates[0];
-  return {
-    latitudeIndex: best.latitudeIndex,
-    longitudeIndex: best.longitudeIndex
-  };
 }
 
 function normalizeQuaternion(x: number, y: number, z: number, w: number) {
@@ -741,103 +322,13 @@ function computeNorthAlignmentDegrees(
   return normalizeDegrees(declination - measuredMagneticBearing);
 }
 
-function estimateGpsLaunchTime(
-  rows: string[][],
-  xValues: number[],
-  altitudeIndex: number,
-  velocityIndex: number | null = null
-): number | null {
-  if (rows.length < 5 || xValues.length !== rows.length) {
-    return null;
-  }
-
-  const altitudes = rows.map((row) => parseNumber(row[altitudeIndex]));
-  const velocities = velocityIndex === null ? null : rows.map((row) => parseNumber(row[velocityIndex]));
-  const baselineSample = altitudes
-    .slice(0, Math.min(30, Math.max(5, Math.floor(altitudes.length * 0.1))))
-    .filter((value): value is number => value !== null);
-
-  if (baselineSample.length < 5) {
-    return null;
-  }
-
-  const sortedBaseline = [...baselineSample].sort((left, right) => left - right);
-  const baseline = sortedBaseline[Math.floor(sortedBaseline.length / 2)] ?? baselineSample[0];
-
-  if (velocities) {
-    for (let index = 0; index < altitudes.length; index += 1) {
-      const altitude = altitudes[index];
-      const velocity = velocities[index];
-      if (altitude === null || velocity === null || altitude < baseline + 0.25 || velocity < 5) {
-        continue;
-      }
-
-      const lookaheadEnd = Math.min(index + 7, altitudes.length);
-      let sustainedCount = 0;
-      let lastAltitude: number | null = null;
-
-      for (let lookahead = index; lookahead < lookaheadEnd; lookahead += 1) {
-        const nextAltitude = altitudes[lookahead];
-        const nextVelocity = velocities[lookahead];
-        if (nextAltitude !== null) {
-          lastAltitude = nextAltitude;
-        }
-        if (nextAltitude !== null && nextVelocity !== null && nextAltitude >= baseline + 0.25 && nextVelocity > 2) {
-          sustainedCount += 1;
-        }
-      }
-
-      if (sustainedCount >= 4 && lastAltitude !== null && lastAltitude >= baseline + 8) {
-        return xValues[index] ?? null;
-      }
-    }
-  }
-
-  const threshold = baseline + 15;
-
-  for (let index = 0; index < altitudes.length; index += 1) {
-    const altitude = altitudes[index];
-    if (altitude === null || altitude < threshold) {
-      continue;
-    }
-
-    const nextAltitudes = altitudes
-      .slice(index, Math.min(index + 4, altitudes.length))
-      .filter((value): value is number => value !== null);
-
-    if (nextAltitudes.length >= 3 && nextAltitudes.every((value) => value >= baseline + 10)) {
-      return xValues[index] ?? null;
-    }
-  }
-
-  return null;
-}
-
-function getImporterId(dataset: ImportedDataset) {
-  return dataset.attributes.find((attribute) => attribute.key === 'importer_id')?.value ??
-    dataset.summary.attributes.importer_id ??
-    '';
-}
-
 function isEventSourceImporter(importerId: string) {
   return importerId in EVENT_SOURCE_PRIORITY;
 }
 
-function normalizeEventLabel(label: string) {
-  const normalized = label.trim().toUpperCase();
-  if (normalized.includes('DROGUE')) return 'DROGUE';
-  if (normalized.includes('MAIN')) return 'MAIN';
-  if (normalized.includes('LAND') || normalized.includes('POST_FLIGHT')) return 'LANDING';
-  if (normalized.includes('COAST')) return 'COAST';
-  if (normalized.includes('BOOST')) return 'BOOST';
-  if (normalized.includes('ASCENT')) return 'ASCENT';
-  if (normalized.includes('DESCENT')) return 'DESCENT';
-  return normalized;
-}
-
-function relativeEventMarkers(dataset: ImportedDataset): FlightEventMarker[] {
-  const rawXAxis = buildXAxis(dataset);
-  const rawEventData = buildEventMarkers(dataset, rawXAxis.values);
+function relativeEventMarkers(dataset: ImportedDataset, automaticChecks: boolean): FlightEventMarker[] {
+  const rawXAxis = buildXAxis(dataset, { automaticChecks });
+  const rawEventData = buildEventMarkers(dataset, rawXAxis.values, { automaticChecks });
   const launchOffset = rawEventData.launchTime ?? 0;
   const importerId = getImporterId(dataset);
   const priority = EVENT_SOURCE_PRIORITY[importerId] ?? 0;
@@ -922,11 +413,15 @@ function eventColorForLabel(label: string): [number, number, number, number] {
   return [255, 191, 102, 240];
 }
 
-function buildGpsEventMarkers(points: GpsMapPoint[], datasets: ImportedDataset[]): GpsEventMarker[] {
+function buildGpsEventMarkers(
+  points: GpsMapPoint[],
+  datasets: ImportedDataset[],
+  automaticChecks: boolean
+): GpsEventMarker[] {
   const deduped = dedupeFlightEventMarkers(
     datasets
       .filter((dataset) => isEventSourceImporter(getImporterId(dataset)))
-      .flatMap((dataset) => relativeEventMarkers(dataset))
+      .flatMap((dataset) => relativeEventMarkers(dataset, automaticChecks))
   );
 
   return deduped
@@ -972,6 +467,7 @@ export function FlightViewer({
   const [selectedSeries, setSelectedSeries] = useState<number[]>([]);
   const [hoverText, setHoverText] = useState('Hover over the chart to inspect values.');
   const [showFullData, setShowFullData] = useState(false);
+  const [automaticChecks, setAutomaticChecks] = useState(true);
   const [rawPage, setRawPage] = useState(0);
   const [saveStatus, setSaveStatus] = useState('');
   const [saveError, setSaveError] = useState('');
@@ -1010,11 +506,12 @@ export function FlightViewer({
     setLoadError('');
     const started = performance.now();
     void window.appBridge.debugLog('viewer:read-dataset:start', {
-      selectedDirectory
+      selectedDirectory,
+      sanitize: automaticChecks
     });
 
     window.appBridge
-      .readDataset(selectedDirectory)
+      .readDataset(selectedDirectory, { sanitize: automaticChecks })
       .then((nextDataset) => {
         if (ignore) return;
         setDataset(nextDataset);
@@ -1024,7 +521,7 @@ export function FlightViewer({
         setSelectedSeries(
           defaultSeries(
             nextDataset.headers,
-            getTimeColumn(nextDataset.headers, nextDataset.rows)?.index ?? null,
+            getTimeColumn(nextDataset.headers, nextDataset.rows, { automaticChecks })?.index ?? null,
             findStandardColumns(config, importerId)
           )
         );
@@ -1034,7 +531,8 @@ export function FlightViewer({
           selectedDirectory,
           durationMs: Math.round(performance.now() - started),
           rowCount: nextDataset.rows.length,
-          headerCount: nextDataset.headers.length
+          headerCount: nextDataset.headers.length,
+          sanitize: automaticChecks
         });
       })
       .catch((error: Error) => {
@@ -1051,7 +549,7 @@ export function FlightViewer({
     return () => {
       ignore = true;
     };
-  }, [selectedDirectory]);
+  }, [automaticChecks, config, selectedDirectory]);
 
   const hasAttributeChanges = useMemo(() => {
     if (!dataset) return false;
@@ -1062,8 +560,8 @@ export function FlightViewer({
   const hasRequiredFilled = hasRequiredAttributes(attributes, REQUIRED_ATTRIBUTE_KEYS);
 
   const rawXAxis = useMemo(
-    () => (dataset ? buildXAxis(dataset) : { values: [], title: 'Row', hoverLabel: 'row' }),
-    [dataset]
+    () => (dataset ? buildXAxis(dataset, { automaticChecks }) : { values: [], title: 'Row', hoverLabel: 'row' }),
+    [automaticChecks, dataset]
   );
 
   const rawEventData = useMemo(() => {
@@ -1075,14 +573,14 @@ export function FlightViewer({
         flightEndTime: 0
       };
     }
-    return buildEventMarkers(dataset, rawXAxis.values);
-  }, [dataset, rawXAxis.values]);
+    return buildEventMarkers(dataset, rawXAxis.values, { automaticChecks });
+  }, [automaticChecks, dataset, rawXAxis.values]);
   const gpsColumns = useMemo(() => {
     if (!dataset) {
       return null;
     }
 
-    const gpsPositionColumns = findGpsColumns(dataset.headers, dataset.rows);
+    const gpsPositionColumns = findGpsColumns(dataset.headers, dataset.rows, { automaticChecks });
     const altitudeIndex = getColumnIndexByAliases(dataset.headers, [
       'altitude',
       'altitude_m',
@@ -1095,7 +593,7 @@ export function FlightViewer({
     }
 
     return { ...gpsPositionColumns, altitudeIndex };
-  }, [dataset]);
+  }, [automaticChecks, dataset]);
   const launchOffset = useMemo(() => {
     if (rawEventData.launchTime !== null) {
       return rawEventData.launchTime;
@@ -1110,8 +608,14 @@ export function FlightViewer({
       'vertical_velocity',
       'speed_m_s'
     ]);
-    return estimateGpsLaunchTime(dataset.rows, rawXAxis.values, gpsColumns.altitudeIndex, velocityIndex) ?? 0;
-  }, [dataset, gpsColumns, rawEventData.launchTime, rawXAxis.values]);
+    return estimateGpsLaunchTime(
+      dataset.rows,
+      rawXAxis.values,
+      gpsColumns.altitudeIndex,
+      velocityIndex,
+      { automaticChecks }
+    ) ?? 0;
+  }, [automaticChecks, dataset, gpsColumns, rawEventData.launchTime, rawXAxis.values]);
 
   const xAxis = useMemo(
     () =>
@@ -1208,26 +712,7 @@ export function FlightViewer({
         .map((row) => parseNumber(row[gpsColumns.altitudeIndex]))
         .find((value) => value !== null) ?? 0;
 
-    return visibleRows
-      .map((row, index) => ({
-        latitude: parseNumber(row[gpsColumns.latitudeIndex]),
-        longitude: parseNumber(row[gpsColumns.longitudeIndex]),
-        altitude: parseNumber(row[gpsColumns.altitudeIndex]),
-        time: visibleXValues[index]
-      }))
-      .filter(
-        (point): point is { latitude: number; longitude: number; altitude: number; time: number } =>
-          point.latitude !== null &&
-          point.longitude !== null &&
-          point.altitude !== null &&
-          isValidLatitude(point.latitude) &&
-          isValidLongitude(point.longitude) &&
-          Number.isFinite(point.time)
-      )
-      .map((point) => ({
-        ...point,
-        height: Math.max(0, point.altitude - launchAltitude)
-      }));
+    return buildGpsPoints(visibleRows, visibleXValues, gpsColumns, launchAltitude);
   }, [gpsColumns, visibleRows, visibleXValues]);
   const gpsAspectRatio = useMemo(() => {
     if (gpsPoints.length === 0) {
@@ -1335,7 +820,9 @@ export function FlightViewer({
           return Promise.resolve(dataset);
         }
 
-        return window.appBridge.readDataset(altimeter.altimeterDirectory).catch(() => null);
+        return window.appBridge
+          .readDataset(altimeter.altimeterDirectory, { sanitize: automaticChecks })
+          .catch(() => null);
       })
     ).then((datasets) => {
       if (ignore) return;
@@ -1345,11 +832,11 @@ export function FlightViewer({
     return () => {
       ignore = true;
     };
-  }, [dataset, flight, gpsColumns, gpsViewActive, selectedDirectory]);
+  }, [automaticChecks, dataset, flight, gpsColumns, gpsViewActive, selectedDirectory]);
 
   const gpsEventMarkers = useMemo(
-    () => buildGpsEventMarkers(gpsPoints, eventDatasets),
-    [eventDatasets, gpsPoints]
+    () => buildGpsEventMarkers(gpsPoints, eventDatasets, automaticChecks),
+    [automaticChecks, eventDatasets, gpsPoints]
   );
 
   useEffect(() => {
@@ -1612,6 +1099,14 @@ export function FlightViewer({
         >
           {showFullData ? 'Flight Window' : 'Full Data'}
         </button>
+        <label className="checkbox-row toolbar-checkbox">
+          <input
+            checked={automaticChecks}
+            onChange={(event) => setAutomaticChecks(event.target.checked)}
+            type="checkbox"
+          />
+          <span>Auto cleanup</span>
+        </label>
       </header>
 
       <nav className="altimeter-tabbar" aria-label="Altimeters">

@@ -5,7 +5,7 @@ import {
   getImporterById,
   getImporterForAltimeter
 } from './importers/registry';
-import type { ImportPreview, ParsedImport } from './importers/types';
+import type { ImportPreview, ParsedImport, ParseOptions } from './importers/types';
 import type { StandardColumnMapping, StandardColumnRef } from '../shared/importConfig';
 import { getStandardColumnsForImporter } from '../shared/importConfig';
 
@@ -53,6 +53,10 @@ export type ImportedDataset = {
   attributes: CustomAttribute[];
   headers: string[];
   rows: string[][];
+};
+
+export type ReadDatasetOptions = {
+  sanitize?: boolean;
 };
 
 export type SaveImportRequest = {
@@ -407,7 +411,8 @@ function computeMetricsFromParsed(
 
 async function parseAltimeterOriginals(
   altimeterDirectory: string,
-  importerId: string
+  importerId: string,
+  options: ParseOptions = {}
 ): Promise<ParsedImport> {
   const importer = getImporterById(importerId);
   if (!importer) {
@@ -417,14 +422,15 @@ async function parseAltimeterOriginals(
   if (filePaths.length === 0) {
     throw new Error(`No original files found in ${altimeterDirectory}`);
   }
-  return importer.parse(filePaths);
+  return importer.parse(filePaths, options);
 }
 
 async function readDatasetRows(
   altimeterDirectory: string,
-  importerId: string
+  importerId: string,
+  options: ParseOptions = {}
 ): Promise<{ headers: string[]; rows: string[][] }> {
-  const parsed = await parseAltimeterOriginals(altimeterDirectory, importerId);
+  const parsed = await parseAltimeterOriginals(altimeterDirectory, importerId, options);
   return { headers: parsed.headers, rows: parsed.rows };
 }
 
@@ -661,7 +667,8 @@ export async function listFlights(outputDirectory: string): Promise<FlightSummar
 
 export async function readImportedDataset(
   outputDirectory: string,
-  datasetDirectory: string
+  datasetDirectory: string,
+  options: ReadDatasetOptions = {}
 ): Promise<ImportedDataset> {
   const altimeterDirectory = resolveInsideOutputDirectory(outputDirectory, datasetDirectory);
   const flightDirectory = path.dirname(altimeterDirectory);
@@ -684,7 +691,7 @@ export async function readImportedDataset(
   }
 
   const importerId = await resolveDatasetImporterId(altimeterDirectory, storedImporterId);
-  const parsed = await readDatasetRows(altimeterDirectory, importerId);
+  const parsed = await readDatasetRows(altimeterDirectory, importerId, options);
   const effectiveAttributes =
     importerId === storedImporterId ? attributes : replaceAttribute(attributes, 'importer_id', importerId);
   const effectiveSummary =
@@ -719,7 +726,7 @@ export async function saveImportedDatasetAttributes(
 
 export async function previewImport(altimeterId: string, filePaths: string[]): Promise<ImportPreview> {
   const { importer } = getImporterForAltimeter(altimeterId);
-  const parsed = await importer.parse(filePaths);
+  const parsed = await importer.parse(filePaths, { sanitize: true });
 
   return {
     headers: parsed.headers,
@@ -849,7 +856,7 @@ export async function saveImport(
   await ensureOutputDirectory(outputDirectory);
 
   const { altimeter, importer } = getImporterForAltimeter(request.altimeterId);
-  const parsed = await importer.parse(request.filePaths);
+  const parsed = await importer.parse(request.filePaths, { sanitize: true });
 
   if (parsed.rows.length === 0) {
     throw new Error('No data rows were found to import.');
@@ -904,6 +911,10 @@ export async function saveImport(
   }
   attributes.set('has_gps_data', datasetHasGpsHeaders(parsed.headers) ? 'true' : 'false');
   attributes.set('parser_cache_version', PARSE_CACHE_VERSION);
+
+  for (const [key, value] of Object.entries(parsed.attributes)) {
+    attributes.set(key, value);
+  }
 
   for (const attribute of request.customAttributes) {
     const key = attribute.key.trim();

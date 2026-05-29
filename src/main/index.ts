@@ -390,11 +390,11 @@ ipcMain.handle('import:detect-altimeter', (_event, filePaths: string[]) =>
     () => detectAltimeter(filePaths)
   )
 );
-ipcMain.handle('dataset:read', (_event, datasetDirectory: string) =>
+ipcMain.handle('dataset:read', (_event, datasetDirectory: string, options?: { sanitize?: boolean }) =>
   runLogged(
     'ipc:dataset:read',
-    { datasetDirectory, outputDirectory },
-    () => readImportedDataset(outputDirectory, datasetDirectory)
+    { datasetDirectory, outputDirectory, sanitize: options?.sanitize !== false },
+    () => readImportedDataset(outputDirectory, datasetDirectory, options)
   )
 );
 ipcMain.handle(

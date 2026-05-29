@@ -6,6 +6,10 @@ export type ParsedImport = {
   sourceFiles: string[];
 };
 
+export type ParseOptions = {
+  sanitize?: boolean;
+};
+
 export type ImportPreview = {
   headers: string[];
   rowCount: number;
@@ -17,5 +21,5 @@ export type ImportPreview = {
 export interface AltimeterImporter {
   id: string;
   name: string;
-  parse(filePaths: string[]): Promise<ParsedImport>;
+  parse(filePaths: string[], options?: ParseOptions): Promise<ParsedImport>;
 }

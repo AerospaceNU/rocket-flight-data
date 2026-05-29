@@ -406,7 +406,7 @@ label {
 }
 
 .compare-toolbar {
-  grid-template-columns: minmax(22rem, auto) minmax(10rem, 16rem) auto;
+  grid-template-columns: minmax(22rem, auto) minmax(10rem, 16rem) auto auto;
   align-items: end;
   min-width: 0;
 }
@@ -665,6 +665,7 @@ button:disabled {
   justify-content: space-between;
   gap: 1rem;
   align-items: center;
+  flex-wrap: wrap;
 }
 
 .viewer-header h2 {
@@ -834,6 +835,12 @@ button:disabled {
   width: 1rem;
   min-height: 1rem;
   margin: 0;
+}
+
+.toolbar-checkbox {
+  min-height: 2rem;
+  align-self: center;
+  white-space: nowrap;
 }
 
 .plot-main {

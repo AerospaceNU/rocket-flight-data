@@ -24,7 +24,10 @@ declare global {
       getTheme: () => Promise<ThemeId>;
       listFlights: () => Promise<FlightSummary[]>;
       detectAltimeter: (filePaths: string[]) => Promise<AltimeterDetectionResult>;
-      readDataset: (datasetDirectory: string) => Promise<ImportedDataset>;
+      readDataset: (
+        datasetDirectory: string,
+        options?: { sanitize?: boolean }
+      ) => Promise<ImportedDataset>;
       saveDatasetAttributes: (request: {
         datasetDirectory: string;
         attributes: CustomAttribute[];

@@ -11,7 +11,8 @@ contextBridge.exposeInMainWorld('appBridge', {
   getTheme: () => ipcRenderer.invoke('theme:get'),
   listFlights: () => ipcRenderer.invoke('import:list-flights'),
   detectAltimeter: (filePaths: string[]) => ipcRenderer.invoke('import:detect-altimeter', filePaths),
-  readDataset: (datasetDirectory: string) => ipcRenderer.invoke('dataset:read', datasetDirectory),
+  readDataset: (datasetDirectory: string, options?: { sanitize?: boolean }) =>
+    ipcRenderer.invoke('dataset:read', datasetDirectory, options),
   saveDatasetAttributes: (request: unknown) =>
     ipcRenderer.invoke('dataset:save-attributes', request),
   previewImport: (request: { altimeterId: string; filePaths: string[] }) =>

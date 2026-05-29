@@ -1,5 +1,9 @@
 import { readFile } from 'node:fs/promises';
-import type { AltimeterImporter, ParsedImport } from './types';
+import {
+  applyFcbGroundStationSanitizationAttributes,
+  sanitizeFcbGroundStationRows
+} from './fcbgroundstationSanitizer';
+import type { AltimeterImporter, ParsedImport, ParseOptions } from './types';
 
 const FCB_GROUND_STATION_HEADERS = [
   'timestamp_ms',
@@ -254,21 +258,6 @@ function applyPacket(row: RowRecord, packetType: string, body: string) {
   }
 }
 
-function validGps(row: RowRecord) {
-  const latitude = Number.parseFloat(row.latitude);
-  const longitude = Number.parseFloat(row.longitude);
-  return (
-    Number.isFinite(latitude) &&
-    Number.isFinite(longitude) &&
-    latitude >= -90 &&
-    latitude <= 90 &&
-    longitude >= -180 &&
-    longitude <= 180 &&
-    Math.abs(latitude) > 0.001 &&
-    Math.abs(longitude) > 0.001
-  );
-}
-
 function normalizedPacketCountKey(packetType: string) {
   return packetType.toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '');
 }
@@ -276,11 +265,10 @@ function normalizedPacketCountKey(packetType: string) {
 export const fcbGroundStationImporter: AltimeterImporter = {
   id: 'fcbgroundstation',
   name: 'FCBGroundStation',
-  async parse(filePaths: string[]): Promise<ParsedImport> {
+  async parse(filePaths: string[], options: ParseOptions = {}): Promise<ParsedImport> {
     const rowsByTimestamp = new Map<number, RowRecord>();
     const attributes: Record<string, string> = {
       source_format: 'FCB Ground Station parsed log',
-      sanitized_source: 'true',
       time_units: 'ms',
       altitude_units: 'm',
       velocity_units: 'm/s',
@@ -328,15 +316,17 @@ export const fcbGroundStationImporter: AltimeterImporter = {
     const sortedRows = Array.from(rowsByTimestamp.values()).sort(
       (left, right) => Number(left.timestamp_ms) - Number(right.timestamp_ms)
     );
-    const rows = sortedRows.map((row) => FCB_GROUND_STATION_HEADERS.map((header) => row[header] ?? ''));
+    const rawRows = sortedRows.map((row) => FCB_GROUND_STATION_HEADERS.map((header) => row[header] ?? ''));
+    const sanitization = sanitizeFcbGroundStationRows(
+      FCB_GROUND_STATION_HEADERS,
+      rawRows,
+      options.sanitize !== false
+    );
+    const rows = sanitization.rows;
 
     attributes.source_file_count = String(fileCount);
     attributes.packet_counts = JSON.stringify(Object.fromEntries(packetCounts.entries()));
-    attributes.valid_gps_rows = String(sortedRows.filter(validGps).length);
-    attributes.bad_rows_removed = '0';
-    attributes.bad_gps_values_blanked = '0';
-    attributes.bad_numeric_values_blanked = '0';
-    attributes.bad_state_values_blanked = '0';
+    applyFcbGroundStationSanitizationAttributes(attributes, sanitization, options.sanitize !== false);
     if (sortedRows[0]) {
       attributes.start_timestamp_ms = sortedRows[0].timestamp_ms;
       attributes.end_timestamp_ms = sortedRows[sortedRows.length - 1].timestamp_ms;
