@@ -1,13 +1,17 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import maplibregl from 'maplibre-gl';
 import { MapboxOverlay } from '@deck.gl/mapbox';
-import { IconLayer, PathLayer, ScatterplotLayer, TextLayer } from '@deck.gl/layers';
+import { PathLayer, ScatterplotLayer, TextLayer } from '@deck.gl/layers';
+import { SimpleMeshLayer } from '@deck.gl/mesh-layers';
+import { OBJLoader } from '@loaders.gl/obj';
 import { SATELLITE_STYLE, type GpsEventMarker, type GpsMapPoint } from './GpsMapView';
 
 export type RocketPosePoint = GpsMapPoint & {
-  yawDeg: number;
-  pitchDeg: number;
-  rollDeg: number;
+  qX: number;
+  qY: number;
+  qZ: number;
+  qW: number;
+  northCorrectionDeg: number;
 };
 
 type FcbRocketReplayMapProps = {
@@ -22,29 +26,181 @@ type FlightPath = {
 
 type MapPosition = [number, number, number];
 
-const ROCKET_ICON_ID = 'rocket';
-const ROCKET_ICON_ATLAS =
-  'data:image/svg+xml;charset=utf-8,' +
-  encodeURIComponent(
-    '<svg xmlns="http://www.w3.org/2000/svg" width="96" height="96" viewBox="0 0 96 96">' +
-      '<path d="M48 6 C37 18 31 33 31 50 L20 68 L34 63 L39 86 L48 75 L57 86 L62 63 L76 68 L65 50 C65 33 59 18 48 6 Z" fill="#f5f7fb" stroke="#111820" stroke-width="4" stroke-linejoin="round"/>' +
-      '<path d="M48 13 C42 23 39 35 39 50 L48 58 L57 50 C57 35 54 23 48 13 Z" fill="#ff9f43"/>' +
-      '<circle cx="48" cy="38" r="7" fill="#58c4ff" stroke="#111820" stroke-width="3"/>' +
-      '<path d="M40 76 L48 88 L56 76 Z" fill="#ff5d5d"/>' +
-    '</svg>'
-  );
+function makeRocketObj() {
+  const segments = 18;
+  const radius = 0.42;
+  const bodyBottom = -2.4;
+  const bodyTop = 1.8;
+  const noseTip = 3.0;
+  const lines: string[] = ['o replay_rocket'];
 
-const ROCKET_ICON_MAPPING = {
-  [ROCKET_ICON_ID]: {
-    x: 0,
-    y: 0,
-    width: 96,
-    height: 96,
-    anchorX: 48,
-    anchorY: 48,
-    mask: false
+  for (let index = 0; index < segments; index += 1) {
+    const angle = (index / segments) * Math.PI * 2;
+    const y = Math.cos(angle) * radius;
+    const z = Math.sin(angle) * radius;
+    lines.push(`v ${bodyBottom} ${y.toFixed(5)} ${z.toFixed(5)}`);
+    lines.push(`v ${bodyTop} ${y.toFixed(5)} ${z.toFixed(5)}`);
   }
-};
+
+  const bottomCenterIndex = segments * 2 + 1;
+  const topCenterIndex = bottomCenterIndex + 1;
+  const noseTipIndex = topCenterIndex + 1;
+  lines.push(`v ${bodyBottom} 0 0`);
+  lines.push(`v ${bodyTop} 0 0`);
+  lines.push(`v ${noseTip} 0 0`);
+
+  for (let index = 0; index < segments; index += 1) {
+    const next = (index + 1) % segments;
+    const bottomA = index * 2 + 1;
+    const topA = bottomA + 1;
+    const bottomB = next * 2 + 1;
+    const topB = bottomB + 1;
+    lines.push(`f ${bottomA} ${bottomB} ${topB} ${topA}`);
+    lines.push(`f ${topA} ${topB} ${noseTipIndex}`);
+    lines.push(`f ${bottomCenterIndex} ${bottomB} ${bottomA}`);
+  }
+
+  const finStart = noseTipIndex + 1;
+  const fins = [
+    [
+      [bodyBottom + 0.2, radius, 0],
+      [bodyBottom + 1.1, radius, 0],
+      [bodyBottom - 0.35, radius + 0.9, 0]
+    ],
+    [
+      [bodyBottom + 0.2, -radius, 0],
+      [bodyBottom + 1.1, -radius, 0],
+      [bodyBottom - 0.35, -radius - 0.9, 0]
+    ],
+    [
+      [bodyBottom + 0.2, 0, radius],
+      [bodyBottom + 1.1, 0, radius],
+      [bodyBottom - 0.35, 0, radius + 0.9]
+    ],
+    [
+      [bodyBottom + 0.2, 0, -radius],
+      [bodyBottom + 1.1, 0, -radius],
+      [bodyBottom - 0.35, 0, -radius - 0.9]
+    ]
+  ];
+
+  for (const fin of fins) {
+    for (const vertex of fin) {
+      lines.push(`v ${vertex[0]} ${vertex[1]} ${vertex[2]}`);
+    }
+  }
+
+  for (let index = 0; index < fins.length; index += 1) {
+    const first = finStart + index * 3;
+    lines.push(`f ${first} ${first + 1} ${first + 2}`);
+  }
+
+  return `data:text/plain;charset=utf-8,${encodeURIComponent(lines.join('\n'))}`;
+}
+
+const ROCKET_MESH_URL = makeRocketObj();
+
+function normalizeQuaternion(point: Pick<RocketPosePoint, 'qX' | 'qY' | 'qZ' | 'qW'>) {
+  const magnitude = Math.hypot(point.qX, point.qY, point.qZ, point.qW);
+  if (!Number.isFinite(magnitude) || magnitude < 1e-9) {
+    return null;
+  }
+
+  return {
+    qX: point.qX / magnitude,
+    qY: point.qY / magnitude,
+    qZ: point.qZ / magnitude,
+    qW: point.qW / magnitude
+  };
+}
+
+function slerpQuaternion(
+  left: Pick<RocketPosePoint, 'qX' | 'qY' | 'qZ' | 'qW'>,
+  right: Pick<RocketPosePoint, 'qX' | 'qY' | 'qZ' | 'qW'>,
+  ratio: number
+) {
+  const start = normalizeQuaternion(left);
+  const end = normalizeQuaternion(right);
+  if (!start || !end) return start ?? end;
+
+  let endX = end.qX;
+  let endY = end.qY;
+  let endZ = end.qZ;
+  let endW = end.qW;
+  let dot = start.qX * endX + start.qY * endY + start.qZ * endZ + start.qW * endW;
+
+  if (dot < 0) {
+    dot = -dot;
+    endX = -endX;
+    endY = -endY;
+    endZ = -endZ;
+    endW = -endW;
+  }
+
+  if (dot > 0.9995) {
+    return normalizeQuaternion({
+      qX: start.qX + (endX - start.qX) * ratio,
+      qY: start.qY + (endY - start.qY) * ratio,
+      qZ: start.qZ + (endZ - start.qZ) * ratio,
+      qW: start.qW + (endW - start.qW) * ratio
+    });
+  }
+
+  const theta = Math.acos(Math.max(-1, Math.min(1, dot)));
+  const sinTheta = Math.sin(theta);
+  const startScale = Math.sin((1 - ratio) * theta) / sinTheta;
+  const endScale = Math.sin(ratio * theta) / sinTheta;
+
+  return {
+    qX: start.qX * startScale + endX * endScale,
+    qY: start.qY * startScale + endY * endScale,
+    qZ: start.qZ * startScale + endZ * endScale,
+    qW: start.qW * startScale + endW * endScale
+  };
+}
+
+function quaternionToTransformMatrix(point: RocketPosePoint) {
+  const quaternion = normalizeQuaternion(point);
+  if (!quaternion) return [];
+
+  const { qX: x, qY: y, qZ: z, qW: w } = quaternion;
+  const xx = x * x;
+  const yy = y * y;
+  const zz = z * z;
+  const xy = x * y;
+  const xz = x * z;
+  const yz = y * z;
+  const wx = w * x;
+  const wy = w * y;
+  const wz = w * z;
+
+  const r00 = 1 - 2 * (yy + zz);
+  const r01 = 2 * (xy - wz);
+  const r02 = 2 * (xz + wy);
+  const r10 = 2 * (xy + wz);
+  const r11 = 1 - 2 * (xx + zz);
+  const r12 = 2 * (yz - wx);
+  const r20 = 2 * (xz - wy);
+  const r21 = 2 * (yz + wx);
+  const r22 = 1 - 2 * (xx + yy);
+  const correctionRad = (point.northCorrectionDeg * Math.PI) / 180;
+  const correctionCos = Math.cos(correctionRad);
+  const correctionSin = Math.sin(correctionRad);
+
+  const c00 = correctionCos * r00 - correctionSin * r10;
+  const c01 = correctionCos * r01 - correctionSin * r11;
+  const c02 = correctionCos * r02 - correctionSin * r12;
+  const c10 = correctionSin * r00 + correctionCos * r10;
+  const c11 = correctionSin * r01 + correctionCos * r11;
+  const c12 = correctionSin * r02 + correctionCos * r12;
+
+  return [
+    c00, c10, r20, 0,
+    c01, c11, r21, 0,
+    c02, c12, r22, 0,
+    0, 0, 0, 1
+  ];
+}
 
 function computeBounds(points: GpsMapPoint[]) {
   if (points.length === 0) return null;
@@ -91,12 +247,7 @@ function interpolatePose(samples: RocketPosePoint[], targetTime: number): Rocket
 
     const span = next.time - current.time;
     const ratio = span > 0 ? (targetTime - current.time) / span : 0;
-    const blendAngle = (left: number, right: number) => {
-      let delta = right - left;
-      while (delta > 180) delta -= 360;
-      while (delta < -180) delta += 360;
-      return left + delta * ratio;
-    };
+    const quaternion = slerpQuaternion(current, next, ratio) ?? current;
 
     return {
       latitude: current.latitude + (next.latitude - current.latitude) * ratio,
@@ -104,9 +255,11 @@ function interpolatePose(samples: RocketPosePoint[], targetTime: number): Rocket
       altitude: current.altitude + (next.altitude - current.altitude) * ratio,
       height: current.height + (next.height - current.height) * ratio,
       time: targetTime,
-      yawDeg: blendAngle(current.yawDeg, next.yawDeg),
-      pitchDeg: blendAngle(current.pitchDeg, next.pitchDeg),
-      rollDeg: blendAngle(current.rollDeg, next.rollDeg)
+      qX: quaternion.qX,
+      qY: quaternion.qY,
+      qZ: quaternion.qZ,
+      qW: quaternion.qW,
+      northCorrectionDeg: current.northCorrectionDeg
     };
   }
 
@@ -281,32 +434,29 @@ export function FcbRocketReplayMap({ eventMarkers, isActive, samples }: FcbRocke
           getAlignmentBaseline: 'bottom',
           getPixelOffset: (point) => [0, point.labelOffsetY]
         }),
-        new IconLayer<RocketPosePoint>({
-          id: 'rocket-replay-icon',
+        new SimpleMeshLayer<RocketPosePoint>({
+          id: 'rocket-replay-mesh',
           data: rocketData,
-          iconAtlas: ROCKET_ICON_ATLAS,
-          iconMapping: ROCKET_ICON_MAPPING,
-          getIcon: () => ROCKET_ICON_ID,
+          mesh: ROCKET_MESH_URL,
+          loaders: [OBJLoader],
           getPosition: (point) => [point.longitude, point.latitude, point.height],
-          getSize: 46,
-          sizeUnits: 'pixels',
-          getAngle: (point) => point.yawDeg,
-          billboard: true,
+          getTransformMatrix: (point) => quaternionToTransformMatrix(point),
+          getColor: [245, 247, 251, 255],
+          sizeScale: 11,
           pickable: true
         })
       ],
       getTooltip: ({ object, layer }) => {
         if (!object || !layer) return null;
-        if (String(layer.id) === 'rocket-replay-icon') {
+        if (String(layer.id) === 'rocket-replay-mesh') {
           const point = object as RocketPosePoint;
           return {
             text:
               `Rocket\n` +
               `Time: ${point.time.toFixed(2)} s\n` +
               `Height: ${point.height.toFixed(1)} m\n` +
-              `Yaw: ${point.yawDeg.toFixed(1)} deg\n` +
-              `Pitch: ${point.pitchDeg.toFixed(1)} deg\n` +
-              `Roll: ${point.rollDeg.toFixed(1)} deg`
+              `q: ${point.qX.toFixed(4)}, ${point.qY.toFixed(4)}, ${point.qZ.toFixed(4)}, ${point.qW.toFixed(4)}\n` +
+              `North correction: ${point.northCorrectionDeg.toFixed(1)} deg`
           };
         }
         if (String(layer.id) === 'rocket-replay-events') {
