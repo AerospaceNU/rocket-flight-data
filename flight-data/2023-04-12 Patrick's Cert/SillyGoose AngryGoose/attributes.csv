@@ -1,0 +1,17 @@
+key,value
+altimeter_name,SillyGoose
+flight_location,CRMRC
+flight_date,2023-04-12
+flight_name,Patrick's Cert
+altimeter_note,AngryGoose
+importer_id,sillygoose
+imported_at,2026-05-29T20:47:33.469Z
+row_count,3163
+peak_altitude_m,194.51
+peak_velocity_ms,52.68
+peak_acceleration_mss,0.00
+has_gps_data,false
+parser_cache_version,4
+motor,unknown
+flight_notes,
+source_fingerprint,formatted_rocket_data_final.txt:327432:1780087336218
