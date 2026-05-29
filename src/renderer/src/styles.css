@@ -340,6 +340,98 @@ label {
   outline: none;
 }
 
+.compare-view {
+  display: grid;
+  grid-template-columns: minmax(18rem, 24rem) minmax(0, 1fr);
+  gap: 0.75rem;
+  min-width: 0;
+  min-height: 0;
+  height: 100%;
+  overflow: hidden;
+}
+
+.compare-selector {
+  grid-template-rows: auto auto minmax(0, 1fr);
+  min-height: 0;
+  overflow: hidden;
+}
+
+.compare-flight-list {
+  display: grid;
+  align-content: start;
+  gap: 0.55rem;
+  min-height: 0;
+  overflow-y: auto;
+  padding-right: 0.25rem;
+}
+
+.compare-flight-group {
+  display: grid;
+  gap: 0.25rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background-color: var(--bg-surface);
+  padding: 0.5rem;
+}
+
+.compare-flight-heading {
+  display: grid;
+  gap: 0.1rem;
+  padding-bottom: 0.25rem;
+}
+
+.compare-flight-heading span {
+  font-size: 0.84rem;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.compare-flight-heading small {
+  color: var(--text-muted);
+  font-size: 0.74rem;
+}
+
+.compare-checkbox {
+  min-height: 1.55rem;
+  font-size: 0.78rem;
+}
+
+.compare-main {
+  display: grid;
+  grid-template-rows: auto auto minmax(0, 1fr);
+  gap: 0.55rem;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.compare-toolbar {
+  grid-template-columns: minmax(22rem, auto) minmax(10rem, 16rem) auto;
+  align-items: end;
+  min-width: 0;
+}
+
+.compare-toolbar .segmented-control {
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+.compare-status {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  min-height: 1.7rem;
+  color: var(--text-muted);
+  font-size: 0.82rem;
+}
+
+.compare-plot-area {
+  min-width: 0;
+  min-height: 0;
+  height: 100%;
+  overflow: hidden;
+}
+
 .import-workflow {
   display: grid;
   gap: 0.85rem;
@@ -917,7 +1009,12 @@ button:disabled {
     grid-template-columns: 1fr;
   }
 
+  .compare-view,
   .viewer-body {
+    grid-template-columns: 1fr;
+  }
+
+  .compare-toolbar {
     grid-template-columns: 1fr;
   }
 

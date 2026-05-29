@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { CompareView } from './CompareView';
 import { FlightViewer } from './FlightViewer';
 import { ImportWorkflow } from './ImportWorkflow';
 import type { FlightSummary, ImportConfig, SaveImportResult, ThemeId } from './importTypes';
@@ -6,11 +7,15 @@ import type { FlightSummary, ImportConfig, SaveImportResult, ThemeId } from './i
 type BaseTab = {
   id: string;
   title: string;
-  kind: 'home' | 'import' | 'viewer';
+  kind: 'home' | 'compare' | 'import' | 'viewer';
 };
 
 type HomeTab = BaseTab & {
   kind: 'home';
+};
+
+type CompareTab = BaseTab & {
+  kind: 'compare';
 };
 
 type ImportTab = BaseTab & {
@@ -24,13 +29,15 @@ type ViewerTab = BaseTab & {
   selectedAltimeterDirectory?: string;
 };
 
-type AppTab = HomeTab | ImportTab | ViewerTab;
+type AppTab = HomeTab | CompareTab | ImportTab | ViewerTab;
 
 const HOME_TAB_ID = 'home';
+const COMPARE_TAB_ID = 'compare';
 
 export function App() {
   const [tabs, setTabs] = useState<AppTab[]>([
-    { id: HOME_TAB_ID, title: 'Overview', kind: 'home' }
+    { id: HOME_TAB_ID, title: 'Overview', kind: 'home' },
+    { id: COMPARE_TAB_ID, title: 'Compare', kind: 'compare' }
   ]);
   const [activeTabId, setActiveTabId] = useState<string>(HOME_TAB_ID);
   const [outputDirectory, setOutputDirectory] = useState('');
@@ -200,7 +207,12 @@ export function App() {
         setActiveTabId(nextTabs[Math.max(0, tabIndex - 1)]?.id ?? HOME_TAB_ID);
       }
 
-      return nextTabs.length > 0 ? nextTabs : [{ id: HOME_TAB_ID, title: 'Overview', kind: 'home' }];
+      return nextTabs.length > 0
+        ? nextTabs
+        : [
+            { id: HOME_TAB_ID, title: 'Overview', kind: 'home' },
+            { id: COMPARE_TAB_ID, title: 'Compare', kind: 'compare' }
+          ];
     });
   };
 
@@ -440,6 +452,10 @@ export function App() {
       );
     }
 
+    if (tab.kind === 'compare') {
+      return <CompareView config={config} flights={flights} isActive={isActive} />;
+    }
+
     return (
       <FlightViewer
         config={config}
@@ -462,7 +478,7 @@ export function App() {
             type="button"
           >
             <span>{tab.title}</span>
-            {tab.kind !== 'home' ? (
+            {tab.kind !== 'home' && tab.kind !== 'compare' ? (
               <span
                 aria-label={`Close ${tab.title}`}
                 className="tab-close"
@@ -482,7 +498,7 @@ export function App() {
       <section className="tab-content">
         {tabs.map((tab) => (
           <div
-            className={`tab-panel ${tab.kind === 'viewer' ? 'viewer-tab-panel' : ''}`}
+            className={`tab-panel ${tab.kind === 'viewer' || tab.kind === 'compare' ? 'viewer-tab-panel' : ''}`}
             hidden={tab.id !== activeTab?.id}
             key={tab.id}
           >
