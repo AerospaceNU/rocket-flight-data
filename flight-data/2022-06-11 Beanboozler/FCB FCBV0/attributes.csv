@@ -12,3 +12,6 @@ peak_velocity_ms,0.00
 peak_acceleration_mss,111.26
 motor,unknown
 flight_notes,
+has_gps_data,true
+parser_cache_version,4
+source_fingerprint,LDRS-beanboozler-l265-output-post.csv:19217483:1779998472455

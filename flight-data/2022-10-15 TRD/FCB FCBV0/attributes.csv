@@ -12,3 +12,6 @@ peak_velocity_ms,120.13
 peak_acceleration_mss,211.38
 motor,unknown
 flight_notes,
+has_gps_data,true
+parser_cache_version,4
+source_fingerprint,oct-v1-trd-10-22-output-FCB-post.csv:3926303:1779998472712

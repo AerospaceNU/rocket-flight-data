@@ -16,3 +16,6 @@ version,6
 serial,6357
 flight,11
 source_format,AltOS CSV
+has_gps_data,false
+parser_cache_version,4
+source_fingerprint,super guppy easymini 6357.csv:182996:1779998472357

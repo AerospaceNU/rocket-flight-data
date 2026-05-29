@@ -17,3 +17,6 @@ end_latitude,44.82490158081055
 end_longitude,-73.16101837158203
 row_count,434
 peak_altitude_m,1689.50
+has_gps_data,true
+parser_cache_version,4
+source_fingerprint,MBTA_GPS_out_header.txt:31839:1779988057945

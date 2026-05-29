@@ -1,0 +1,29 @@
+key,value
+altimeter_name,FCBGroundStation
+flight_location,CRMRC
+flight_date,2023-05-27
+flight_name,Refried Beans
+altimeter_note,FCBV0
+importer_id,fcbgroundstation
+imported_at,2026-05-29T13:33:07.894Z
+row_count,3218
+peak_altitude_m,98.14
+peak_velocity_ms,34.51
+peak_acceleration_mss,64.71
+motor,unknown
+flight_notes,
+source_format,FCB Ground Station parsed log
+time_units,ms
+altitude_units,m
+velocity_units,m/s
+acceleration_units,m/s^2
+run_start,2023-05-27 14:45:02
+source_file_count,1
+packet_counts,"{""Ground Station GPS"":272,""Orientation"":3216,""Position Data"":3119,""Pyro Info"":624,""Alt Info & Cfg"":513}"
+valid_gps_rows,3116
+start_timestamp_ms,748049
+end_timestamp_ms,2165008752
+packet_count_ground_station_gps,272
+has_gps_data,true
+parser_cache_version,4
+source_fingerprint,2023-05-27 14-45-02 GroundStationDataInterface_parsed.txt:5042200:1780065808710

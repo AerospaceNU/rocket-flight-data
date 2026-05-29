@@ -16,3 +16,6 @@ version,6
 serial,8069
 flight,3
 source_format,AltOS CSV
+has_gps_data,false
+parser_cache_version,4
+source_fingerprint,beanboozler easymini 8069 LDRS L265.csv:627521:1779998472466

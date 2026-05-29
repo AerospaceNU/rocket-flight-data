@@ -12,3 +12,6 @@ peak_velocity_ms,72.14
 peak_acceleration_mss,309.32
 motor,unknown
 flight_notes,
+has_gps_data,true
+parser_cache_version,4
+source_fingerprint,v1super-guppy-4-23-output-post.csv:3197553:1779998472374

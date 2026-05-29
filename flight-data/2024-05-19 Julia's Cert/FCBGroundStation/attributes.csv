@@ -1,0 +1,34 @@
+key,value
+altimeter_name,FCBGroundStation
+flight_location,CRMRC
+flight_date,2024-05-19
+flight_name,Julia's Cert
+altimeter_note,
+importer_id,fcbgroundstation
+imported_at,2026-05-29T14:18:52.684Z
+row_count,8349
+peak_altitude_m,1238.22
+peak_velocity_ms,155.18
+peak_acceleration_mss,96.17
+has_gps_data,true
+parser_cache_version,4
+motor,unknown
+flight_notes,
+source_format,FCB Ground Station parsed log
+time_units,ms
+altitude_units,m
+velocity_units,m/s
+acceleration_units,m/s^2
+run_start,2024-05-19 13:37:32
+source_file_count,1
+packet_counts,"{""Ground Station GPS"":970,""Orientation"":8359,""Position Data"":8359,""Alt Info & Cfg"":1350,""Pyro Info"":1643,""CLI Data"":823}"
+valid_gps_rows,8123
+bad_rows_removed,0
+bad_gps_values_blanked,1575
+bad_numeric_values_blanked,8150
+bad_state_values_blanked,0
+start_timestamp_ms,1201
+end_timestamp_ms,2057405
+packet_count_ground_station_gps,970
+packet_count_cli_data,823
+source_fingerprint,2024-05-19 13-37-32 GroundStationDataInterface_parsed.txt:13192663:1780064554397

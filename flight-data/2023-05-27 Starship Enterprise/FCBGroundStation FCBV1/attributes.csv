@@ -1,0 +1,39 @@
+key,value
+altimeter_name,FCBGroundStation
+flight_location,CRMRC
+flight_date,2023-05-27
+flight_name,Starship Enterprise
+altimeter_note,FCBV1
+importer_id,fcbgroundstation
+imported_at,2026-05-29T14:14:16.843Z
+row_count,9000
+peak_altitude_m,2994.20
+peak_velocity_ms,273.80
+peak_acceleration_mss,87.93
+has_gps_data,true
+parser_cache_version,4
+motor,unknown
+flight_notes,
+source_format,FCB Ground Station parsed log
+time_units,ms
+altitude_units,m
+velocity_units,m/s
+acceleration_units,m/s^2
+run_start,2023-05-27 13:38:13
+source_file_count,1
+packet_counts,"{""Orientation"":8918,""Position Data"":8911,""Alt Info & Cfg"":1445,""Pyro Info"":1778,""Line Cutter Data 0"":3514,""Ground Station GPS"":852,""Line Cutter Vars 0"":350,""Line Cutter Vars 3"":1,""Line Cutter Data"":11,""CLI Data"":2,""Line Cutter Vars 2"":1}"
+valid_gps_rows,8850
+bad_rows_removed,48
+bad_gps_values_blanked,259
+bad_numeric_values_blanked,197
+bad_state_values_blanked,25
+start_timestamp_ms,1344201
+end_timestamp_ms,3408607
+packet_count_line_cutter_data_0,3514
+packet_count_ground_station_gps,852
+packet_count_line_cutter_vars_0,350
+packet_count_line_cutter_vars_3,1
+packet_count_line_cutter_data,11
+packet_count_cli_data,2
+packet_count_line_cutter_vars_2,1
+source_fingerprint,2023-05-27 13-38-13 GroundStationDataInterface_parsed.txt:16368384:1780065808818

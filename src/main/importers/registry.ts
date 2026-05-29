@@ -1,4 +1,5 @@
 import { ALTIMETERS, COMMON_ATTRIBUTES } from '../../shared/importConfig';
+import { fcbGroundStationImporter } from './fcbgroundstation';
 import { easyMiniImporter } from './easymini';
 import { fcbImporter } from './fcb';
 import { rawGpsDataImporter } from './rawgpsdata';
@@ -11,7 +12,8 @@ const importers = new Map<string, AltimeterImporter>([
   [easyMiniImporter.id, easyMiniImporter],
   [stratoLoggerCfImporter.id, stratoLoggerCfImporter],
   [rawGpsDataImporter.id, rawGpsDataImporter],
-  [fcbImporter.id, fcbImporter]
+  [fcbImporter.id, fcbImporter],
+  [fcbGroundStationImporter.id, fcbGroundStationImporter]
 ]);
 
 export function getImportConfig() {

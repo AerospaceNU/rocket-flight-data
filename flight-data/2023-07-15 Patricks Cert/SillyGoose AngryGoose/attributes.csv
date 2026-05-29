@@ -24,3 +24,6 @@ FLIGHT_STATE,0
 BOARD_ORIENTATION,4
 CONFIGURATION_VERSION,1
 FIRMWARE_VERSION,1.00
+has_gps_data,false
+parser_cache_version,4
+source_fingerprint,Flight_1 (1).txt:406098:1779980898616

@@ -1,4 +1,4 @@
-import { access, copyFile, mkdir, open, readdir, readFile, writeFile } from 'node:fs/promises';
+import { access, copyFile, mkdir, open, readdir, readFile, stat, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import {
   getAltimeterDefinition,
@@ -166,32 +166,58 @@ async function writeAttributes(attributesPath: string, attributes: CustomAttribu
   await writeFile(attributesPath, `${attributesCsv}\n`, 'utf8');
 }
 
-const RESERVED_FILE_NAMES = new Set(['attributes.csv', 'log.csv']);
+const ATTRIBUTES_FILE_NAME = 'attributes.csv';
+const LEGACY_GENERATED_LOG_FILE_NAME = 'log.csv';
+const RESERVED_FILE_NAMES = new Set([ATTRIBUTES_FILE_NAME]);
+const PARSE_CACHE_VERSION = '4';
 
 async function copyOriginalFiles(filePaths: string[], destinationDirectory: string) {
   await mkdir(destinationDirectory, { recursive: true });
-  const usedNames = new Set<string>(RESERVED_FILE_NAMES);
+  const usedNames = new Set<string>([...RESERVED_FILE_NAMES].map((fileName) => fileName.toLowerCase()));
 
   for (const filePath of filePaths) {
     const parsed = path.parse(filePath);
     let fileName = parsed.base;
     let copyIndex = 2;
 
-    while (usedNames.has(fileName)) {
+    while (usedNames.has(fileName.toLowerCase())) {
       fileName = `${parsed.name}-${copyIndex}${parsed.ext}`;
       copyIndex += 1;
     }
 
-    usedNames.add(fileName);
+    usedNames.add(fileName.toLowerCase());
     await copyFile(filePath, path.join(destinationDirectory, fileName));
   }
 }
 
 async function listOriginalFilePaths(altimeterDirectory: string): Promise<string[]> {
   const entries = await readdir(altimeterDirectory, { withFileTypes: true });
-  return entries
-    .filter((entry) => entry.isFile() && !RESERVED_FILE_NAMES.has(entry.name))
+
+  const originalFileEntries = entries.filter(
+    (entry) => entry.isFile() && !RESERVED_FILE_NAMES.has(entry.name.toLowerCase())
+  );
+  const hasNonLegacyLogFile = originalFileEntries.some(
+    (entry) => entry.name.toLowerCase() !== LEGACY_GENERATED_LOG_FILE_NAME
+  );
+
+  return originalFileEntries
+    .filter(
+      (entry) =>
+        !(hasNonLegacyLogFile && entry.name.toLowerCase() === LEGACY_GENERATED_LOG_FILE_NAME)
+    )
     .map((entry) => path.join(altimeterDirectory, entry.name));
+}
+
+async function computeSourceFingerprint(altimeterDirectory: string) {
+  const filePaths = await listOriginalFilePaths(altimeterDirectory);
+  const parts = await Promise.all(
+    filePaths.map(async (filePath) => {
+      const fileStat = await stat(filePath);
+      return `${path.basename(filePath)}:${fileStat.size}:${Math.round(fileStat.mtimeMs)}`;
+    })
+  );
+
+  return parts.sort().join('|');
 }
 
 function attributesToRecord(attributes: CustomAttribute[]) {
@@ -284,7 +310,7 @@ function parseNumberAttribute(value: string | undefined): number | null {
 
 async function hasImportedAltimeter(altimeterDirectory: string) {
   try {
-    await access(path.join(altimeterDirectory, 'attributes.csv'));
+    await access(path.join(altimeterDirectory, ATTRIBUTES_FILE_NAME));
     return true;
   } catch {
     return false;
@@ -329,6 +355,13 @@ const METRIC_ATTRIBUTE_KEYS = [
   'peak_acceleration_mss'
 ] as const;
 
+const DERIVED_ATTRIBUTE_KEYS = [
+  ...METRIC_ATTRIBUTE_KEYS,
+  'has_gps_data',
+  'parser_cache_version',
+  'source_fingerprint'
+] as const;
+
 function metricsFromAttributes(attributes: Record<string, string>): Partial<CachedMetrics> {
   const result: Partial<CachedMetrics> = {};
   const rowCount = parseNumberAttribute(attributes.row_count);
@@ -343,6 +376,22 @@ function metricsFromAttributes(attributes: Record<string, string>): Partial<Cach
     result.peakAccelerationMss = parseNumberAttribute(attributes.peak_acceleration_mss);
   }
   return result;
+}
+
+function parseBooleanAttribute(value: string | undefined): boolean | null {
+  if (value === undefined) return null;
+  if (value.toLowerCase() === 'true') return true;
+  if (value.toLowerCase() === 'false') return false;
+  return null;
+}
+
+function hasFreshDerivedAttributes(attributes: Record<string, string>, sourceFingerprint: string) {
+  return (
+    attributes.parser_cache_version === PARSE_CACHE_VERSION &&
+    attributes.source_fingerprint === sourceFingerprint &&
+    metricsFromAttributes(attributes).rowCount !== undefined &&
+    parseBooleanAttribute(attributes.has_gps_data) !== null
+  );
 }
 
 function computeMetricsFromParsed(
@@ -371,83 +420,10 @@ async function parseAltimeterOriginals(
   return importer.parse(filePaths);
 }
 
-async function readSavedLogDataset(
-  altimeterDirectory: string
-): Promise<{ headers: string[]; rows: string[][] } | null> {
-  const logPath = path.join(altimeterDirectory, 'log.csv');
-  try {
-    await access(logPath);
-  } catch {
-    return null;
-  }
-
-  const contents = await readFile(logPath, 'utf8');
-  const parsedRows = parseCsvRows(contents);
-  if (parsedRows.length === 0) {
-    return null;
-  }
-
-  const headers = parsedRows[0]?.map((header) => header.trim()) ?? [];
-  const rows = parsedRows
-    .slice(1)
-    .filter((row) => row.some((cell) => cell.length > 0))
-    .map((row) => headers.map((_, index) => row[index] ?? ''));
-
-  if (headers.length === 0) {
-    return null;
-  }
-
-  return { headers, rows };
-}
-
-async function readSavedLogHeaders(altimeterDirectory: string): Promise<string[] | null> {
-  const logPath = path.join(altimeterDirectory, 'log.csv');
-  try {
-    const handle = await open(logPath, 'r');
-    try {
-      const buffer = Buffer.alloc(64 * 1024);
-      const { bytesRead } = await handle.read(buffer, 0, buffer.length, 0);
-      const contents = buffer.subarray(0, bytesRead).toString('utf8');
-      const firstLine = contents.split(/\r?\n/, 1)[0]?.trim();
-      return firstLine ? parseCsvLine(firstLine).map((header) => header.trim()) : null;
-    } finally {
-      await handle.close();
-    }
-  } catch {
-    return null;
-  }
-}
-
-async function resolveHasGpsData(
-  altimeterDirectory: string,
-  importerId: string | undefined
-): Promise<boolean> {
-  const savedHeaders = await readSavedLogHeaders(altimeterDirectory);
-  if (savedHeaders) {
-    return datasetHasGpsHeaders(savedHeaders);
-  }
-
-  if (!importerId) {
-    return false;
-  }
-
-  try {
-    const parsed = await parseAltimeterOriginals(altimeterDirectory, importerId);
-    return datasetHasGpsHeaders(parsed.headers);
-  } catch {
-    return false;
-  }
-}
-
 async function readDatasetRows(
   altimeterDirectory: string,
   importerId: string
 ): Promise<{ headers: string[]; rows: string[][] }> {
-  const savedLog = await readSavedLogDataset(altimeterDirectory);
-  if (savedLog) {
-    return savedLog;
-  }
-
   const parsed = await parseAltimeterOriginals(altimeterDirectory, importerId);
   return { headers: parsed.headers, rows: parsed.rows };
 }
@@ -484,37 +460,24 @@ function replaceAttribute(attributes: CustomAttribute[], key: string, value: str
   return replaced ? next : [...next, { key, value }];
 }
 
-async function writeSavedLogDataset(
-  altimeterDirectory: string,
-  headers: string[],
-  rows: string[][]
-): Promise<void> {
-  const logPath = path.join(altimeterDirectory, 'log.csv');
-  const csvContents = [csvLine(headers), ...rows.map((row) => csvLine(row))].join('\n');
-  await writeFile(logPath, `${csvContents}\n`, 'utf8');
-}
-
-async function resolveMetrics(
+async function resolveDerivedData(
   altimeterDirectory: string,
   attributesPath: string,
   attributes: Record<string, string>
-): Promise<{ metrics: CachedMetrics; attributes: Record<string, string> }> {
+): Promise<{ metrics: CachedMetrics; hasGpsData: boolean; attributes: Record<string, string> }> {
   const importerId = attributes.importer_id;
   const mapping = importerId ? getStandardColumnsForImporter(importerId) : null;
   const cached = metricsFromAttributes(attributes);
+  const cachedGpsData = parseBooleanAttribute(attributes.has_gps_data);
 
-  // If the importer's mapping defines a metric but it's not yet cached, force a recompute
-  // (catches legacy imports written before the mapping existed).
-  const altitudeStale = !!mapping?.altitudeMeters && cached.peakAltitudeMeters === undefined;
-  const velocityStale =
-    !!mapping?.velocityMetersPerSecond && cached.peakVelocityMs === undefined;
-  const accelStale =
-    !!mapping?.accelerationMetersPerSecondSquared && cached.peakAccelerationMss === undefined;
-  const easyMiniAltitudeStale = importerId === 'easymini' && !!mapping?.altitudeMeters;
-  const rowCountStale = cached.rowCount === undefined;
-  const needsRefresh = rowCountStale || altitudeStale || velocityStale || accelStale || easyMiniAltitudeStale;
+  let sourceFingerprint = '';
+  try {
+    sourceFingerprint = await computeSourceFingerprint(altimeterDirectory);
+  } catch {
+    sourceFingerprint = '';
+  }
 
-  if (!needsRefresh) {
+  if (sourceFingerprint && hasFreshDerivedAttributes(attributes, sourceFingerprint)) {
     return {
       metrics: {
         rowCount: cached.rowCount ?? 0,
@@ -522,6 +485,7 @@ async function resolveMetrics(
         peakVelocityMs: cached.peakVelocityMs ?? null,
         peakAccelerationMss: cached.peakAccelerationMss ?? null
       },
+      hasGpsData: cachedGpsData ?? false,
       attributes
     };
   }
@@ -534,31 +498,64 @@ async function resolveMetrics(
         peakVelocityMs: null,
         peakAccelerationMss: null
       },
+      hasGpsData: false,
       attributes
     };
   }
 
-  const parsed = await readDatasetRows(altimeterDirectory, importerId);
+  let parsed: { headers: string[]; rows: string[][] };
+  try {
+    parsed = await readDatasetRows(altimeterDirectory, importerId);
+  } catch {
+    return {
+      metrics: {
+        rowCount: cached.rowCount ?? 0,
+        peakAltitudeMeters: cached.peakAltitudeMeters ?? null,
+        peakVelocityMs: cached.peakVelocityMs ?? null,
+        peakAccelerationMss: cached.peakAccelerationMss ?? null
+      },
+      hasGpsData: cachedGpsData ?? false,
+      attributes
+    };
+  }
+
   const metrics = computeMetricsFromParsed(parsed, mapping);
+  const hasGpsData = datasetHasGpsHeaders(parsed.headers);
 
   const nextAttributes = { ...attributes };
   nextAttributes.row_count = String(metrics.rowCount);
   if (metrics.peakAltitudeMeters !== null) {
     nextAttributes.peak_altitude_m = metrics.peakAltitudeMeters.toFixed(2);
+  } else {
+    delete nextAttributes.peak_altitude_m;
   }
   if (metrics.peakVelocityMs !== null) {
     nextAttributes.peak_velocity_ms = metrics.peakVelocityMs.toFixed(2);
+  } else {
+    delete nextAttributes.peak_velocity_ms;
   }
   if (metrics.peakAccelerationMss !== null) {
     nextAttributes.peak_acceleration_mss = metrics.peakAccelerationMss.toFixed(2);
+  } else {
+    delete nextAttributes.peak_acceleration_mss;
+  }
+  nextAttributes.has_gps_data = hasGpsData ? 'true' : 'false';
+  nextAttributes.parser_cache_version = PARSE_CACHE_VERSION;
+  if (sourceFingerprint) {
+    nextAttributes.source_fingerprint = sourceFingerprint;
+  } else {
+    delete nextAttributes.source_fingerprint;
   }
 
-  await writeAttributes(
-    attributesPath,
-    Object.entries(nextAttributes).map(([key, value]) => ({ key, value }))
-  );
+  const changed = DERIVED_ATTRIBUTE_KEYS.some((key) => attributes[key] !== nextAttributes[key]);
+  if (changed) {
+    await writeAttributes(
+      attributesPath,
+      Object.entries(nextAttributes).map(([key, value]) => ({ key, value }))
+    );
+  }
 
-  return { metrics, attributes: nextAttributes };
+  return { metrics, hasGpsData, attributes: nextAttributes };
 }
 
 async function createImportedAltimeterSummary(
@@ -568,15 +565,18 @@ async function createImportedAltimeterSummary(
 ): Promise<ImportedAltimeterSummary | null> {
   const parsedFlight = splitFlightDirectoryName(flightDirectoryName);
   const altimeterDirectory = path.join(outputDirectory, flightDirectoryName, altimeterDirectoryName);
-  const attributesPath = path.join(altimeterDirectory, 'attributes.csv');
+  const attributesPath = path.join(altimeterDirectory, ATTRIBUTES_FILE_NAME);
 
   if (!(await hasImportedAltimeter(altimeterDirectory))) {
     return null;
   }
 
   const initialAttributes = attributesToRecord(await readAttributes(attributesPath));
-  const { metrics, attributes } = await resolveMetrics(altimeterDirectory, attributesPath, initialAttributes);
-  const hasGpsData = await resolveHasGpsData(altimeterDirectory, attributes.importer_id);
+  const { metrics, hasGpsData, attributes } = await resolveDerivedData(
+    altimeterDirectory,
+    attributesPath,
+    initialAttributes
+  );
 
   return {
     id: path.join(flightDirectoryName, altimeterDirectoryName),
@@ -677,7 +677,7 @@ export async function readImportedDataset(
     throw new Error('Dataset is missing attributes.csv.');
   }
 
-  const attributes = await readAttributes(path.join(altimeterDirectory, 'attributes.csv'));
+  const attributes = await readAttributes(path.join(altimeterDirectory, ATTRIBUTES_FILE_NAME));
   const storedImporterId = summary.attributes.importer_id;
   if (!storedImporterId) {
     throw new Error('Dataset is missing importer_id attribute; cannot parse originals.');
@@ -712,7 +712,7 @@ export async function saveImportedDatasetAttributes(
   attributes: CustomAttribute[]
 ) {
   const altimeterDirectory = resolveInsideOutputDirectory(outputDirectory, datasetDirectory);
-  const attributesPath = path.join(altimeterDirectory, 'attributes.csv');
+  const attributesPath = path.join(altimeterDirectory, ATTRIBUTES_FILE_NAME);
   await writeAttributes(attributesPath, attributes);
   return readImportedDataset(outputDirectory, altimeterDirectory);
 }
@@ -731,7 +731,7 @@ export async function previewImport(altimeterId: string, filePaths: string[]): P
 }
 
 function detectFromText(contents: string): AltimeterDetectionResult {
-  const firstLines = contents.split(/\r?\n/).slice(0, 30).join('\n');
+  const firstLines = contents.split(/\r?\n/).slice(0, 200).join('\n');
   const lowerFirstLines = firstLines.toLowerCase();
 
   if (
@@ -773,6 +773,20 @@ function detectFromText(contents: string): AltimeterDetectionResult {
       altimeterId: 'fcb',
       confidence: 'high',
       reason: 'FCB CSV header detected.'
+    };
+  }
+
+  if (
+    lowerFirstLines.includes('run start') &&
+    (lowerFirstLines.includes('groundstationdatainterface') ||
+      lowerFirstLines.includes('position data {') ||
+      lowerFirstLines.includes('orientation {')) &&
+    lowerFirstLines.includes('time_stamp_ms')
+  ) {
+    return {
+      altimeterId: 'fcbgroundstation',
+      confidence: 'high',
+      reason: 'FCB ground station parsed log detected.'
     };
   }
 
@@ -862,7 +876,7 @@ export async function saveImport(
   );
   const flightDirectory = path.join(outputDirectory, flightDirectoryName);
   const altimeterDirectory = path.join(flightDirectory, altimeterDirectoryName);
-  const attributesPath = path.join(altimeterDirectory, 'attributes.csv');
+  const attributesPath = path.join(altimeterDirectory, ATTRIBUTES_FILE_NAME);
 
   await mkdir(flightDirectory, { recursive: true });
 
@@ -888,6 +902,8 @@ export async function saveImport(
   if (peaks.peakAccelerationMss !== null) {
     attributes.set('peak_acceleration_mss', peaks.peakAccelerationMss.toFixed(2));
   }
+  attributes.set('has_gps_data', datasetHasGpsHeaders(parsed.headers) ? 'true' : 'false');
+  attributes.set('parser_cache_version', PARSE_CACHE_VERSION);
 
   for (const attribute of request.customAttributes) {
     const key = attribute.key.trim();
@@ -897,7 +913,7 @@ export async function saveImport(
   }
 
   await copyOriginalFiles(parsed.sourceFiles, altimeterDirectory);
-  await writeSavedLogDataset(altimeterDirectory, parsed.headers, parsed.rows);
+  attributes.set('source_fingerprint', await computeSourceFingerprint(altimeterDirectory));
   await writeAttributes(
     attributesPath,
     Array.from(attributes.entries()).map(([key, value]) => ({ key, value }))

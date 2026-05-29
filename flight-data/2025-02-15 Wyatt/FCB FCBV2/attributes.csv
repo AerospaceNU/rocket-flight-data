@@ -21,3 +21,6 @@ trigger_fire_status,-15
 gyro_offset_x,-0.023509979248046875
 gyro_offset_y,0.007815064862370491
 gyro_offset_z,0.0019533042795956135
+has_gps_data,true
+parser_cache_version,4
+source_fingerprint,fcbv2_wyatt_2_15-output-FCB-post.csv:5272665:1779998473645

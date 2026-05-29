@@ -11,3 +11,6 @@ row_count,6164
 peak_altitude_m,923.81
 peak_velocity_ms,196.77
 peak_acceleration_mss,128.58
+has_gps_data,false
+parser_cache_version,4
+source_fingerprint,2026-02-22 V1 Haybales primary pre reboot.txt:847461:1779845853578

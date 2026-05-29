@@ -444,7 +444,7 @@ export function ImportWorkflow({
       <footer className="import-actions">
         {saveResult ? (
           <div className="success-text">
-            Saved {saveResult.rowsWritten} rows to {saveResult.altimeterDirectory}
+            Saved source log, parsed {saveResult.rowsWritten} rows in {saveResult.altimeterDirectory}
           </div>
         ) : null}
         {saveError ? <div className="error-text">{saveError}</div> : null}

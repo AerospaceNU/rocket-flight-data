@@ -11,3 +11,6 @@ row_count,15934
 peak_altitude_m,1916.39
 peak_velocity_ms,268.46
 peak_acceleration_mss,142.80
+has_gps_data,false
+parser_cache_version,4
+source_fingerprint,2025-11-15 V1 Crocket backup.txt:2223966:1779845853519

@@ -82,6 +82,16 @@ export const ALTIMETERS: AltimeterDefinition[] = [
       velocityMetersPerSecond: { column: 'vel_z' },
       accelerationMetersPerSecondSquared: { column: 'acc_z' }
     }
+  },
+  {
+    id: 'fcbgroundstation',
+    name: 'FCBGroundStation',
+    importerId: 'fcbgroundstation',
+    standardColumns: {
+      altitudeMeters: { column: 'altitude_m' },
+      velocityMetersPerSecond: { column: 'velocity_m_s' },
+      accelerationMetersPerSecondSquared: { column: 'accel_total_m_s2' }
+    }
   }
 ];
 

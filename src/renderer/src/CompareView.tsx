@@ -185,6 +185,87 @@ function buildXAxis(dataset: ImportedDataset) {
   });
 }
 
+function estimateLaunchTimeFromAltitude(dataset: ImportedDataset, xValues: number[]) {
+  if (dataset.rows.length < 5 || dataset.rows.length !== xValues.length) {
+    return null;
+  }
+
+  const altitudeIndex = getColumnIndexByAliases(dataset.headers, [
+    'altitude',
+    'altitude_m',
+    'height',
+    'height_m',
+    'altitudem',
+    'gps_alt'
+  ]);
+  const velocityIndex = getColumnIndexByAliases(dataset.headers, [
+    'velocity_m_s',
+    'velocity',
+    'vertical_velocity',
+    'speed_m_s'
+  ]);
+  if (altitudeIndex === null) {
+    return null;
+  }
+
+  const altitudes = dataset.rows.map((row) => parseNumber(row[altitudeIndex]));
+  const baselineSample = altitudes
+    .slice(0, Math.min(30, Math.max(5, Math.floor(altitudes.length * 0.1))))
+    .filter((value): value is number => value !== null);
+  if (baselineSample.length < 5) {
+    return null;
+  }
+
+  const sortedBaseline = [...baselineSample].sort((left, right) => left - right);
+  const baseline = sortedBaseline[Math.floor(sortedBaseline.length / 2)] ?? baselineSample[0];
+
+  if (velocityIndex !== null) {
+    for (let index = 0; index < altitudes.length; index += 1) {
+      const altitude = altitudes[index];
+      const velocity = parseNumber(dataset.rows[index]?.[velocityIndex]);
+      if (altitude === null || velocity === null || altitude < baseline + 0.25 || velocity < 5) {
+        continue;
+      }
+
+      const nextRows = dataset.rows.slice(index, Math.min(index + 7, dataset.rows.length));
+      let lastAltitude: number | null = null;
+      const sustained = nextRows.filter((row) => {
+        const nextAltitude = parseNumber(row[altitudeIndex]);
+        const nextVelocity = parseNumber(row[velocityIndex]);
+        if (nextAltitude !== null) {
+          lastAltitude = nextAltitude;
+        }
+        return nextAltitude !== null && nextVelocity !== null && nextAltitude >= baseline + 0.25 && nextVelocity > 2;
+      });
+
+      if (sustained.length >= 4 && lastAltitude !== null && lastAltitude >= baseline + 8) {
+        return xValues[index] ?? null;
+      }
+    }
+  }
+
+  for (let index = 0; index < altitudes.length; index += 1) {
+    const altitude = altitudes[index];
+    const velocity = velocityIndex === null ? null : parseNumber(dataset.rows[index]?.[velocityIndex]);
+    if (altitude === null || altitude < baseline + 8 || (velocity !== null && velocity < 2)) {
+      continue;
+    }
+
+    const nextRows = dataset.rows.slice(index, Math.min(index + 5, dataset.rows.length));
+    const sustained = nextRows.filter((row) => {
+      const nextAltitude = parseNumber(row[altitudeIndex]);
+      const nextVelocity = velocityIndex === null ? null : parseNumber(row[velocityIndex]);
+      return nextAltitude !== null && nextAltitude >= baseline + 8 && (nextVelocity === null || nextVelocity > 0);
+    });
+
+    if (sustained.length >= 3) {
+      return xValues[index] ?? null;
+    }
+  }
+
+  return null;
+}
+
 function getImporterId(dataset: ImportedDataset) {
   return dataset.attributes.find((attribute) => attribute.key === 'importer_id')?.value ??
     dataset.summary.attributes.importer_id ??
@@ -194,9 +275,12 @@ function getImporterId(dataset: ImportedDataset) {
 function buildEventWindow(dataset: ImportedDataset, xValues: number[]) {
   const importerId = getImporterId(dataset);
   const isFcb = importerId === 'fcb';
+  const isFcbGroundStation = importerId === 'fcbgroundstation';
   const stateIndex = isFcb
     ? getColumnIndex(dataset.headers, 'state')
-    : getColumnIndex(dataset.headers, 'flightState') ?? getColumnIndex(dataset.headers, 'state');
+    : isFcbGroundStation
+      ? null
+      : getColumnIndex(dataset.headers, 'flightState') ?? getColumnIndex(dataset.headers, 'state');
   let launchTime: number | null = null;
   let endTime: number | null = null;
 
@@ -221,6 +305,9 @@ function buildEventWindow(dataset: ImportedDataset, xValues: number[]) {
 
   const first = xValues[0] ?? 0;
   const last = xValues[xValues.length - 1] ?? first;
+  if (launchTime === null) {
+    launchTime = estimateLaunchTimeFromAltitude(dataset, xValues);
+  }
   const start = launchTime ?? first;
   const end = endTime ?? last;
   return { launchOffset: launchTime ?? 0, start, end };

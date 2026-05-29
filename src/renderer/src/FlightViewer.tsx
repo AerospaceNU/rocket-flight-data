@@ -88,6 +88,7 @@ const FCB_END_STATE = 5;
 const MAX_EVENT_MARKERS = 200;
 const EVENT_SOURCE_PRIORITY: Record<string, number> = {
   fcb: 4,
+  fcbgroundstation: 4,
   sillygoose: 3,
   easymini: 2,
   stratologgercf: 1
@@ -272,12 +273,13 @@ function buildEventMarkers(dataset: ImportedDataset, xValues: number[]) {
     return record;
   }, {});
   const importerId = attributes.importer_id ?? '';
+  const isFcbGroundStation = importerId === 'fcbgroundstation';
   const isFcb = importerId === 'fcb';
 
-  const flightStateIndex = isFcb ? null : getColumnIndex(dataset.headers, 'flightState');
+  const flightStateIndex = isFcb || isFcbGroundStation ? null : getColumnIndex(dataset.headers, 'flightState');
   const fcbStateIndex = isFcb ? getColumnIndex(dataset.headers, 'state') : null;
   const easyMiniStateIndex =
-    isFcb || flightStateIndex !== null ? null : getColumnIndex(dataset.headers, 'state');
+    isFcb || isFcbGroundStation || flightStateIndex !== null ? null : getColumnIndex(dataset.headers, 'state');
   const stateIndex = flightStateIndex ?? fcbStateIndex ?? easyMiniStateIndex;
   const stateNameIndex = getColumnIndex(dataset.headers, 'state_name');
   const drogueFiredIndex = getColumnIndex(dataset.headers, 'drogueFired');
@@ -742,13 +744,15 @@ function computeNorthAlignmentDegrees(
 function estimateGpsLaunchTime(
   rows: string[][],
   xValues: number[],
-  altitudeIndex: number
+  altitudeIndex: number,
+  velocityIndex: number | null = null
 ): number | null {
   if (rows.length < 5 || xValues.length !== rows.length) {
     return null;
   }
 
   const altitudes = rows.map((row) => parseNumber(row[altitudeIndex]));
+  const velocities = velocityIndex === null ? null : rows.map((row) => parseNumber(row[velocityIndex]));
   const baselineSample = altitudes
     .slice(0, Math.min(30, Math.max(5, Math.floor(altitudes.length * 0.1))))
     .filter((value): value is number => value !== null);
@@ -759,6 +763,36 @@ function estimateGpsLaunchTime(
 
   const sortedBaseline = [...baselineSample].sort((left, right) => left - right);
   const baseline = sortedBaseline[Math.floor(sortedBaseline.length / 2)] ?? baselineSample[0];
+
+  if (velocities) {
+    for (let index = 0; index < altitudes.length; index += 1) {
+      const altitude = altitudes[index];
+      const velocity = velocities[index];
+      if (altitude === null || velocity === null || altitude < baseline + 0.25 || velocity < 5) {
+        continue;
+      }
+
+      const lookaheadEnd = Math.min(index + 7, altitudes.length);
+      let sustainedCount = 0;
+      let lastAltitude: number | null = null;
+
+      for (let lookahead = index; lookahead < lookaheadEnd; lookahead += 1) {
+        const nextAltitude = altitudes[lookahead];
+        const nextVelocity = velocities[lookahead];
+        if (nextAltitude !== null) {
+          lastAltitude = nextAltitude;
+        }
+        if (nextAltitude !== null && nextVelocity !== null && nextAltitude >= baseline + 0.25 && nextVelocity > 2) {
+          sustainedCount += 1;
+        }
+      }
+
+      if (sustainedCount >= 4 && lastAltitude !== null && lastAltitude >= baseline + 8) {
+        return xValues[index] ?? null;
+      }
+    }
+  }
+
   const threshold = baseline + 15;
 
   for (let index = 0; index < altitudes.length; index += 1) {
@@ -1070,7 +1104,13 @@ export function FlightViewer({
       return 0;
     }
 
-    return estimateGpsLaunchTime(dataset.rows, rawXAxis.values, gpsColumns.altitudeIndex) ?? 0;
+    const velocityIndex = getColumnIndexByAliases(dataset.headers, [
+      'velocity_m_s',
+      'velocity',
+      'vertical_velocity',
+      'speed_m_s'
+    ]);
+    return estimateGpsLaunchTime(dataset.rows, rawXAxis.values, gpsColumns.altitudeIndex, velocityIndex) ?? 0;
   }, [dataset, gpsColumns, rawEventData.launchTime, rawXAxis.values]);
 
   const xAxis = useMemo(
@@ -1083,16 +1123,22 @@ export function FlightViewer({
   const xValues = xAxis.values;
 
   const eventData = useMemo(
-    () =>
-      launchOffset === 0
-        ? rawEventData
-        : {
-            ...rawEventData,
-            events: rawEventData.events.map((event) => ({ ...event, time: event.time - launchOffset })),
-            flightStartTime: rawEventData.flightStartTime - launchOffset,
-            flightEndTime: rawEventData.flightEndTime - launchOffset
-          },
-    [rawEventData, launchOffset]
+    () => {
+      if (launchOffset === 0) {
+        return rawEventData;
+      }
+
+      const relativeEndTime = (rawXAxis.values[rawXAxis.values.length - 1] ?? launchOffset) - launchOffset;
+      const hasEventLaunch = rawEventData.launchTime !== null;
+
+      return {
+        ...rawEventData,
+        events: rawEventData.events.map((event) => ({ ...event, time: event.time - launchOffset })),
+        flightStartTime: hasEventLaunch ? rawEventData.flightStartTime - launchOffset : 0,
+        flightEndTime: hasEventLaunch ? rawEventData.flightEndTime - launchOffset : relativeEndTime
+      };
+    },
+    [rawEventData, launchOffset, rawXAxis.values]
   );
 
   const dataWindow = useMemo(

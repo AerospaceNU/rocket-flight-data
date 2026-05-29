@@ -1,0 +1,37 @@
+key,value
+altimeter_name,FCBGroundStation
+flight_location,FAR
+flight_date,2023-07-01
+flight_name,Branstormz
+altimeter_note,
+importer_id,fcbgroundstation
+imported_at,2026-05-29T14:17:15.202Z
+row_count,331
+peak_altitude_m,742.32
+peak_velocity_ms,118.63
+peak_acceleration_mss,0.00
+has_gps_data,true
+parser_cache_version,4
+motor,unknown
+flight_notes,
+source_format,FCB Ground Station parsed log
+time_units,ms
+altitude_units,m
+velocity_units,m/s
+acceleration_units,m/s^2
+run_start,2023-07-01 12:44:33
+source_file_count,1
+packet_counts,"{""GPS Passthrough"":411,""Groundstation Status"":64,""Orientation"":315,""Position Data"":380,""Pyro Info"":69,""Line Cutter Data"":144,""Alt Info & Cfg"":61,""Line Cutter Vars"":16,""CLI Data"":1}"
+valid_gps_rows,326
+bad_rows_removed,16
+bad_gps_values_blanked,301
+bad_numeric_values_blanked,70
+bad_state_values_blanked,47
+start_timestamp_ms,1430814
+end_timestamp_ms,1571582
+packet_count_gps_passthrough,411
+packet_count_groundstation_status,64
+packet_count_line_cutter_data,144
+packet_count_line_cutter_vars,16
+packet_count_cli_data,1
+source_fingerprint,GroundStationDataInterface_parsed.txt:612010:1780065277566
