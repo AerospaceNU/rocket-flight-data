@@ -1,0 +1,14 @@
+key,value
+altimeter_name,FCB
+flight_location,CRMRC
+flight_date,2022-11-19
+flight_name,Spruce Goose
+altimeter_note,FCBV0
+importer_id,fcb
+imported_at,2026-05-29T01:35:09.950Z
+row_count,6534
+peak_altitude_m,490.73
+peak_velocity_ms,95.11
+peak_acceleration_mss,160.52
+motor,unknown
+flight_notes,

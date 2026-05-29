@@ -1,0 +1,20 @@
+key,value
+altimeter_name,FCB
+flight_location,CRMRC
+flight_date,2023-04-15
+flight_name,Beanstack
+altimeter_note,FCBV0
+importer_id,fcb
+imported_at,2026-05-28T21:25:14.100Z
+row_count,5000
+peak_altitude_m,649.65
+peak_velocity_ms,107.33
+peak_acceleration_mss,137.92
+motor,unknown 
+flight_notes,2 stage
+pressure_ref,0.9934900074019245
+gravity_ref,1
+launched,1
+gps_timestamp,2023-04-15T18:18:15.000Z
+apogee_timestamp,1970-01-12T10:14:52.000Z
+trigger_fire_status,-64

@@ -1,0 +1,14 @@
+key,value
+altimeter_name,FCB
+flight_location,LDRS
+flight_date,2022-06-11
+flight_name,Beanboozler
+altimeter_note,FCBV0
+importer_id,fcb
+imported_at,2026-05-29T01:40:36.639Z
+row_count,21291
+peak_altitude_m,5429.36
+peak_velocity_ms,0.00
+peak_acceleration_mss,111.26
+motor,unknown
+flight_notes,

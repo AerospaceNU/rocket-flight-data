@@ -1,0 +1,18 @@
+key,value
+altimeter_name,EasyMini
+flight_location,CRMRC
+flight_date,2022-04-23
+flight_name,Super Guppy
+altimeter_note,
+importer_id,easymini
+imported_at,2026-05-29T01:44:30.931Z
+row_count,1725
+peak_altitude_m,255.33
+peak_velocity_ms,61.56
+peak_acceleration_mss,30.18
+motor,unknown
+flight_notes,
+version,6
+serial,6357
+flight,11
+source_format,AltOS CSV
