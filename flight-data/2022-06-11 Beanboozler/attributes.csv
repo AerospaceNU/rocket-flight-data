@@ -1,0 +1,8 @@
+key,value
+flight_date,2022-06-11
+flight_name,Beanboozler
+flight_location,LDRS
+motor,unknown
+peak_altitude_m,5429.36
+peak_velocity_ms,328.86
+peak_acceleration_mss,111.26

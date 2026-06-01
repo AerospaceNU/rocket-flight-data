@@ -1,8 +1,5 @@
 key,value
 altimeter_name,SillyGoose
-flight_location,CRMRC
-flight_date,2023-03-18
-flight_name,Patrick's Cert
 altimeter_note,EggThing
 importer_id,sillygoose
 imported_at,2026-05-28T23:14:14.379Z
@@ -10,7 +7,6 @@ row_count,11206
 peak_altitude_m,380.85
 peak_velocity_ms,86.28
 peak_acceleration_mss,71.21
-motor,unknown
 flight_notes,"the altimeter was and egg something, but I didn't want to add an import script for that, so this is formated as sillygoose data "
 converted_from,03-18-2023 11-17-42 GroundStationDataInterface_parsed.txt
 conversion,groundstation_to_sillygoose

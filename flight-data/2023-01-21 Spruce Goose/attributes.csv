@@ -1,0 +1,8 @@
+key,value
+flight_date,2023-01-21
+flight_name,Spruce Goose
+flight_location,CRMRC
+motor,unknown
+peak_altitude_m,345.76
+peak_velocity_ms,81.13
+peak_acceleration_mss,142.16

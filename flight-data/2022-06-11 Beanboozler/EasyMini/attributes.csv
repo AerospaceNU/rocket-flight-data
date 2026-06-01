@@ -1,8 +1,5 @@
 key,value
 altimeter_name,EasyMini
-flight_location,unknown
-flight_date,2022-06-11
-flight_name,Beanboozler
 altimeter_note,
 importer_id,easymini
 imported_at,2026-05-29T01:42:14.919Z
@@ -10,7 +7,6 @@ row_count,5975
 peak_altitude_m,4505.60
 peak_velocity_ms,328.86
 peak_acceleration_mss,86.59
-motor,unknown
 flight_notes,
 version,6
 serial,8069

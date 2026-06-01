@@ -1,8 +1,5 @@
 key,value
 altimeter_name,FCB
-flight_location,Huntsville
-flight_date,2025-05-04
-flight_name,MBTA
 altimeter_note,FCBV0
 importer_id,fcb
 imported_at,2026-05-29T01:16:53.338Z
@@ -10,7 +7,6 @@ row_count,7212
 peak_altitude_m,1329.99
 peak_velocity_ms,153.64
 peak_acceleration_mss,143.57
-motor,L805
 flight_notes,
 pressure_ref,0.9717579570688379
 gravity_ref,1

@@ -1,8 +1,5 @@
 key,value
 altimeter_name,FCBGroundStation
-flight_location,FAR
-flight_date,2023-07-01
-flight_name,Branstormz
 altimeter_note,
 importer_id,fcbgroundstation
 imported_at,2026-05-29T14:17:15.202Z
@@ -12,7 +9,6 @@ peak_velocity_ms,118.63
 peak_acceleration_mss,0.00
 has_gps_data,true
 parser_cache_version,4
-motor,unknown
 flight_notes,
 source_format,FCB Ground Station parsed log
 time_units,ms

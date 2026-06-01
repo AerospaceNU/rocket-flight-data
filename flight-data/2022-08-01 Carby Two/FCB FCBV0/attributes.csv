@@ -1,15 +1,11 @@
 key,value
 altimeter_name,FCB
-flight_location,LDRS
-flight_date,2022-08-01
-flight_name,Carby Two
 altimeter_note,FCBV0
 importer_id,fcb
 imported_at,2026-05-29T01:37:49.137Z
 row_count,4059
 peak_altitude_m,1157.32
 peak_velocity_ms,766.16
-motor,unknown
 flight_notes,
 has_gps_data,true
 parser_cache_version,4

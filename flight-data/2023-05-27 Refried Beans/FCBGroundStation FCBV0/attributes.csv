@@ -1,8 +1,5 @@
 key,value
 altimeter_name,FCBGroundStation
-flight_location,CRMRC
-flight_date,2023-05-27
-flight_name,Refried Beans
 altimeter_note,FCBV0
 importer_id,fcbgroundstation
 imported_at,2026-05-29T13:33:07.894Z
@@ -10,7 +7,6 @@ row_count,3218
 peak_altitude_m,98.14
 peak_velocity_ms,34.51
 peak_acceleration_mss,64.71
-motor,unknown
 flight_notes,
 source_format,FCB Ground Station parsed log
 time_units,ms

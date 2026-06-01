@@ -32,6 +32,11 @@ declare global {
         datasetDirectory: string;
         attributes: CustomAttribute[];
       }) => Promise<ImportedDataset>;
+      readFlightAttributes: (flightDirectoryName: string) => Promise<CustomAttribute[]>;
+      saveFlightAttributes: (request: {
+        flightDirectoryName: string;
+        attributes: CustomAttribute[];
+      }) => Promise<FlightSummary[]>;
       previewImport: (request: {
         altimeterId: string;
         filePaths: string[];

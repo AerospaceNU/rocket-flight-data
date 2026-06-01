@@ -1,0 +1,8 @@
+key,value
+flight_date,2023-04-15
+flight_name,Beanstack
+flight_location,CRMRC
+motor,unknown 
+peak_altitude_m,649.65
+peak_velocity_ms,107.33
+peak_acceleration_mss,137.92

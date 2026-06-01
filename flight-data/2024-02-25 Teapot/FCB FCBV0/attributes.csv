@@ -1,8 +1,5 @@
 key,value
 altimeter_name,FCB
-flight_location,CRMRC
-flight_date,2024-02-25
-flight_name,Teapot
 altimeter_note,FCBV0
 importer_id,fcb
 imported_at,2026-05-28T23:01:10.711Z
@@ -10,7 +7,6 @@ row_count,2043
 peak_altitude_m,591.52
 peak_velocity_ms,109.00
 peak_acceleration_mss,205.23
-motor,unknown
 flight_notes,
 pressure_ref,0.9968295090056748
 gravity_ref,1

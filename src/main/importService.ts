@@ -174,6 +174,93 @@ async function writeAttributes(attributesPath: string, attributes: CustomAttribu
 const ATTRIBUTES_FILE_NAME = 'attributes.csv';
 const LEGACY_GENERATED_LOG_FILE_NAME = 'log.csv';
 const RESERVED_FILE_NAMES = new Set([ATTRIBUTES_FILE_NAME]);
+
+// Keys that live in the per-flight attributes.csv (<flight>/attributes.csv) and
+// are authoritative: they are shared by every altimeter in the flight and edited
+// in one place. A value here overrides any leftover copy in an altimeter file.
+export const FLIGHT_LEVEL_ATTRIBUTE_KEYS = [
+  'flight_date',
+  'flight_name',
+  'flight_location',
+  'motor'
+] as const;
+
+function flightAttributesPath(outputDirectory: string, flightDirectoryName: string) {
+  return path.join(outputDirectory, flightDirectoryName, ATTRIBUTES_FILE_NAME);
+}
+
+async function readFlightAttributesRecord(
+  outputDirectory: string,
+  flightDirectoryName: string
+): Promise<Record<string, string>> {
+  try {
+    return attributesToRecord(await readAttributes(flightAttributesPath(outputDirectory, flightDirectoryName)));
+  } catch {
+    return {};
+  }
+}
+
+// Overlay the authoritative flight-level keys onto a record (used for the in-memory
+// summary/dataset only; never written back into altimeter files).
+function mergeFlightLevelAttributes(
+  altimeterAttributes: Record<string, string>,
+  flightAttributes: Record<string, string>
+): Record<string, string> {
+  const merged = { ...altimeterAttributes };
+  for (const key of FLIGHT_LEVEL_ATTRIBUTE_KEYS) {
+    if (flightAttributes[key] !== undefined && flightAttributes[key] !== '') {
+      merged[key] = flightAttributes[key];
+    }
+  }
+  return merged;
+}
+
+const FLIGHT_LEVEL_KEY_SET = new Set<string>(FLIGHT_LEVEL_ATTRIBUTE_KEYS);
+
+function isFlightLevelKey(key: string) {
+  return FLIGHT_LEVEL_KEY_SET.has(key);
+}
+
+async function writeFlightAttributesRecord(
+  outputDirectory: string,
+  flightDirectoryName: string,
+  record: Record<string, string>
+) {
+  await writeAttributes(
+    flightAttributesPath(outputDirectory, flightDirectoryName),
+    Object.entries(record).map(([key, value]) => ({ key, value }))
+  );
+}
+
+// Update the per-flight attributes.csv with the authoritative manual keys taken
+// from `source`, plus a running max of the flight's aggregate peaks. Preserves
+// any other keys already present in the flight file.
+async function upsertFlightAttributes(
+  outputDirectory: string,
+  flightDirectoryName: string,
+  source: Record<string, string>,
+  peaks: { peakAltitudeMeters: number | null; peakVelocityMs: number | null; peakAccelerationMss: number | null }
+) {
+  const existing = await readFlightAttributesRecord(outputDirectory, flightDirectoryName);
+  const next = { ...existing };
+
+  for (const key of FLIGHT_LEVEL_ATTRIBUTE_KEYS) {
+    if (source[key] !== undefined && source[key] !== '') {
+      next[key] = source[key];
+    }
+  }
+
+  const maxPeak = (key: string, value: number | null, digits: number) => {
+    if (value === null) return;
+    const previous = parseNumberAttribute(next[key]);
+    next[key] = (previous === null ? value : Math.max(previous, value)).toFixed(digits);
+  };
+  maxPeak('peak_altitude_m', peaks.peakAltitudeMeters, 2);
+  maxPeak('peak_velocity_ms', peaks.peakVelocityMs, 2);
+  maxPeak('peak_acceleration_mss', peaks.peakAccelerationMss, 2);
+
+  await writeFlightAttributesRecord(outputDirectory, flightDirectoryName, next);
+}
 const PARSE_CACHE_VERSION = '4';
 
 async function copyOriginalFiles(filePaths: string[], destinationDirectory: string) {
@@ -551,7 +638,8 @@ async function resolveDerivedData(
 async function createImportedAltimeterSummary(
   outputDirectory: string,
   flightDirectoryName: string,
-  altimeterDirectoryName: string
+  altimeterDirectoryName: string,
+  flightAttributes?: Record<string, string>
 ): Promise<ImportedAltimeterSummary | null> {
   const parsedFlight = splitFlightDirectoryName(flightDirectoryName);
   const altimeterDirectory = path.join(outputDirectory, flightDirectoryName, altimeterDirectoryName);
@@ -568,24 +656,30 @@ async function createImportedAltimeterSummary(
     initialAttributes
   );
 
+  // Authoritative flight-level values (motor, location, date, name) come from the
+  // per-flight attributes.csv when present; fall back to any value still in the
+  // altimeter file (legacy / unmigrated), then to the folder name.
+  const flightLevel = flightAttributes ?? (await readFlightAttributesRecord(outputDirectory, flightDirectoryName));
+  const mergedAttributes = mergeFlightLevelAttributes(attributes, flightLevel);
+
   return {
     id: path.join(flightDirectoryName, altimeterDirectoryName),
     flightDirectoryName,
-    flightDate: attributes.flight_date ?? parsedFlight.date,
-    flightName: attributes.flight_name ?? parsedFlight.name,
-    flightLocation: attributes.flight_location ?? '',
+    flightDate: mergedAttributes.flight_date ?? parsedFlight.date,
+    flightName: mergedAttributes.flight_name ?? parsedFlight.name,
+    flightLocation: mergedAttributes.flight_location ?? '',
     altimeterDirectoryName,
     altimeterDirectory,
-    altimeterName: attributes.altimeter_name ?? altimeterDirectoryName,
-    altimeterNote: attributes.altimeter_note ?? '',
-    motor: attributes.motor ?? '',
-    flightNotes: attributes.flight_notes ?? '',
+    altimeterName: mergedAttributes.altimeter_name ?? altimeterDirectoryName,
+    altimeterNote: mergedAttributes.altimeter_note ?? '',
+    motor: mergedAttributes.motor ?? '',
+    flightNotes: mergedAttributes.flight_notes ?? '',
     hasGpsData,
     peakAltitudeMeters: metrics.peakAltitudeMeters,
     peakVelocityMs: metrics.peakVelocityMs,
     peakAccelerationMss: metrics.peakAccelerationMss,
     rowCount: metrics.rowCount,
-    attributes
+    attributes: mergedAttributes
   };
 }
 
@@ -608,13 +702,19 @@ export async function listFlights(outputDirectory: string): Promise<FlightSummar
       withFileTypes: true
     });
     const altimeters: ImportedAltimeterSummary[] = [];
+    const flightAttributes = await readFlightAttributesRecord(outputDirectory, entry.name);
 
     for (const altimeterEntry of altimeterEntries) {
       if (!altimeterEntry.isDirectory()) {
         continue;
       }
 
-      const summary = await createImportedAltimeterSummary(outputDirectory, entry.name, altimeterEntry.name);
+      const summary = await createImportedAltimeterSummary(
+        outputDirectory,
+        entry.name,
+        altimeterEntry.name,
+        flightAttributes
+      );
 
       if (summary) {
         altimeters.push(summary);
@@ -704,8 +804,30 @@ export async function saveImportedDatasetAttributes(
 ) {
   const altimeterDirectory = resolveInsideOutputDirectory(outputDirectory, datasetDirectory);
   const attributesPath = path.join(altimeterDirectory, ATTRIBUTES_FILE_NAME);
-  await writeAttributes(attributesPath, attributes);
+  // Flight-level keys (motor, location, date, name) live in the per-flight file;
+  // never persist them back into an altimeter file.
+  const altimeterAttributes = attributes.filter((attribute) => !isFlightLevelKey(attribute.key));
+  await writeAttributes(attributesPath, altimeterAttributes);
   return readImportedDataset(outputDirectory, altimeterDirectory);
+}
+
+export async function readFlightAttributes(
+  outputDirectory: string,
+  flightDirectoryName: string
+): Promise<CustomAttribute[]> {
+  resolveInsideOutputDirectory(outputDirectory, path.join(outputDirectory, flightDirectoryName));
+  const record = await readFlightAttributesRecord(outputDirectory, flightDirectoryName);
+  return Object.entries(record).map(([key, value]) => ({ key, value }));
+}
+
+export async function saveFlightAttributes(
+  outputDirectory: string,
+  flightDirectoryName: string,
+  attributes: CustomAttribute[]
+): Promise<FlightSummary[]> {
+  resolveInsideOutputDirectory(outputDirectory, path.join(outputDirectory, flightDirectoryName));
+  await writeAttributes(flightAttributesPath(outputDirectory, flightDirectoryName), attributes);
+  return listFlights(outputDirectory);
 }
 
 export async function previewImport(altimeterId: string, filePaths: string[]): Promise<ImportPreview> {
@@ -877,11 +999,17 @@ export async function saveImport(
     throw new Error(`An altimeter import already exists at ${altimeterDirectory}`);
   }
 
+  // Flight-level values are written to the per-flight attributes.csv, not the
+  // altimeter file. motor (and any other flight-level custom key) is captured
+  // from the request below.
+  const flightLevelValues: Record<string, string> = {
+    flight_date: flightDate,
+    flight_name: flightName,
+    flight_location: flightLocation
+  };
+
   const attributes = new Map<string, string>();
   attributes.set('altimeter_name', altimeter.name);
-  attributes.set('flight_location', flightLocation);
-  attributes.set('flight_date', flightDate);
-  attributes.set('flight_name', flightName);
   attributes.set('altimeter_note', request.altimeterNote.trim());
   attributes.set('importer_id', importer.id);
   attributes.set('imported_at', new Date().toISOString());
@@ -902,7 +1030,10 @@ export async function saveImport(
 
   for (const attribute of request.customAttributes) {
     const key = attribute.key.trim();
-    if (key) {
+    if (!key) continue;
+    if (isFlightLevelKey(key)) {
+      flightLevelValues[key] = attribute.value;
+    } else {
       attributes.set(key, attribute.value);
     }
   }
@@ -913,6 +1044,8 @@ export async function saveImport(
     attributesPath,
     Array.from(attributes.entries()).map(([key, value]) => ({ key, value }))
   );
+
+  await upsertFlightAttributes(outputDirectory, flightDirectoryName, flightLevelValues, peaks);
 
   const summary = await createImportedAltimeterSummary(
     outputDirectory,

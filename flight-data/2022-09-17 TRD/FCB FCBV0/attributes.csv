@@ -1,8 +1,5 @@
 key,value
 altimeter_name,FCB
-flight_location,CRMRC
-flight_date,2022-09-17
-flight_name,TRD
 altimeter_note,FCBV0
 importer_id,fcb
 imported_at,2026-05-28T22:25:21.998Z
@@ -10,7 +7,6 @@ row_count,7545
 peak_altitude_m,657.76
 peak_velocity_ms,111.01
 peak_acceleration_mss,95.00
-motor,unknown
 flight_notes,
 has_gps_data,true
 parser_cache_version,4

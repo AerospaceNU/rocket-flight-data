@@ -15,7 +15,9 @@ import {
   ensureOutputDirectory,
   listFlights,
   previewImport,
+  readFlightAttributes,
   readImportedDataset,
+  saveFlightAttributes,
   saveImport,
   saveImportedDatasetAttributes,
   type SaveImportRequest
@@ -408,6 +410,26 @@ ipcMain.handle(
         attributeCount: request.attributes.length
       },
       () => saveImportedDatasetAttributes(outputDirectory, request.datasetDirectory, request.attributes)
+    )
+);
+ipcMain.handle('flight:read-attributes', (_event, flightDirectoryName: string) =>
+  runLogged(
+    'ipc:flight:read-attributes',
+    { flightDirectoryName, outputDirectory },
+    () => readFlightAttributes(outputDirectory, flightDirectoryName)
+  )
+);
+ipcMain.handle(
+  'flight:save-attributes',
+  (_event, request: { flightDirectoryName: string; attributes: { key: string; value: string }[] }) =>
+    runLogged(
+      'ipc:flight:save-attributes',
+      {
+        flightDirectoryName: request.flightDirectoryName,
+        outputDirectory,
+        attributeCount: request.attributes.length
+      },
+      () => saveFlightAttributes(outputDirectory, request.flightDirectoryName, request.attributes)
     )
 );
 ipcMain.handle(
