@@ -1,11 +1,11 @@
 import type { GpsMapPoint } from '../GpsMapView';
 import {
-  automaticChecksEnabled,
+  autoDetectEnabled,
   getColumnIndexByAliases,
   isValidLatitude,
   isValidLongitude,
   parseNumber,
-  type AutomaticCheckOptions
+  type AutoDetectOptions
 } from './core';
 
 export type GpsPositionColumns = {
@@ -39,7 +39,7 @@ function scoreGpsColumnPair(rows: string[][], latitudeIndex: number, longitudeIn
   return { validCount, localLookingCount };
 }
 
-export function findGpsColumns(headers: string[], rows: string[][], options?: AutomaticCheckOptions): GpsPositionColumns | null {
+export function findGpsColumns(headers: string[], rows: string[][], options?: AutoDetectOptions): GpsPositionColumns | null {
   const pairs = [
     { latitudeAliases: ['latitude'], longitudeAliases: ['longitude'] },
     { latitudeAliases: ['lat'], longitudeAliases: ['lon', 'lng'] },
@@ -70,7 +70,7 @@ export function findGpsColumns(headers: string[], rows: string[][], options?: Au
     return null;
   }
 
-  if (automaticChecksEnabled(options)) {
+  if (autoDetectEnabled(options)) {
     candidates.sort((left, right) => {
       const leftLocalRatio = left.localLookingCount / left.validCount;
       const rightLocalRatio = right.localLookingCount / right.validCount;

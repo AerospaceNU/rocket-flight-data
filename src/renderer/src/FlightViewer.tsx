@@ -326,9 +326,9 @@ function isEventSourceImporter(importerId: string) {
   return importerId in EVENT_SOURCE_PRIORITY;
 }
 
-function relativeEventMarkers(dataset: ImportedDataset, automaticChecks: boolean): FlightEventMarker[] {
-  const rawXAxis = buildXAxis(dataset, { automaticChecks });
-  const rawEventData = buildEventMarkers(dataset, rawXAxis.values, { automaticChecks });
+function relativeEventMarkers(dataset: ImportedDataset, autoDetect: boolean): FlightEventMarker[] {
+  const rawXAxis = buildXAxis(dataset, { autoDetect });
+  const rawEventData = buildEventMarkers(dataset, rawXAxis.values, { autoDetect });
   const launchOffset = rawEventData.launchTime ?? 0;
   const importerId = getImporterId(dataset);
   const priority = EVENT_SOURCE_PRIORITY[importerId] ?? 0;
@@ -416,12 +416,12 @@ function eventColorForLabel(label: string): [number, number, number, number] {
 function buildGpsEventMarkers(
   points: GpsMapPoint[],
   datasets: ImportedDataset[],
-  automaticChecks: boolean
+  autoDetect: boolean
 ): GpsEventMarker[] {
   const deduped = dedupeFlightEventMarkers(
     datasets
       .filter((dataset) => isEventSourceImporter(getImporterId(dataset)))
-      .flatMap((dataset) => relativeEventMarkers(dataset, automaticChecks))
+      .flatMap((dataset) => relativeEventMarkers(dataset, autoDetect))
   );
 
   return deduped
@@ -467,7 +467,8 @@ export function FlightViewer({
   const [selectedSeries, setSelectedSeries] = useState<number[]>([]);
   const [hoverText, setHoverText] = useState('Hover over the chart to inspect values.');
   const [showFullData, setShowFullData] = useState(false);
-  const [automaticChecks, setAutomaticChecks] = useState(true);
+  const [sanitizeData, setSanitizeData] = useState(true);
+  const [autoDetect, setAutoDetect] = useState(true);
   const [rawPage, setRawPage] = useState(0);
   const [saveStatus, setSaveStatus] = useState('');
   const [saveError, setSaveError] = useState('');
@@ -507,11 +508,11 @@ export function FlightViewer({
     const started = performance.now();
     void window.appBridge.debugLog('viewer:read-dataset:start', {
       selectedDirectory,
-      sanitize: automaticChecks
+      sanitize: sanitizeData
     });
 
     window.appBridge
-      .readDataset(selectedDirectory, { sanitize: automaticChecks })
+      .readDataset(selectedDirectory, { sanitize: sanitizeData })
       .then((nextDataset) => {
         if (ignore) return;
         setDataset(nextDataset);
@@ -521,7 +522,7 @@ export function FlightViewer({
         setSelectedSeries(
           defaultSeries(
             nextDataset.headers,
-            getTimeColumn(nextDataset.headers, nextDataset.rows, { automaticChecks })?.index ?? null,
+            getTimeColumn(nextDataset.headers, nextDataset.rows, { autoDetect })?.index ?? null,
             findStandardColumns(config, importerId)
           )
         );
@@ -532,7 +533,7 @@ export function FlightViewer({
           durationMs: Math.round(performance.now() - started),
           rowCount: nextDataset.rows.length,
           headerCount: nextDataset.headers.length,
-          sanitize: automaticChecks
+          sanitize: sanitizeData
         });
       })
       .catch((error: Error) => {
@@ -549,7 +550,7 @@ export function FlightViewer({
     return () => {
       ignore = true;
     };
-  }, [automaticChecks, config, selectedDirectory]);
+  }, [sanitizeData, config, selectedDirectory]);
 
   const hasAttributeChanges = useMemo(() => {
     if (!dataset) return false;
@@ -560,8 +561,8 @@ export function FlightViewer({
   const hasRequiredFilled = hasRequiredAttributes(attributes, REQUIRED_ATTRIBUTE_KEYS);
 
   const rawXAxis = useMemo(
-    () => (dataset ? buildXAxis(dataset, { automaticChecks }) : { values: [], title: 'Row', hoverLabel: 'row' }),
-    [automaticChecks, dataset]
+    () => (dataset ? buildXAxis(dataset, { autoDetect }) : { values: [], title: 'Row', hoverLabel: 'row' }),
+    [autoDetect, dataset]
   );
 
   const rawEventData = useMemo(() => {
@@ -573,14 +574,14 @@ export function FlightViewer({
         flightEndTime: 0
       };
     }
-    return buildEventMarkers(dataset, rawXAxis.values, { automaticChecks });
-  }, [automaticChecks, dataset, rawXAxis.values]);
+    return buildEventMarkers(dataset, rawXAxis.values, { autoDetect });
+  }, [autoDetect, dataset, rawXAxis.values]);
   const gpsColumns = useMemo(() => {
     if (!dataset) {
       return null;
     }
 
-    const gpsPositionColumns = findGpsColumns(dataset.headers, dataset.rows, { automaticChecks });
+    const gpsPositionColumns = findGpsColumns(dataset.headers, dataset.rows, { autoDetect });
     const altitudeIndex = getColumnIndexByAliases(dataset.headers, [
       'altitude',
       'altitude_m',
@@ -593,7 +594,7 @@ export function FlightViewer({
     }
 
     return { ...gpsPositionColumns, altitudeIndex };
-  }, [automaticChecks, dataset]);
+  }, [autoDetect, dataset]);
   const launchOffset = useMemo(() => {
     if (rawEventData.launchTime !== null) {
       return rawEventData.launchTime;
@@ -613,9 +614,9 @@ export function FlightViewer({
       rawXAxis.values,
       gpsColumns.altitudeIndex,
       velocityIndex,
-      { automaticChecks }
+      { autoDetect }
     ) ?? 0;
-  }, [automaticChecks, dataset, gpsColumns, rawEventData.launchTime, rawXAxis.values]);
+  }, [autoDetect, dataset, gpsColumns, rawEventData.launchTime, rawXAxis.values]);
 
   const xAxis = useMemo(
     () =>
@@ -821,7 +822,7 @@ export function FlightViewer({
         }
 
         return window.appBridge
-          .readDataset(altimeter.altimeterDirectory, { sanitize: automaticChecks })
+          .readDataset(altimeter.altimeterDirectory, { sanitize: sanitizeData })
           .catch(() => null);
       })
     ).then((datasets) => {
@@ -832,11 +833,11 @@ export function FlightViewer({
     return () => {
       ignore = true;
     };
-  }, [automaticChecks, dataset, flight, gpsColumns, gpsViewActive, selectedDirectory]);
+  }, [sanitizeData, dataset, flight, gpsColumns, gpsViewActive, selectedDirectory]);
 
   const gpsEventMarkers = useMemo(
-    () => buildGpsEventMarkers(gpsPoints, eventDatasets, automaticChecks),
-    [automaticChecks, eventDatasets, gpsPoints]
+    () => buildGpsEventMarkers(gpsPoints, eventDatasets, autoDetect),
+    [autoDetect, eventDatasets, gpsPoints]
   );
 
   useEffect(() => {
@@ -1101,11 +1102,19 @@ export function FlightViewer({
         </button>
         <label className="checkbox-row toolbar-checkbox">
           <input
-            checked={automaticChecks}
-            onChange={(event) => setAutomaticChecks(event.target.checked)}
+            checked={sanitizeData}
+            onChange={(event) => setSanitizeData(event.target.checked)}
             type="checkbox"
           />
-          <span>Auto cleanup</span>
+          <span title="Blank out-of-range / corrupt values while parsing">Sanitize data</span>
+        </label>
+        <label className="checkbox-row toolbar-checkbox">
+          <input
+            checked={autoDetect}
+            onChange={(event) => setAutoDetect(event.target.checked)}
+            type="checkbox"
+          />
+          <span title="Auto-detect time units, GPS columns, and flight events">Auto-detect</span>
         </label>
       </header>
 

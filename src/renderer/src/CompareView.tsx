@@ -86,10 +86,10 @@ function prepareDataset(
   config: ImportConfig | null,
   showFullData: boolean,
   color: [number, number, number, number],
-  automaticChecks: boolean
+  autoDetect: boolean
 ): CompareDataset {
-  const rawXValues = buildXAxis(dataset, { automaticChecks }).values;
-  const window = buildEventWindow(dataset, rawXValues, { automaticChecks });
+  const rawXValues = buildXAxis(dataset, { autoDetect }).values;
+  const window = buildEventWindow(dataset, rawXValues, { autoDetect });
   const xValues = rawXValues.map((value) => value - window.launchOffset);
   const minTime = xValues[0] ?? 0;
   const maxTime = xValues[xValues.length - 1] ?? minTime;
@@ -103,7 +103,7 @@ function prepareDataset(
         .map(({ index }) => index);
   const visibleRows = visibleIndexes.map((index) => dataset.rows[index] ?? []);
   const visibleXValues = visibleIndexes.map((index) => xValues[index]);
-  const gpsPositionColumns = findGpsColumns(dataset.headers, dataset.rows, { automaticChecks });
+  const gpsPositionColumns = findGpsColumns(dataset.headers, dataset.rows, { autoDetect });
   const altitudeIndex = findAltitudeIndex(dataset.headers);
   const launchAltitude =
     altitudeIndex === null
@@ -150,7 +150,8 @@ export function CompareView({ config, flights, isActive }: CompareViewProps) {
   const [mode, setMode] = useState<CompareMode>('plot2d');
   const [metric, setMetric] = useState<CompareMetric>('altitude');
   const [showFullData, setShowFullData] = useState(false);
-  const [automaticChecks, setAutomaticChecks] = useState(true);
+  const [sanitizeData, setSanitizeData] = useState(true);
+  const [autoDetect, setAutoDetect] = useState(true);
   const [datasets, setDatasets] = useState<CompareDataset[]>([]);
   const [loadError, setLoadError] = useState('');
   const plotRef = useRef<HTMLDivElement | null>(null);
@@ -199,14 +200,14 @@ export function CompareView({ config, flights, isActive }: CompareViewProps) {
       selectedIds.map(async (id, index) => {
         const altimeter = altimeters.find((entry) => entry.altimeterDirectory === id);
         if (!altimeter) return null;
-        const dataset = await window.appBridge.readDataset(id, { sanitize: automaticChecks });
+        const dataset = await window.appBridge.readDataset(id, { sanitize: sanitizeData });
         return prepareDataset(
           dataset,
           altimeter,
           config,
           showFullData,
           COLORS[index % COLORS.length],
-          automaticChecks
+          autoDetect
         );
       })
     )
@@ -221,7 +222,7 @@ export function CompareView({ config, flights, isActive }: CompareViewProps) {
     return () => {
       ignore = true;
     };
-  }, [altimeters, automaticChecks, config, selectedIds, showFullData]);
+  }, [altimeters, sanitizeData, autoDetect, config, selectedIds, showFullData]);
 
   const traces2d = useMemo(() => {
     const selectedMetrics: Array<Exclude<CompareMetric, 'all'>> =
@@ -424,11 +425,19 @@ export function CompareView({ config, flights, isActive }: CompareViewProps) {
           </button>
           <label className="checkbox-row toolbar-checkbox">
             <input
-              checked={automaticChecks}
-              onChange={(event) => setAutomaticChecks(event.target.checked)}
+              checked={sanitizeData}
+              onChange={(event) => setSanitizeData(event.target.checked)}
               type="checkbox"
             />
-            <span>Auto cleanup</span>
+            <span title="Blank out-of-range / corrupt values while parsing">Sanitize data</span>
+          </label>
+          <label className="checkbox-row toolbar-checkbox">
+            <input
+              checked={autoDetect}
+              onChange={(event) => setAutoDetect(event.target.checked)}
+              type="checkbox"
+            />
+            <span title="Auto-detect time units, GPS columns, and flight events">Auto-detect</span>
           </label>
         </header>
 

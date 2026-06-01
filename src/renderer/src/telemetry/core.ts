@@ -11,10 +11,16 @@ export {
   parseNumber
 } from '../../../shared/telemetryMath';
 
-export type AutomaticCheckOptions = {
-  automaticChecks?: boolean;
+/**
+ * Controls the renderer-side automatic *detection* heuristics (time-axis unit
+ * detection, GPS column auto-selection, launch/event estimation). This is
+ * independent of main-side parser *sanitization* (the `sanitize` ParseOption),
+ * which blanks out-of-range values. The two are surfaced as separate toggles.
+ */
+export type AutoDetectOptions = {
+  autoDetect?: boolean;
 };
 
-export function automaticChecksEnabled(options?: AutomaticCheckOptions) {
-  return options?.automaticChecks !== false;
+export function autoDetectEnabled(options?: AutoDetectOptions) {
+  return options?.autoDetect !== false;
 }

@@ -1,9 +1,9 @@
 import type { ImportedDataset } from '../importTypes';
 import {
-  automaticChecksEnabled,
+  autoDetectEnabled,
   normalizedHeader,
   parseNumber,
-  type AutomaticCheckOptions
+  type AutoDetectOptions
 } from './core';
 
 type TimeColumnDefinition = {
@@ -79,10 +79,10 @@ function isLikelyMillisecondTimestamp(
   return rawRange > 10_000 && medianDeltaAsSeconds > 1 && medianDeltaAsMilliseconds <= 10;
 }
 
-export function getTimeColumn(headers: string[], rows: string[][] = [], options?: AutomaticCheckOptions) {
+export function getTimeColumn(headers: string[], rows: string[][] = [], options?: AutoDetectOptions) {
   const normalizedHeaders = headers.map(normalizedHeader);
   const candidates: Array<TimeColumnDefinition & { index: number; rangeSeconds: number }> = [];
-  const applyAutomaticChecks = automaticChecksEnabled(options);
+  const applyAutoDetect = autoDetectEnabled(options);
 
   for (const definition of TIME_COLUMNS) {
     const index = normalizedHeaders.findIndex((header) => definition.names.includes(header));
@@ -90,7 +90,7 @@ export function getTimeColumn(headers: string[], rows: string[][] = [], options?
     if (index >= 0) {
       const stats = rows.length > 0 ? timeColumnStats(rows, index) : null;
       const adjustedSecondsPerUnit =
-        applyAutomaticChecks &&
+        applyAutoDetect &&
         stats &&
         isLikelyMillisecondTimestamp(headers[index] ?? '', definition.relativeToFirstValue, definition.secondsPerUnit, stats)
           ? 0.001
@@ -119,7 +119,7 @@ export function getTimeColumn(headers: string[], rows: string[][] = [], options?
   );
 }
 
-export function buildXAxis(dataset: ImportedDataset, options?: AutomaticCheckOptions): TimeAxis {
+export function buildXAxis(dataset: ImportedDataset, options?: AutoDetectOptions): TimeAxis {
   const timeColumn = getTimeColumn(dataset.headers, dataset.rows, options);
 
   if (!timeColumn) {

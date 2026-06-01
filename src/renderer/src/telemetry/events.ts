@@ -1,10 +1,10 @@
 import type { ImportedDataset } from '../importTypes';
 import {
-  automaticChecksEnabled,
+  autoDetectEnabled,
   getColumnIndex,
   getColumnIndexByAliases,
   parseNumber,
-  type AutomaticCheckOptions
+  type AutoDetectOptions
 } from './core';
 
 export type EventMarker = {
@@ -61,9 +61,9 @@ export function getImporterId(dataset: ImportedDataset) {
 export function estimateLaunchTimeFromAltitude(
   dataset: ImportedDataset,
   xValues: number[],
-  options?: AutomaticCheckOptions
+  options?: AutoDetectOptions
 ) {
-  if (!automaticChecksEnabled(options) || dataset.rows.length < 5 || dataset.rows.length !== xValues.length) {
+  if (!autoDetectEnabled(options) || dataset.rows.length < 5 || dataset.rows.length !== xValues.length) {
     return null;
   }
 
@@ -149,9 +149,9 @@ export function estimateGpsLaunchTime(
   xValues: number[],
   altitudeIndex: number,
   velocityIndex: number | null = null,
-  options?: AutomaticCheckOptions
+  options?: AutoDetectOptions
 ): number | null {
-  if (!automaticChecksEnabled(options) || rows.length < 5 || xValues.length !== rows.length) {
+  if (!autoDetectEnabled(options) || rows.length < 5 || xValues.length !== rows.length) {
     return null;
   }
 
@@ -220,7 +220,7 @@ export function estimateGpsLaunchTime(
 export function buildEventMarkers(
   dataset: ImportedDataset,
   xValues: number[],
-  options?: AutomaticCheckOptions
+  options?: AutoDetectOptions
 ): EventWindow {
   const attributes = dataset.attributes.reduce<Record<string, string>>((record, attribute) => {
     record[attribute.key] = attribute.value;
@@ -229,7 +229,11 @@ export function buildEventMarkers(
   const importerId = attributes.importer_id ?? '';
   const isFcbGroundStation = importerId === 'fcbgroundstation';
   const isFcb = importerId === 'fcb';
-  const useFcbGroundStationStates = isFcbGroundStation && !automaticChecksEnabled(options);
+  // FCB ground-station telemetry carries unreliable state transitions (e.g. spurious
+  // PostFlight) that truncate flights. When auto-detect is on we ignore the raw state
+  // column and fall back to altitude-based launch/end estimation; when off we trust the
+  // raw states. (Phase 3 moves this into the per-altimeter event profile.)
+  const useFcbGroundStationStates = isFcbGroundStation && !autoDetectEnabled(options);
 
   const flightStateIndex = isFcb || isFcbGroundStation ? null : getColumnIndex(dataset.headers, 'flightState');
   const fcbStateIndex =
@@ -359,7 +363,7 @@ export function buildEventMarkers(
   };
 }
 
-export function buildEventWindow(dataset: ImportedDataset, xValues: number[], options?: AutomaticCheckOptions) {
+export function buildEventWindow(dataset: ImportedDataset, xValues: number[], options?: AutoDetectOptions) {
   const eventData = buildEventMarkers(dataset, xValues, options);
   let launchTime = eventData.launchTime;
   const first = xValues[0] ?? 0;
