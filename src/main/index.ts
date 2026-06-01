@@ -1,4 +1,5 @@
 import { app, BrowserWindow, Menu, dialog, ipcMain } from 'electron';
+import updaterPkg from 'electron-updater';
 import { spawn } from 'node:child_process';
 import fs from 'node:fs';
 import os from 'node:os';
@@ -268,6 +269,114 @@ async function downloadRemoteFlightData(mainWindow: BrowserWindow): Promise<void
   }
 }
 
+// electron-updater is CommonJS; destructure from the default import so the
+// named binding resolves correctly under the bundler.
+const { autoUpdater } = updaterPkg;
+
+let autoUpdaterInitialized = false;
+let manualUpdateCheck = false;
+
+function initAutoUpdater(mainWindow: BrowserWindow) {
+  if (autoUpdaterInitialized) {
+    return;
+  }
+  autoUpdaterInitialized = true;
+  autoUpdater.autoDownload = false;
+  autoUpdater.autoInstallOnAppQuit = true;
+
+  autoUpdater.on('update-available', async (info) => {
+    logMain('updater:update-available', { version: info.version });
+    const { response } = await dialog.showMessageBox(mainWindow, {
+      type: 'info',
+      buttons: ['Download', 'Later'],
+      defaultId: 0,
+      cancelId: 1,
+      title: 'Update available',
+      message: `Rocket Flight Data ${info.version} is available.`,
+      detail: 'Download it now? You can keep working while it downloads in the background.'
+    });
+    manualUpdateCheck = false;
+    if (response === 0) {
+      autoUpdater.downloadUpdate().catch((error) => logMainError('updater:download', error));
+    }
+  });
+
+  autoUpdater.on('update-not-available', () => {
+    logMain('updater:update-not-available');
+    if (manualUpdateCheck) {
+      void dialog.showMessageBox(mainWindow, {
+        type: 'info',
+        title: 'No updates',
+        message: 'You are running the latest version.'
+      });
+    }
+    manualUpdateCheck = false;
+  });
+
+  autoUpdater.on('download-progress', (progress) => {
+    mainWindow.setProgressBar(progress.percent / 100);
+  });
+
+  autoUpdater.on('update-downloaded', async (info) => {
+    logMain('updater:update-downloaded', { version: info.version });
+    mainWindow.setProgressBar(-1);
+    const { response } = await dialog.showMessageBox(mainWindow, {
+      type: 'info',
+      buttons: ['Restart now', 'Later'],
+      defaultId: 0,
+      cancelId: 1,
+      title: 'Update ready',
+      message: `Rocket Flight Data ${info.version} has been downloaded.`,
+      detail: 'Restart now to install it? It will also install automatically next time you quit.'
+    });
+    if (response === 0) {
+      autoUpdater.quitAndInstall();
+    }
+  });
+
+  autoUpdater.on('error', (error) => {
+    logMainError('updater:error', error);
+    if (manualUpdateCheck) {
+      void dialog.showMessageBox(mainWindow, {
+        type: 'error',
+        title: 'Update error',
+        message: 'Could not check for updates.',
+        detail: error instanceof Error ? error.message : String(error)
+      });
+    }
+    manualUpdateCheck = false;
+  });
+}
+
+function checkForUpdates(mainWindow: BrowserWindow, manual: boolean) {
+  if (!app.isPackaged) {
+    if (manual) {
+      void dialog.showMessageBox(mainWindow, {
+        type: 'info',
+        title: 'Updates',
+        message: 'Auto-update is only available in the installed app.',
+        detail: 'Run the installed (Setup) build to receive updates from GitHub releases.'
+      });
+    }
+    return;
+  }
+
+  initAutoUpdater(mainWindow);
+  manualUpdateCheck = manual;
+  autoUpdater.checkForUpdates().catch((error) => {
+    logMainError('updater:check', error);
+    if (manual) {
+      void dialog.showMessageBox(mainWindow, {
+        type: 'error',
+        title: 'Update error',
+        message: 'Could not check for updates.',
+        detail: error instanceof Error ? error.message : String(error)
+      });
+    }
+    manualUpdateCheck = false;
+  });
+}
+
 function buildAppMenu(mainWindow: BrowserWindow) {
   const themeItems: Electron.MenuItemConstructorOptions[] = [
     { id: 'default-dark', label: 'Default Dark' },
@@ -337,6 +446,21 @@ function buildAppMenu(mainWindow: BrowserWindow) {
           }
         }
       ]
+    },
+    {
+      label: 'Help',
+      submenu: [
+        {
+          label: 'Check for Updates…',
+          click: () => {
+            checkForUpdates(mainWindow, true);
+          }
+        },
+        {
+          label: `Version ${app.getVersion()}`,
+          enabled: false
+        }
+      ]
     }
   ]);
 
@@ -377,6 +501,11 @@ function createWindow() {
   });
 
   buildAppMenu(mainWindow);
+
+  // Silent check on launch; the Help menu offers a manual check with feedback.
+  mainWindow.webContents.once('did-finish-load', () => {
+    checkForUpdates(mainWindow, false);
+  });
 }
 
 ipcMain.handle('import:get-config', () => getImportConfig());

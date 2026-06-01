@@ -1,7 +1,9 @@
 key,value
+motor,L805
+flight_location,CRMRC
+rocket_diamiter_in,5
 flight_date,2025-11-15
 flight_name,MBTA
-flight_location,CRMRC
 peak_altitude_m,1718.46
 peak_velocity_ms,205.44
 peak_acceleration_mss,69.13

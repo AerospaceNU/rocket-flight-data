@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import logoUrl from './assets/logo.png';
 import { CompareView } from './CompareView';
 import { FlightViewer } from './FlightViewer';
 import { ImportWorkflow } from './ImportWorkflow';
@@ -470,6 +471,7 @@ export function App() {
   return (
     <main className="app-shell">
       <nav className="tabbar" aria-label="Primary tabs">
+        <img className="app-logo" src={logoUrl} alt="Rocket Flight Data" />
         {tabs.map((tab) => (
           <button
             key={tab.id}
