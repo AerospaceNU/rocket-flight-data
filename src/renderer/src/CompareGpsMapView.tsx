@@ -2,7 +2,13 @@ import { useEffect, useMemo, useRef } from 'react';
 import maplibregl from 'maplibre-gl';
 import { MapboxOverlay } from '@deck.gl/mapbox';
 import { PathLayer, ScatterplotLayer, TextLayer } from '@deck.gl/layers';
-import { SATELLITE_STYLE, type GpsMapPoint } from './GpsMapView';
+import {
+  computeBearing,
+  computeBounds,
+  SATELLITE_STYLE,
+  type GpsMapPoint,
+  type MapPosition
+} from './gpsMapShared';
 
 type CompareMapMode = 'map2d' | 'map3d';
 
@@ -35,38 +41,8 @@ type LabelPoint = GpsMapPoint & {
   color: [number, number, number, number];
 };
 
-type MapPosition = [number, number, number];
-
 function allPoints(tracks: CompareGpsTrack[]) {
   return tracks.flatMap((track) => track.points);
-}
-
-function computeBounds(points: GpsMapPoint[]) {
-  if (points.length === 0) return null;
-
-  let west = points[0].longitude;
-  let east = points[0].longitude;
-  let south = points[0].latitude;
-  let north = points[0].latitude;
-
-  for (const point of points) {
-    if (point.longitude < west) west = point.longitude;
-    if (point.longitude > east) east = point.longitude;
-    if (point.latitude < south) south = point.latitude;
-    if (point.latitude > north) north = point.latitude;
-  }
-
-  return { west, east, south, north };
-}
-
-function computeBearing(points: GpsMapPoint[]) {
-  if (points.length < 2) return 0;
-  const first = points[0];
-  const last = points[points.length - 1];
-  const dx = last.longitude - first.longitude;
-  const dy = last.latitude - first.latitude;
-  if (Math.abs(dx) < 1e-9 && Math.abs(dy) < 1e-9) return 0;
-  return (Math.atan2(dx, dy) * 180) / Math.PI;
 }
 
 export function CompareGpsMapView({ isActive, mode, tracks }: CompareGpsMapViewProps) {
