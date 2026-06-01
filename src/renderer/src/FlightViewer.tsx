@@ -39,6 +39,9 @@ const ENSURED_ATTRIBUTE_KEYS = [...REQUIRED_ATTRIBUTE_KEYS, ...MULTILINE_ATTRIBU
 // Flight-level: shared across all altimeters in the flight, edited once.
 const FLIGHT_REQUIRED_ATTRIBUTE_KEYS = ['motor', 'flight_location'];
 
+// Sentinel "altimeter" id for the always-present Flight tab (flight-level attributes).
+const FLIGHT_TAB_ID = '__flight__';
+
 type FlightViewerProps = {
   config: ImportConfig | null;
   flight: FlightSummary | null;
@@ -280,6 +283,10 @@ export function FlightViewer({
         return requested;
       }
 
+      if (current === FLIGHT_TAB_ID) {
+        return current;
+      }
+
       if (current && flight.altimeters.some((altimeter) => altimeter.altimeterDirectory === current)) {
         return current;
       }
@@ -326,7 +333,7 @@ export function FlightViewer({
   }, [flight?.directoryName]);
 
   useEffect(() => {
-    if (!selectedDirectory) {
+    if (!selectedDirectory || selectedDirectory === FLIGHT_TAB_ID) {
       setDataset(null);
       return;
     }
@@ -937,6 +944,7 @@ export function FlightViewer({
     return <div className="error-text">{loadError}</div>;
   }
 
+  const isFlightTab = selectedDirectory === FLIGHT_TAB_ID;
   const numericSeries =
     dataset?.headers.map((header, index) => ({ header, index })).filter((series) => series.index > 0) ?? [];
   const totalPages = Math.max(1, Math.ceil(visibleRows.length / PAGE_SIZE));
@@ -975,6 +983,13 @@ export function FlightViewer({
       </header>
 
       <nav className="altimeter-tabbar" aria-label="Altimeters">
+        <button
+          className={selectedDirectory === FLIGHT_TAB_ID ? 'active' : ''}
+          onClick={() => setSelectedDirectory(FLIGHT_TAB_ID)}
+          type="button"
+        >
+          Flight
+        </button>
         {flight.altimeters.map((altimeter) => (
           <button
             className={selectedDirectory === altimeter.altimeterDirectory ? 'active' : ''}
@@ -988,6 +1003,39 @@ export function FlightViewer({
       </nav>
 
       <div className="viewer-body">
+        {isFlightTab ? (
+          <div className="viewer-content">
+            <section className="viewer-panel">
+              <div className="panel-header">
+                <h2>Flight Attributes</h2>
+                <span>Shared by all altimeters · {flight.directoryName}</span>
+              </div>
+              <AttributeEditor
+                attributes={flightAttributes}
+                emptyText="No flight attributes."
+                onChange={setFlightAttributes}
+                allowAdd={false}
+                requiredKeys={FLIGHT_REQUIRED_ATTRIBUTE_KEYS}
+              />
+              <footer className="import-actions">
+                {flightSaveStatus ? <div className="success-text">{flightSaveStatus}</div> : null}
+                {flightSaveError ? <div className="error-text">{flightSaveError}</div> : null}
+                {!hasFlightRequiredFilled ? (
+                  <div className="warning-text">Motor and flight location are required.</div>
+                ) : null}
+                <button
+                  className="primary-button"
+                  disabled={!hasFlightChanges || !hasFlightRequiredFilled || isSavingFlight}
+                  onClick={saveFlightAttributes}
+                  type="button"
+                >
+                  {isSavingFlight ? 'Saving' : 'Save Flight Attributes'}
+                </button>
+              </footer>
+            </section>
+          </div>
+        ) : (
+        <>
         <nav className="view-sidebar" aria-label="Dataset views">
           <button
             className={activeSection === 'attributes' ? 'active' : ''}
@@ -1044,62 +1092,31 @@ export function FlightViewer({
           {!dataset ? <div className="muted-text">Loading dataset...</div> : null}
 
           {dataset && activeSection === 'attributes' ? (
-            <>
-              <section className="viewer-panel">
-                <div className="panel-header">
-                  <h2>Flight Attributes</h2>
-                  <span>Shared by all altimeters · {flight.directoryName}</span>
-                </div>
-                <AttributeEditor
-                  attributes={flightAttributes}
-                  emptyText="No flight attributes."
-                  onChange={setFlightAttributes}
-                  allowAdd={false}
-                  requiredKeys={FLIGHT_REQUIRED_ATTRIBUTE_KEYS}
-                />
-                <footer className="import-actions">
-                  {flightSaveStatus ? <div className="success-text">{flightSaveStatus}</div> : null}
-                  {flightSaveError ? <div className="error-text">{flightSaveError}</div> : null}
-                  {!hasFlightRequiredFilled ? (
-                    <div className="warning-text">Motor and flight location are required.</div>
-                  ) : null}
-                  <button
-                    className="primary-button"
-                    disabled={!hasFlightChanges || !hasFlightRequiredFilled || isSavingFlight}
-                    onClick={saveFlightAttributes}
-                    type="button"
-                  >
-                    {isSavingFlight ? 'Saving' : 'Save Flight Attributes'}
-                  </button>
-                </footer>
-              </section>
-
-              <section className="viewer-panel">
-                <div className="panel-header">
-                  <h2>Altimeter Attributes</h2>
-                  <span>{dataset.summary.altimeterDirectoryName}</span>
-                </div>
-                <AttributeEditor
-                  attributes={attributes}
-                  emptyText="No attributes."
-                  onChange={(next) => setAttributes(ensureRequiredAttributes(next, ENSURED_ATTRIBUTE_KEYS))}
-                  requiredKeys={REQUIRED_ATTRIBUTE_KEYS}
-                  multilineKeys={MULTILINE_ATTRIBUTE_KEYS}
-                />
-                <footer className="import-actions">
-                  {saveStatus ? <div className="success-text">{saveStatus}</div> : null}
-                  {saveError ? <div className="error-text">{saveError}</div> : null}
-                  <button
-                    className="primary-button"
-                    disabled={!hasAttributeChanges || !hasRequiredFilled || isSaving}
-                    onClick={saveAttributes}
-                    type="button"
-                  >
-                    {isSaving ? 'Saving' : 'Save Attributes'}
-                  </button>
-                </footer>
-              </section>
-            </>
+            <section className="viewer-panel">
+              <div className="panel-header">
+                <h2>Altimeter Attributes</h2>
+                <span>{dataset.summary.altimeterDirectoryName}</span>
+              </div>
+              <AttributeEditor
+                attributes={attributes}
+                emptyText="No attributes."
+                onChange={(next) => setAttributes(ensureRequiredAttributes(next, ENSURED_ATTRIBUTE_KEYS))}
+                requiredKeys={REQUIRED_ATTRIBUTE_KEYS}
+                multilineKeys={MULTILINE_ATTRIBUTE_KEYS}
+              />
+              <footer className="import-actions">
+                {saveStatus ? <div className="success-text">{saveStatus}</div> : null}
+                {saveError ? <div className="error-text">{saveError}</div> : null}
+                <button
+                  className="primary-button"
+                  disabled={!hasAttributeChanges || !hasRequiredFilled || isSaving}
+                  onClick={saveAttributes}
+                  type="button"
+                >
+                  {isSaving ? 'Saving' : 'Save Attributes'}
+                </button>
+              </footer>
+            </section>
           ) : null}
 
           {dataset && activeSection === 'plot2d' ? (
@@ -1250,6 +1267,8 @@ export function FlightViewer({
             </section>
           ) : null}
         </div>
+        </>
+        )}
       </div>
     </div>
   );
