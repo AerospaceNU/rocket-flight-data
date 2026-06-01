@@ -10,4 +10,4 @@ peak_velocity_ms,312.90
 peak_acceleration_mss,705.17
 has_gps_data,true
 parser_cache_version,4
-source_fingerprint,bean_force-metadata.json:966:1779998472643|bean_force-output-FCB-post.csv:3807859:1779998472658
+source_fingerprint,bean_force-metadata.json:924:1780328415231|bean_force-output-FCB-post.csv:3803599:1780328415244

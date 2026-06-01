@@ -53,7 +53,8 @@
     "publish": {
       "provider": "github",
       "owner": "AerospaceNU",
-      "repo": "rocket-flight-data"
+      "repo": "rocket-flight-data",
+      "releaseType": "release"
     }
   },
   "repository": {

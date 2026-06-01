@@ -29,7 +29,7 @@ const THEME_IDS = ['default-dark', 'slate-light', 'forest-dark', 'amber-dark'] a
 type ThemeId = (typeof THEME_IDS)[number];
 const DEFAULT_THEME: ThemeId = 'default-dark';
 const REMOTE_FLIGHT_DATA_REPO = 'https://github.com/AerospaceNU/rocket-flight-data.git';
-const REMOTE_FLIGHT_DATA_BRANCH = 'new-app-dev';
+const REMOTE_FLIGHT_DATA_BRANCH = 'main';
 const REMOTE_FLIGHT_DATA_SUBDIR = 'flight-data';
 
 function getConfigDirectory(): string {
