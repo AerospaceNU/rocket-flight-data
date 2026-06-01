@@ -27,7 +27,7 @@ type CompareMetric = 'altitude' | 'velocity' | 'acceleration' | 'all';
 type CompareDataset = {
   id: string;
   label: string;
-  flightName: string;
+  rocketName: string;
   altimeterName: string;
   importerId: string;
   dataset: ImportedDataset;
@@ -122,7 +122,7 @@ function prepareDataset(
   return {
     id: altimeter.altimeterDirectory,
     label: `${altimeter.flightDirectoryName} · ${altimeter.altimeterDirectoryName}`,
-    flightName: altimeter.flightDirectoryName,
+    rocketName: altimeter.flightDirectoryName,
     altimeterName: altimeter.altimeterDirectoryName,
     importerId: getImporterId(dataset),
     dataset,

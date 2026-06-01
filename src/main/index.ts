@@ -187,7 +187,15 @@ function resolveFlightDataDownloadTarget(selectedDirectory: string): string {
     : path.join(resolved, 'flight-data');
 }
 
+// Default download: no directory picker. Data always lands in the app's
+// installed location (the default output directory).
 async function downloadRemoteFlightData(mainWindow: BrowserWindow): Promise<void> {
+  await syncRemoteFlightData(mainWindow, getDefaultOutputDirectory());
+}
+
+// Optional download: lets the user pick where the flight-data folder goes,
+// matching the original behaviour.
+async function downloadRemoteFlightDataToChosenLocation(mainWindow: BrowserWindow): Promise<void> {
   const result = await dialog.showOpenDialog(mainWindow, {
     title: 'Select Location for Downloaded Flight Data',
     defaultPath: path.dirname(outputDirectory),
@@ -198,8 +206,10 @@ async function downloadRemoteFlightData(mainWindow: BrowserWindow): Promise<void
     return;
   }
 
-  const targetDirectory = resolveFlightDataDownloadTarget(result.filePaths[0]);
+  await syncRemoteFlightData(mainWindow, resolveFlightDataDownloadTarget(result.filePaths[0]));
+}
 
+async function syncRemoteFlightData(mainWindow: BrowserWindow, targetDirectory: string): Promise<void> {
   if (fs.existsSync(targetDirectory)) {
     const confirm = await dialog.showMessageBox(mainWindow, {
       type: 'warning',
@@ -443,6 +453,12 @@ function buildAppMenu(mainWindow: BrowserWindow) {
           label: 'Sync Flight Data From GitHub',
           click: () => {
             void downloadRemoteFlightData(mainWindow);
+          }
+        },
+        {
+          label: 'Sync Flight Data From GitHub To…',
+          click: () => {
+            void downloadRemoteFlightDataToChosenLocation(mainWindow);
           }
         }
       ]

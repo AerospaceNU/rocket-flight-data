@@ -47,7 +47,7 @@ const FLIGHT_TAB_ID = '__flight__';
 // flight file is user-editable (motor, location, and any custom keys).
 const FLIGHT_HIDDEN_ATTRIBUTE_KEYS = [
   'flight_date',
-  'flight_name',
+  'rocket_name',
   'peak_altitude_m',
   'peak_velocity_ms',
   'peak_acceleration_mss'

@@ -84,7 +84,7 @@ export function ImportWorkflow({
   const [flightMode, setFlightMode] = useState<'new' | 'existing'>('new');
   const [existingFlightDirectoryName, setExistingFlightDirectoryName] = useState('');
   const [flightDate, setFlightDate] = useState(todayString());
-  const [flightName, setFlightName] = useState('');
+  const [rocketName, setRocketName] = useState('');
   const [flightLocation, setFlightLocation] = useState('');
   const [altimeterNote, setAltimeterNote] = useState('');
   const [detectedAltimeterMessage, setDetectedAltimeterMessage] = useState('');
@@ -226,7 +226,7 @@ export function ImportWorkflow({
     hasRequiredAttributes(customAttributes, requiredKeys) &&
     (addingToExistingFlight
       ? Boolean(existingFlightDirectoryName)
-      : Boolean(flightDate.trim()) && Boolean(flightName.trim()) && Boolean(flightLocation.trim()));
+      : Boolean(flightDate.trim()) && Boolean(rocketName.trim()) && Boolean(flightLocation.trim()));
 
   const save = async () => {
     if (!canSave) {
@@ -243,7 +243,7 @@ export function ImportWorkflow({
         flightMode === 'new'
           ? {
               date: flightDate.trim(),
-              name: flightName.trim(),
+              name: rocketName.trim(),
               location: flightLocation.trim()
             }
           : undefined,
@@ -354,11 +354,11 @@ export function ImportWorkflow({
               />
             </label>
             <label>
-              Flight name
+              Rocket name
               <input
-                value={flightName}
-                onChange={(event) => setFlightName(sanitizePathInput(event.target.value))}
-                placeholder="Flight name"
+                value={rocketName}
+                onChange={(event) => setRocketName(sanitizePathInput(event.target.value))}
+                placeholder="Rocket name"
               />
             </label>
             <label>
@@ -428,11 +428,11 @@ export function ImportWorkflow({
               <span />
             </div>
             <div className="custom-attribute-row">
-              <input disabled value="flight_name" />
+              <input disabled value="rocket_name" />
               <input
                 disabled={flightMode === 'existing'}
-                value={flightMode === 'new' ? flightName : selectedExistingFlight?.name ?? ''}
-                onChange={(event) => setFlightName(event.target.value)}
+                value={flightMode === 'new' ? rocketName : selectedExistingFlight?.name ?? ''}
+                onChange={(event) => setRocketName(event.target.value)}
               />
               <span />
             </div>

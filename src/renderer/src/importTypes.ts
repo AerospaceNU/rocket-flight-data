@@ -47,7 +47,7 @@ export type ImportedAltimeterSummary = {
   id: string;
   flightDirectoryName: string;
   flightDate: string;
-  flightName: string;
+  rocketName: string;
   flightLocation: string;
   altimeterDirectoryName: string;
   altimeterDirectory: string;
