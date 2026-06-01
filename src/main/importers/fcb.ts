@@ -1,6 +1,12 @@
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
-import type { AltimeterImporter, ParsedImport } from './types';
+import { sanitizeRows, type SanitizationConfig } from './sanitization';
+import type { AltimeterImporter, ParseOptions, ParsedImport } from './types';
+
+// The on-board FCB log is trusted (its sentinel-timestamp normalization is part
+// of parsing, not sanitization). Add range/state/GPS rules here to opt FCB into
+// the "Sanitize data" toggle (see fcbgroundstationSanitizer.ts for the pattern).
+const FCB_SANITIZATION: SanitizationConfig = {};
 
 const UINT32_MAX = 4294967295;
 
@@ -51,7 +57,7 @@ function parseCsvLine(line: string): string[] {
 export const fcbImporter: AltimeterImporter = {
   id: 'fcb',
   name: 'FCB',
-  async parse(filePaths: string[]): Promise<ParsedImport> {
+  async parse(filePaths: string[], options?: ParseOptions): Promise<ParsedImport> {
     const csvFiles = filePaths.filter((p) => path.extname(p).toLowerCase() === '.csv');
     const jsonFiles = filePaths.filter((p) => path.extname(p).toLowerCase() === '.json');
 
@@ -106,9 +112,11 @@ export const fcbImporter: AltimeterImporter = {
       warnings.push('No FCB data rows were found in the selected file(s).');
     }
 
+    const { rows: cleanedRows } = sanitizeRows(headers, rows, FCB_SANITIZATION, options?.sanitize !== false);
+
     return {
       headers,
-      rows,
+      rows: cleanedRows,
       attributes,
       warnings,
       sourceFiles: csvFiles

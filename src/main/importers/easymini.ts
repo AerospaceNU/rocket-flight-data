@@ -1,6 +1,11 @@
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
-import type { AltimeterImporter, ParsedImport } from './types';
+import { sanitizeRows, type SanitizationConfig } from './sanitization';
+import type { AltimeterImporter, ParseOptions, ParsedImport } from './types';
+
+// No range/state/GPS rules needed yet. Add them here to opt EasyMini into the
+// "Sanitize data" toggle (see fcbgroundstationSanitizer.ts for the pattern).
+const EASYMINI_SANITIZATION: SanitizationConfig = {};
 
 const EASYMINI_HEADERS = [
   'version',
@@ -49,7 +54,7 @@ function parseCsv(contents: string) {
 export const easyMiniImporter: AltimeterImporter = {
   id: 'easymini',
   name: 'EasyMini',
-  async parse(filePaths: string[]): Promise<ParsedImport> {
+  async parse(filePaths: string[], options?: ParseOptions): Promise<ParsedImport> {
     const rows: string[][] = [];
     const attributes: Record<string, string> = {};
     const warnings: string[] = [];
@@ -71,9 +76,16 @@ export const easyMiniImporter: AltimeterImporter = {
       warnings.push('No EasyMini CSV rows were found in the selected file(s).');
     }
 
+    const { rows: cleanedRows } = sanitizeRows(
+      EASYMINI_HEADERS,
+      rows,
+      EASYMINI_SANITIZATION,
+      options?.sanitize !== false
+    );
+
     return {
       headers: EASYMINI_HEADERS,
-      rows,
+      rows: cleanedRows,
       attributes,
       warnings,
       sourceFiles: filePaths

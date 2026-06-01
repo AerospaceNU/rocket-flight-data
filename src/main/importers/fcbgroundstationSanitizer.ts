@@ -1,10 +1,8 @@
 import {
   applySanitizationAttributes,
   countValidGpsRows,
-  emptySanitizationSummary,
-  sanitizeGpsColumns,
-  sanitizeNumericRanges,
-  sanitizeStateColumn,
+  sanitizeRows,
+  type SanitizationConfig,
   type SanitizationSummary
 } from './sanitization';
 
@@ -51,6 +49,12 @@ const FCB_GROUND_STATION_NUMERIC_RANGES = [
   { column: 'flash_usage', min: 0, max: 100 }
 ];
 
+const FCB_GROUND_STATION_SANITIZATION: SanitizationConfig = {
+  state: { column: 'state', allowedStates: FCB_ALLOWED_STATES, stateNameColumn: 'state_name' },
+  numericRanges: FCB_GROUND_STATION_NUMERIC_RANGES,
+  gps: { latitudeColumn: 'latitude', longitudeColumn: 'longitude' }
+};
+
 export type FcbGroundStationSanitizationResult = {
   rows: string[][];
   summary: SanitizationSummary;
@@ -62,14 +66,7 @@ export function sanitizeFcbGroundStationRows(
   rows: string[][],
   enabled: boolean
 ): FcbGroundStationSanitizationResult {
-  const nextRows = rows.map((row) => [...row]);
-  const summary = emptySanitizationSummary();
-
-  if (enabled) {
-    sanitizeStateColumn(headers, nextRows, 'state', FCB_ALLOWED_STATES, 'state_name', summary);
-    sanitizeNumericRanges(headers, nextRows, FCB_GROUND_STATION_NUMERIC_RANGES, summary);
-    sanitizeGpsColumns(headers, nextRows, 'latitude', 'longitude', summary);
-  }
+  const { rows: nextRows, summary } = sanitizeRows(headers, rows, FCB_GROUND_STATION_SANITIZATION, enabled);
 
   return {
     rows: nextRows,

@@ -1,5 +1,10 @@
 import { readFile } from 'node:fs/promises';
-import type { AltimeterImporter, ParsedImport } from './types';
+import { sanitizeRows, type SanitizationConfig } from './sanitization';
+import type { AltimeterImporter, ParseOptions, ParsedImport } from './types';
+
+// No range/state/GPS rules needed yet. Add them here to opt StratoLoggerCF into
+// the "Sanitize data" toggle (see fcbgroundstationSanitizer.ts for the pattern).
+const STRATOLOGGER_SANITIZATION: SanitizationConfig = {};
 
 const STRATOLOGGER_HEADERS = [
   'timeS',
@@ -36,7 +41,7 @@ function parseHeaderAttribute(line: string) {
 export const stratoLoggerCfImporter: AltimeterImporter = {
   id: 'stratologgercf',
   name: 'StratoLoggerCF',
-  async parse(filePaths: string[]): Promise<ParsedImport> {
+  async parse(filePaths: string[], options?: ParseOptions): Promise<ParsedImport> {
     const rows: string[][] = [];
     const attributes: Record<string, string> = {};
     const warnings: string[] = [];
@@ -76,9 +81,16 @@ export const stratoLoggerCfImporter: AltimeterImporter = {
       warnings.push('No StratoLoggerCF data rows were found in the selected file(s).');
     }
 
+    const { rows: cleanedRows } = sanitizeRows(
+      STRATOLOGGER_HEADERS,
+      rows,
+      STRATOLOGGER_SANITIZATION,
+      options?.sanitize !== false
+    );
+
     return {
       headers: STRATOLOGGER_HEADERS,
-      rows,
+      rows: cleanedRows,
       attributes,
       warnings,
       sourceFiles: filePaths

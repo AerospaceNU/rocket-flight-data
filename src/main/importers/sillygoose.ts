@@ -1,6 +1,11 @@
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
-import type { AltimeterImporter, ParsedImport } from './types';
+import { sanitizeRows, type SanitizationConfig } from './sanitization';
+import type { AltimeterImporter, ParseOptions, ParsedImport } from './types';
+
+// No range/state/GPS rules needed yet. Add them here to opt SillyGoose into the
+// "Sanitize data" toggle (see fcbgroundstationSanitizer.ts for the pattern).
+const SILLYGOOSE_SANITIZATION: SanitizationConfig = {};
 
 const SILLYGOOSE_HEADERS = [
   'timestampMs',
@@ -72,7 +77,7 @@ function normalizeRow(line: string, headers: string[], warnings: string[], fileP
 export const sillyGooseImporter: AltimeterImporter = {
   id: 'sillygoose',
   name: 'SillyGoose',
-  async parse(filePaths: string[]): Promise<ParsedImport> {
+  async parse(filePaths: string[], options?: ParseOptions): Promise<ParsedImport> {
     const headers = [...SILLYGOOSE_HEADERS];
     const rows: string[][] = [];
     const attributes: Record<string, string> = {};
@@ -104,9 +109,17 @@ export const sillyGooseImporter: AltimeterImporter = {
       warnings.push('No SillyGoose data rows were found in the selected file(s).');
     }
 
+    const paddedRows = rows.map((row) => headers.map((_, index) => row[index] ?? ''));
+    const { rows: cleanedRows } = sanitizeRows(
+      headers,
+      paddedRows,
+      SILLYGOOSE_SANITIZATION,
+      options?.sanitize !== false
+    );
+
     return {
       headers,
-      rows: rows.map((row) => headers.map((_, index) => row[index] ?? '')),
+      rows: cleanedRows,
       attributes,
       warnings,
       sourceFiles: filePaths

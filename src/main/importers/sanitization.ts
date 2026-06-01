@@ -13,6 +13,76 @@ export type NumericRangeRule = {
   max?: number;
 };
 
+export type StateColumnRule = {
+  column: string;
+  allowedStates: ReadonlySet<number>;
+  stateNameColumn?: string | null;
+};
+
+export type GpsColumnRule = {
+  latitudeColumn: string;
+  longitudeColumn: string;
+};
+
+/**
+ * Declarative sanitization rules for one importer. Keep each importer's rules in
+ * its own module (see fcbgroundstationSanitizer.ts for the canonical example);
+ * an empty config is a no-op so importers with clean data add no behavior.
+ */
+export type SanitizationConfig = {
+  state?: StateColumnRule;
+  numericRanges?: NumericRangeRule[];
+  gps?: GpsColumnRule;
+};
+
+export type SanitizationResult = {
+  rows: string[][];
+  summary: SanitizationSummary;
+};
+
+/**
+ * Apply a SanitizationConfig to a copy of the rows. When `enabled` is false the
+ * rows are copied through untouched. Returns the (possibly cleaned) rows plus a
+ * summary of what was blanked.
+ */
+export function sanitizeRows(
+  headers: string[],
+  rows: string[][],
+  config: SanitizationConfig,
+  enabled: boolean
+): SanitizationResult {
+  const summary = emptySanitizationSummary();
+  const hasRules = Boolean(
+    config.state || (config.numericRanges && config.numericRanges.length > 0) || config.gps
+  );
+
+  // Nothing to do: hand the rows back untouched (no defensive copy needed).
+  if (!enabled || !hasRules) {
+    return { rows, summary };
+  }
+
+  const nextRows = rows.map((row) => [...row]);
+
+  if (config.state) {
+    sanitizeStateColumn(
+      headers,
+      nextRows,
+      config.state.column,
+      config.state.allowedStates,
+      config.state.stateNameColumn ?? null,
+      summary
+    );
+  }
+  if (config.numericRanges && config.numericRanges.length > 0) {
+    sanitizeNumericRanges(headers, nextRows, config.numericRanges, summary);
+  }
+  if (config.gps) {
+    sanitizeGpsColumns(headers, nextRows, config.gps.latitudeColumn, config.gps.longitudeColumn, summary);
+  }
+
+  return { rows: nextRows, summary };
+}
+
 export function emptySanitizationSummary(): SanitizationSummary {
   return {
     rowsRemoved: 0,

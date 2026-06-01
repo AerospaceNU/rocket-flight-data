@@ -1,6 +1,11 @@
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
-import type { AltimeterImporter, ParsedImport } from './types';
+import { sanitizeRows, type SanitizationConfig } from './sanitization';
+import type { AltimeterImporter, ParseOptions, ParsedImport } from './types';
+
+// No range/state/GPS rules needed yet. Add them here to opt RawGPSData into the
+// "Sanitize data" toggle (see fcbgroundstationSanitizer.ts for the pattern).
+const RAW_GPS_SANITIZATION: SanitizationConfig = {};
 
 const RAW_GPS_HEADERS = ['timestamp', 'latitude', 'longitude', 'altitude'];
 
@@ -19,7 +24,7 @@ function isNumericRow(cells: string[]) {
 export const rawGpsDataImporter: AltimeterImporter = {
   id: 'rawgpsdata',
   name: 'RawGPSData',
-  async parse(filePaths: string[]): Promise<ParsedImport> {
+  async parse(filePaths: string[], options?: ParseOptions): Promise<ParsedImport> {
     const rows: string[][] = [];
     const attributes: Record<string, string> = {
       source_format: 'Raw GPS CSV',
@@ -68,9 +73,16 @@ export const rawGpsDataImporter: AltimeterImporter = {
       warnings.push('No RawGPSData rows were found in the selected file(s).');
     }
 
+    const { rows: cleanedRows } = sanitizeRows(
+      RAW_GPS_HEADERS,
+      rows,
+      RAW_GPS_SANITIZATION,
+      options?.sanitize !== false
+    );
+
     return {
       headers: RAW_GPS_HEADERS,
-      rows,
+      rows: cleanedRows,
       attributes,
       warnings,
       sourceFiles: filePaths
