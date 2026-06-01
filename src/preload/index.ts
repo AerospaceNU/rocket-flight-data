@@ -15,6 +15,10 @@ contextBridge.exposeInMainWorld('appBridge', {
     ipcRenderer.invoke('dataset:read', datasetDirectory, options),
   saveDatasetAttributes: (request: unknown) =>
     ipcRenderer.invoke('dataset:save-attributes', request),
+  readFlightAttributes: (flightDirectoryName: string) =>
+    ipcRenderer.invoke('flight:read-attributes', flightDirectoryName),
+  saveFlightAttributes: (request: unknown) =>
+    ipcRenderer.invoke('flight:save-attributes', request),
   previewImport: (request: { altimeterId: string; filePaths: string[] }) =>
     ipcRenderer.invoke('import:preview', request),
   saveImport: (request: unknown) => ipcRenderer.invoke('import:save', request),
