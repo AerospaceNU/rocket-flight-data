@@ -1,0 +1,44 @@
+name: Release
+
+# Builds the Windows installer + portable and publishes them (plus latest.yml
+# for the in-app auto-updater) to a GitHub Release when a version tag is pushed.
+#
+# To cut a release:
+#   1. Bump "version" in package.json (must match the tag, e.g. 0.1.1)
+#   2. Commit + push
+#   3. git tag v0.1.1 && git push origin v0.1.1
+# electron-builder creates a DRAFT release named for the package.json version;
+# publish it from the Releases page so the auto-updater can see it.
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Build and publish
+        env:
+          # electron-builder reads GH_TOKEN for the GitHub publish provider.
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: npm run release
