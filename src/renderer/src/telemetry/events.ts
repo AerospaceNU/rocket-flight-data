@@ -6,6 +6,11 @@ import {
   parseNumber,
   type AutoDetectOptions
 } from './core';
+import { getEventProfile } from './profiles';
+
+// State-name maps now live with their per-altimeter profiles; re-export for
+// any callers that still reference them by their historic location.
+export { FLIGHT_STATE_NAMES, EASYMINI_STATE_NAMES, FCB_STATE_NAMES } from './profiles';
 
 export type EventMarker = {
   label: string;
@@ -21,35 +26,6 @@ export type EventWindow = {
   flightEndTime: number;
 };
 
-export const FLIGHT_STATE_NAMES: Record<number, string> = {
-  0: 'PRE_FLIGHT',
-  1: 'ASCENT',
-  2: 'DESCENT',
-  3: 'POST_FLIGHT'
-};
-
-export const EASYMINI_STATE_NAMES: Record<number, string> = {
-  3: 'boost',
-  5: 'coast',
-  6: 'drogue',
-  7: 'main',
-  8: 'landed'
-};
-
-// stm32-avionics StateId_e (common/system/scheduler.h)
-export const FCB_STATE_NAMES: Record<number, string> = {
-  0: 'CliEraseFlash',
-  1: 'CliOffload',
-  2: 'Ascent',
-  3: 'Descent',
-  4: 'Initialize',
-  5: 'PostFlight',
-  6: 'PreFlight',
-  7: 'SimTempState'
-};
-
-const FCB_LAUNCH_STATE = 2;
-const FCB_END_STATE = 5;
 const MAX_EVENT_MARKERS = 200;
 
 export function getImporterId(dataset: ImportedDataset) {
@@ -227,20 +203,14 @@ export function buildEventMarkers(
     return record;
   }, {});
   const importerId = attributes.importer_id ?? '';
-  const isFcbGroundStation = importerId === 'fcbgroundstation';
-  const isFcb = importerId === 'fcb';
-  // FCB ground-station telemetry carries unreliable state transitions (e.g. spurious
-  // PostFlight) that truncate flights. When auto-detect is on we ignore the raw state
-  // column and fall back to altitude-based launch/end estimation; when off we trust the
-  // raw states. (Phase 3 moves this into the per-altimeter event profile.)
-  const useFcbGroundStationStates = isFcbGroundStation && !autoDetectEnabled(options);
-
-  const flightStateIndex = isFcb || isFcbGroundStation ? null : getColumnIndex(dataset.headers, 'flightState');
-  const fcbStateIndex =
-    isFcb || useFcbGroundStationStates ? getColumnIndex(dataset.headers, 'state') : null;
-  const easyMiniStateIndex =
-    isFcb || isFcbGroundStation || flightStateIndex !== null ? null : getColumnIndex(dataset.headers, 'state');
-  const stateIndex = flightStateIndex ?? fcbStateIndex ?? easyMiniStateIndex;
+  const profile = getEventProfile(importerId);
+  const stateProfile = profile?.state ?? null;
+  // Unreliable state columns (e.g. ground-station relay with spurious PostFlight
+  // transitions) are only trusted when auto-detect is off; with auto-detect on we
+  // ignore them and let altitude-based estimation find launch/end instead.
+  const useStateColumn =
+    stateProfile !== null && (!profile?.unreliableStates || !autoDetectEnabled(options));
+  const stateIndex = useStateColumn ? getColumnIndex(dataset.headers, stateProfile.stateColumn) : null;
   const stateNameIndex = getColumnIndex(dataset.headers, 'state_name');
   const drogueFiredIndex = getColumnIndex(dataset.headers, 'drogueFired');
   const mainFiredIndex = getColumnIndex(dataset.headers, 'mainFired');
@@ -249,25 +219,19 @@ export function buildEventMarkers(
   let flightEndTime: number | null = null;
 
   for (let index = 1; index < dataset.rows.length; index += 1) {
-    if (stateIndex !== null) {
+    if (stateIndex !== null && stateProfile !== null) {
       const previousState = Number.parseInt(dataset.rows[index - 1]?.[stateIndex] ?? '', 10);
       const currentState = Number.parseInt(dataset.rows[index]?.[stateIndex] ?? '', 10);
 
       if (Number.isFinite(previousState) && Number.isFinite(currentState) && previousState !== currentState) {
-        const stateNames =
-          flightStateIndex !== null
-            ? FLIGHT_STATE_NAMES
-            : fcbStateIndex !== null
-              ? FCB_STATE_NAMES
-              : EASYMINI_STATE_NAMES;
         const previousName =
           stateNameIndex !== null
             ? dataset.rows[index - 1]?.[stateNameIndex]
-            : stateNames[previousState];
+            : stateProfile.stateNames[previousState];
         const currentName =
           stateNameIndex !== null
             ? dataset.rows[index]?.[stateNameIndex]
-            : stateNames[currentState];
+            : stateProfile.stateNames[currentState];
         const hasKnownState =
           Boolean(previousName) || Boolean(currentName) || stateNameIndex !== null;
 
@@ -280,22 +244,11 @@ export function buildEventMarkers(
           });
         }
 
-        if (
-          hasKnownState &&
-          launchTime === null &&
-          ((flightStateIndex !== null && previousState === 0 && currentState !== 0) ||
-            (fcbStateIndex !== null && currentState === FCB_LAUNCH_STATE) ||
-            (easyMiniStateIndex !== null && currentState === 5))
-        ) {
+        if (hasKnownState && launchTime === null && stateProfile.isLaunchTransition(previousState, currentState)) {
           launchTime = xValues[index];
         }
 
-        if (
-          hasKnownState &&
-          ((flightStateIndex !== null && currentState === 3) ||
-            (fcbStateIndex !== null && currentState === FCB_END_STATE) ||
-            (easyMiniStateIndex !== null && currentState === 8))
-        ) {
+        if (hasKnownState && stateProfile.isEndTransition(previousState, currentState)) {
           flightEndTime = xValues[index];
         }
       }
