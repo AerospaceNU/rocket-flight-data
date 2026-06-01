@@ -24,13 +24,37 @@ async function main() {
     const roundTrip = await readFlightAttributes(tmp, FLIGHT);
     const motor = roundTrip.find((a) => a.key === 'motor')?.value;
 
+    // Add a custom attribute, then remove it, to confirm add + delete both work
+    // while derived peaks are preserved.
+    await saveFlightAttributes(tmp, FLIGHT, [
+      { key: 'motor', value: 'TESTMOTOR' },
+      { key: 'flight_location', value: 'TESTLOC' },
+      { key: 'rocket_diameter_mm', value: '98' }
+    ]);
+    const afterAdd = Object.fromEntries(
+      (await readFile(path.join(tmp, FLIGHT, 'attributes.csv'), 'utf8'))
+        .split(/\r?\n/).filter(Boolean).slice(1).map((line) => line.split(','))
+    );
+    await saveFlightAttributes(tmp, FLIGHT, [
+      { key: 'motor', value: 'TESTMOTOR' },
+      { key: 'flight_location', value: 'TESTLOC' }
+    ]);
+    const afterDelete = Object.fromEntries(
+      (await readFile(path.join(tmp, FLIGHT, 'attributes.csv'), 'utf8'))
+        .split(/\r?\n/).filter(Boolean).slice(1).map((line) => line.split(','))
+    );
+
     const checks = [
       ['motor updated on disk', record.motor === 'TESTMOTOR'],
       ['location updated on disk', record.flight_location === 'TESTLOC'],
       ['peak_altitude_m preserved', record.peak_altitude_m === '354.42'],
       ['peak_velocity_ms preserved', record.peak_velocity_ms === '72.14'],
       ['flight_date preserved', record.flight_date === '2022-04-23'],
-      ['readFlightAttributes round-trip', motor === 'TESTMOTOR']
+      ['readFlightAttributes round-trip', motor === 'TESTMOTOR'],
+      ['custom attribute added', afterAdd.rocket_diameter_mm === '98'],
+      ['peaks preserved after add', afterAdd.peak_altitude_m === '354.42'],
+      ['custom attribute deleted', afterDelete.rocket_diameter_mm === undefined],
+      ['peaks preserved after delete', afterDelete.peak_altitude_m === '354.42']
     ] as const;
 
     let ok = true;

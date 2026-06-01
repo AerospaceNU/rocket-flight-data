@@ -163,6 +163,23 @@ export function ImportWorkflow({
     }
   }, [flightMode, selectedExistingFlight]);
 
+  // Flight-level attributes (motor, location) already exist on an existing
+  // flight, so they aren't requested/required when adding to one.
+  const addingToExistingFlight = flightMode === 'existing';
+  const requiredKeys = addingToExistingFlight ? [] : REQUIRED_ATTRIBUTE_KEYS;
+  const ensuredKeys = addingToExistingFlight ? MULTILINE_ATTRIBUTE_KEYS : ENSURED_ATTRIBUTE_KEYS;
+
+  useEffect(() => {
+    // Re-normalize when the flight mode flips: drop the motor row for an
+    // existing flight, re-add it for a new one.
+    setCustomAttributes((current) => {
+      const base = addingToExistingFlight
+        ? current.filter((attribute) => attribute.key !== 'motor')
+        : current;
+      return ensureRequiredAttributes(base, addingToExistingFlight ? MULTILINE_ATTRIBUTE_KEYS : ENSURED_ATTRIBUTE_KEYS);
+    });
+  }, [addingToExistingFlight]);
+
   useEffect(() => {
     if (!altimeterId || files.length === 0) {
       return;
@@ -181,7 +198,7 @@ export function ImportWorkflow({
           setPreview(result);
           if (autoAttributeSourceKey !== sourceKey) {
             const detected = Object.entries(result.attributes).map(([key, value]) => ({ key, value }));
-            setCustomAttributes(ensureRequiredAttributes(detected, ENSURED_ATTRIBUTE_KEYS));
+            setCustomAttributes(ensureRequiredAttributes(detected, ensuredKeys));
             setAutoAttributeSourceKey(sourceKey);
           }
         }
@@ -206,11 +223,10 @@ export function ImportWorkflow({
   const canSave =
     Boolean(altimeterId) &&
     Boolean(preview?.rowCount) &&
-    Boolean(flightLocation.trim()) &&
-    hasRequiredAttributes(customAttributes, REQUIRED_ATTRIBUTE_KEYS) &&
-    (flightMode === 'existing'
+    hasRequiredAttributes(customAttributes, requiredKeys) &&
+    (addingToExistingFlight
       ? Boolean(existingFlightDirectoryName)
-      : Boolean(flightDate.trim()) && Boolean(flightName.trim()));
+      : Boolean(flightDate.trim()) && Boolean(flightName.trim()) && Boolean(flightLocation.trim()));
 
   const save = async () => {
     if (!canSave) {
@@ -322,7 +338,8 @@ export function ImportWorkflow({
               Flight location
               <input
                 value={flightLocation}
-                onChange={(event) => setFlightLocation(event.target.value)}
+                disabled
+                title="Set on the flight; edit it in the Flight tab"
               />
             </label>
           </div>
@@ -396,6 +413,7 @@ export function ImportWorkflow({
               <input disabled value="flight_location" />
               <input
                 value={flightLocation}
+                disabled={addingToExistingFlight}
                 onChange={(event) => setFlightLocation(event.target.value)}
               />
               <span />
@@ -434,8 +452,8 @@ export function ImportWorkflow({
           <AttributeEditor
             attributes={customAttributes}
             emptyText="No additional attributes."
-            onChange={(next) => setCustomAttributes(ensureRequiredAttributes(next, ENSURED_ATTRIBUTE_KEYS))}
-            requiredKeys={REQUIRED_ATTRIBUTE_KEYS}
+            onChange={(next) => setCustomAttributes(ensureRequiredAttributes(next, ensuredKeys))}
+            requiredKeys={requiredKeys}
             multilineKeys={MULTILINE_ATTRIBUTE_KEYS}
           />
         </div>

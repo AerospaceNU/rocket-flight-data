@@ -713,6 +713,11 @@ button:disabled {
   overflow: hidden;
 }
 
+/* Flight tab has no per-altimeter view sidebar, so the content spans full width. */
+.viewer-body--single {
+  grid-template-columns: minmax(0, 1fr);
+}
+
 .view-sidebar {
   display: grid;
   align-content: start;
