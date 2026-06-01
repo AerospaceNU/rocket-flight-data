@@ -8,6 +8,7 @@ import {
 import type { ImportPreview, ParsedImport, ParseOptions } from './importers/types';
 import type { StandardColumnMapping, StandardColumnRef } from '../shared/importConfig';
 import { getStandardColumnsForImporter } from '../shared/importConfig';
+import { getColumnIndexByAliases } from '../shared/telemetryMath';
 
 export type FlightSummary = {
   directoryName: string;
@@ -229,23 +230,6 @@ function attributesToRecord(attributes: CustomAttribute[]) {
     record[attribute.key] = attribute.value;
     return record;
   }, {});
-}
-
-function normalizedHeader(header: string) {
-  return header.trim().toLowerCase();
-}
-
-function getColumnIndexByAliases(headers: string[], aliases: string[]) {
-  const normalizedHeaders = headers.map(normalizedHeader);
-
-  for (const alias of aliases) {
-    const index = normalizedHeaders.indexOf(alias.toLowerCase());
-    if (index >= 0) {
-      return index;
-    }
-  }
-
-  return null;
 }
 
 function datasetHasGpsHeaders(headers: string[]) {

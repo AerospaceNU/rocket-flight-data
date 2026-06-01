@@ -4,3 +4,6 @@ node_modules/
 dist/
 dist-electron/
 release/
+
+# refactor parse-snapshot safety net
+.snapshots/

@@ -1,3 +1,5 @@
+import { getColumnIndex, median, parseNumber } from '../../shared/telemetryMath';
+
 export type SanitizationSummary = {
   rowsRemoved: number;
   gpsValuesBlanked: number;
@@ -18,16 +20,6 @@ export function emptySanitizationSummary(): SanitizationSummary {
     numericValuesBlanked: 0,
     stateValuesBlanked: 0
   };
-}
-
-function parseNumber(value: string | undefined) {
-  const number = Number.parseFloat(value ?? '');
-  return Number.isFinite(number) ? number : null;
-}
-
-function getColumnIndex(headers: string[], column: string) {
-  const index = headers.indexOf(column);
-  return index >= 0 ? index : null;
 }
 
 function blankCell(row: string[], index: number) {
@@ -94,15 +86,6 @@ export function sanitizeStateColumn(
       }
     }
   }
-}
-
-function median(values: number[]) {
-  if (values.length === 0) {
-    return null;
-  }
-
-  const sorted = [...values].sort((left, right) => left - right);
-  return sorted[Math.floor(sorted.length / 2)] ?? null;
 }
 
 function isValidCoordinate(latitude: number | null, longitude: number | null) {
