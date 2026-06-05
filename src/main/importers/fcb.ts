@@ -2,6 +2,7 @@ import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { sanitizeRows, type SanitizationConfig } from './sanitization';
 import type { AltimeterImporter, ParseOptions, ParsedImport } from './types';
+import { inferFcbColumnUnits } from './columnUnits';
 
 // The on-board FCB log is trusted (its sentinel-timestamp normalization is part
 // of parsing, not sanitization). Add range/state/GPS rules here to opt FCB into
@@ -78,6 +79,7 @@ export const fcbImporter: AltimeterImporter = {
       return {
         headers: [],
         rows: [],
+        columnUnits: {},
         attributes,
         warnings,
         sourceFiles: csvFiles
@@ -117,6 +119,7 @@ export const fcbImporter: AltimeterImporter = {
     return {
       headers,
       rows: cleanedRows,
+      columnUnits: inferFcbColumnUnits(headers, cleanedRows),
       attributes,
       warnings,
       sourceFiles: csvFiles

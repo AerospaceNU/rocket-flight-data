@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import Plotly2D from 'plotly.js-basic-dist-min';
-import Plotly3D from 'plotly.js-gl3d-dist-min';
 import { AttributeEditor, ensureRequiredAttributes, hasRequiredAttributes } from './AttributeEditor';
 import { FcbRocketReplayMap, type RocketPosePoint } from './FcbRocketReplayMap';
 import { GpsMapView, type GpsEventMarker, type GpsMapPoint } from './GpsMapView';
@@ -9,19 +8,37 @@ import type {
   FlightSummary,
   ImportConfig,
   ImportedDataset,
+  DisplayUnitSystem,
   StandardColumnMapping
 } from './importTypes';
 import {
-  axisRange,
   getColumnIndexByAliases,
   isValidLatitude,
   isValidLongitude,
   parseNumber
 } from './telemetry/core';
 import {
+  attachPlotHoverDashboard,
+  computeEventLabelShifts,
+  defaultSeriesIndexes,
+  HOVER_DASHBOARD_IDLE_TEXT
+} from './plot2dShared';
+import {
+  buildSingleGpsPlot3dTraces,
+  computeGpsPlot3dAspectRatio,
+  purgeGpsPlot3d,
+  renderGpsPlot3d
+} from './plot3dShared';
+import {
+  parseDisplaySeriesValue,
+  seriesDisplayLabel,
+  yAxisTitleForSeries
+} from './plotUnits';
+import { displayUnitLabel, type ColumnUnit } from '../../shared/units';
+import {
   buildEventMarkers,
+  buildEventWindow,
   buildWindow,
-  estimateGpsLaunchTime,
   getImporterId,
   normalizeEventLabel,
   type EventMarker
@@ -55,6 +72,7 @@ const FLIGHT_HIDDEN_ATTRIBUTE_KEYS = [
 
 type FlightViewerProps = {
   config: ImportConfig | null;
+  displayUnits: DisplayUnitSystem;
   flight: FlightSummary | null;
   isActive: boolean;
   selectedAltimeterDirectory?: string;
@@ -70,25 +88,9 @@ type FlightEventMarker = EventMarker & {
   priority: number;
 };
 
-type PlotHoverPoint = {
-  x: number | string;
-  y: number;
-  data: {
-    name?: string;
-  };
-};
-
-type PlotHoverEvent = {
-  points?: PlotHoverPoint[];
-};
-
-type PlotElement = HTMLElement & {
-  on?: (eventName: string, callback: (event: PlotHoverEvent) => void) => void;
-  removeAllListeners?: (eventName: string) => void;
-};
-
 const PAGE_SIZE = 250;
 const MAX_EVENT_MARKERS = 200;
+const LENGTH_METERS: ColumnUnit = { family: 'length', unit: 'm' };
 const EVENT_SOURCE_PRIORITY: Record<string, number> = {
   fcb: 4,
   fcbgroundstation: 4,
@@ -97,31 +99,6 @@ const EVENT_SOURCE_PRIORITY: Record<string, number> = {
   stratologgercf: 1
 };
 
-function defaultSeries(
-  headers: string[],
-  timeColumnIndex: number | null,
-  standardColumns: StandardColumnMapping | null
-) {
-  const preferred = standardColumns
-    ? [
-        standardColumns.altitudeMeters?.column,
-        standardColumns.velocityMetersPerSecond?.column,
-        standardColumns.accelerationMetersPerSecondSquared?.column
-      ].filter((column): column is string => Boolean(column))
-    : [];
-  const indexes = preferred
-    .map((name) => headers.indexOf(name))
-    .filter((index) => index > 0 && index !== timeColumnIndex);
-
-  return indexes.length > 0
-    ? indexes
-    : headers
-        .map((_, index) => index)
-        .filter((index) => index > 0 && index !== timeColumnIndex)
-        .slice(0, 3);
-}
-
-
 function isEventSourceImporter(importerId: string) {
   return importerId in EVENT_SOURCE_PRIORITY;
 }
@@ -129,7 +106,7 @@ function isEventSourceImporter(importerId: string) {
 function relativeEventMarkers(dataset: ImportedDataset, autoDetect: boolean): FlightEventMarker[] {
   const rawXAxis = buildXAxis(dataset, { autoDetect });
   const rawEventData = buildEventMarkers(dataset, rawXAxis.values, { autoDetect });
-  const launchOffset = rawEventData.launchTime ?? 0;
+  const launchOffset = buildEventWindow(dataset, rawXAxis.values, { autoDetect }).launchOffset;
   const importerId = getImporterId(dataset);
   const priority = EVENT_SOURCE_PRIORITY[importerId] ?? 0;
   const sourceLabel = dataset.summary.altimeterDirectoryName;
@@ -254,6 +231,7 @@ function findStandardColumns(
 
 export function FlightViewer({
   config,
+  displayUnits,
   flight,
   isActive,
   selectedAltimeterDirectory,
@@ -265,10 +243,11 @@ export function FlightViewer({
   const [activeSection, setActiveSection] = useState<ViewerSection>('attributes');
   const [attributes, setAttributes] = useState<CustomAttribute[]>([]);
   const [selectedSeries, setSelectedSeries] = useState<number[]>([]);
-  const [hoverText, setHoverText] = useState('Hover over the chart to inspect values.');
+  const [hoverText, setHoverText] = useState(HOVER_DASHBOARD_IDLE_TEXT);
   const [showFullData, setShowFullData] = useState(false);
   const [sanitizeData, setSanitizeData] = useState(true);
   const [autoDetect, setAutoDetect] = useState(true);
+  const [showEvents, setShowEvents] = useState(true);
   const [rawPage, setRawPage] = useState(0);
   const [saveStatus, setSaveStatus] = useState('');
   const [saveError, setSaveError] = useState('');
@@ -366,7 +345,7 @@ export function FlightViewer({
         const importerId =
           nextDataset.attributes.find((attr) => attr.key === 'importer_id')?.value ?? '';
         setSelectedSeries(
-          defaultSeries(
+          defaultSeriesIndexes(
             nextDataset.headers,
             getTimeColumn(nextDataset.headers, nextDataset.rows, { autoDetect })?.index ?? null,
             findStandardColumns(config, importerId)
@@ -441,28 +420,10 @@ export function FlightViewer({
 
     return { ...gpsPositionColumns, altitudeIndex };
   }, [autoDetect, dataset]);
-  const launchOffset = useMemo(() => {
-    if (rawEventData.launchTime !== null) {
-      return rawEventData.launchTime;
-    }
-    if (!dataset || !gpsColumns) {
-      return 0;
-    }
-
-    const velocityIndex = getColumnIndexByAliases(dataset.headers, [
-      'velocity_m_s',
-      'velocity',
-      'vertical_velocity',
-      'speed_m_s'
-    ]);
-    return estimateGpsLaunchTime(
-      dataset.rows,
-      rawXAxis.values,
-      gpsColumns.altitudeIndex,
-      velocityIndex,
-      { autoDetect }
-    ) ?? 0;
-  }, [autoDetect, dataset, gpsColumns, rawEventData.launchTime, rawXAxis.values]);
+  const launchOffset = useMemo(
+    () => (dataset ? buildEventWindow(dataset, rawXAxis.values, { autoDetect }).launchOffset : 0),
+    [autoDetect, dataset, rawXAxis.values]
+  );
 
   const xAxis = useMemo(
     () =>
@@ -520,35 +481,15 @@ export function FlightViewer({
       ),
     [dataWindow.end, dataWindow.start, eventData.events, showFullData]
   );
+  const plotEvents = useMemo(
+    () => (showEvents ? visibleEvents : []),
+    [showEvents, visibleEvents]
+  );
 
-  const eventLabelLevels = useMemo(() => {
-    const lastVisible = visibleXValues[visibleXValues.length - 1];
-    const firstVisible = visibleXValues[0];
-    const visibleRange =
-      typeof lastVisible === 'number' && typeof firstVisible === 'number' ? lastVisible - firstVisible : 0;
-    // Threshold roughly approximates a rotated label's horizontal footprint (~font height)
-    // expressed in time units: assume ~12px of label width on a ~800px plot.
-    const threshold = visibleRange > 0 ? Math.max(visibleRange * 0.018, 1e-6) : 0;
-
-    const indexed = visibleEvents.map((event, index) => ({ event, index }));
-    indexed.sort((left, right) => left.event.time - right.event.time);
-
-    const levels = new Array<number>(visibleEvents.length).fill(0);
-    const active: { time: number; level: number }[] = [];
-
-    for (const { event, index } of indexed) {
-      while (active.length > 0 && event.time - active[0].time > threshold) {
-        active.shift();
-      }
-      const used = new Set(active.map((entry) => entry.level));
-      let level = 0;
-      while (used.has(level)) level += 1;
-      levels[index] = level;
-      active.push({ time: event.time, level });
-    }
-
-    return levels;
-  }, [visibleEvents, visibleXValues]);
+  const eventLabelShifts = useMemo(
+    () => computeEventLabelShifts(plotEvents, visibleXValues),
+    [plotEvents, visibleXValues]
+  );
   const gpsPoints = useMemo(() => {
     if (!gpsColumns) {
       return [];
@@ -561,23 +502,7 @@ export function FlightViewer({
 
     return buildGpsPoints(visibleRows, visibleXValues, gpsColumns, launchAltitude);
   }, [gpsColumns, visibleRows, visibleXValues]);
-  const gpsAspectRatio = useMemo(() => {
-    if (gpsPoints.length === 0) {
-      return { x: 1, y: 1, z: 1 };
-    }
-
-    const lonRange = axisRange(gpsPoints.map((point) => point.longitude));
-    const latRange = axisRange(gpsPoints.map((point) => point.latitude));
-    const horizontalRange = Math.max(lonRange, latRange, 1e-9);
-    const xRatio = Math.max(lonRange / horizontalRange, 1e-6);
-    const yRatio = Math.max(latRange / horizontalRange, 1e-6);
-
-    return {
-      x: xRatio,
-      y: yRatio,
-      z: 1
-    };
-  }, [gpsPoints]);
+  const gpsAspectRatio = useMemo(() => computeGpsPlot3dAspectRatio(gpsPoints), [gpsPoints]);
   const selectedImporterId = dataset ? getImporterId(dataset) : '';
   const fcbRocketSamples = useMemo((): RocketPosePoint[] => {
     if (!dataset || selectedImporterId !== 'fcb' || !gpsColumns) {
@@ -700,17 +625,34 @@ export function FlightViewer({
       selectedDirectory,
       selectedSeriesCount: selectedSeries.length,
       visiblePointCount: visibleRows.length,
-      visibleEventCount: visibleEvents.length
+      visibleEventCount: plotEvents.length
     });
 
     const traces = selectedSeries.map((seriesIndex) => ({
       x: visibleXValues,
-      y: visibleRows.map((row) => parseNumber(row[seriesIndex]) ?? Number.NaN),
-      name: dataset.headers[seriesIndex],
+      y: visibleRows.map((row) =>
+        parseDisplaySeriesValue(
+          row[seriesIndex],
+          dataset.headers[seriesIndex],
+          dataset.columnUnits,
+          displayUnits
+        )
+      ),
+      name: seriesDisplayLabel(
+        dataset.headers[seriesIndex],
+        dataset.headers[seriesIndex],
+        dataset.columnUnits,
+        displayUnits
+      ),
       mode: 'lines',
       type: 'scatter',
       hoverinfo: 'none'
     }));
+    const yAxisTitle = yAxisTitleForSeries(
+      selectedSeries.map((seriesIndex) => dataset.headers[seriesIndex]),
+      dataset.columnUnits,
+      displayUnits
+    );
 
     Plotly2D.newPlot(
       plotElement,
@@ -722,7 +664,7 @@ export function FlightViewer({
         font: { color: '#e4e7eb' },
         margin: { t: 24, r: 24, b: 48, l: 64 },
         hovermode: 'x',
-        shapes: visibleEvents.map((event) => ({
+        shapes: plotEvents.map((event) => ({
           type: 'line',
           x0: event.time,
           x1: event.time,
@@ -731,12 +673,12 @@ export function FlightViewer({
           yref: 'paper',
           line: { color: event.color, width: 1, dash: 'dash' }
         })),
-        annotations: visibleEvents.map((event, index) => ({
+        annotations: plotEvents.map((event, index) => ({
           x: event.time,
           y: 1,
           yref: 'paper',
           yanchor: 'top',
-          yshift: -(eventLabelLevels[index] ?? 0) * 90,
+          yshift: eventLabelShifts[index] ?? 0,
           text: event.label,
           showarrow: false,
           textangle: -90,
@@ -744,7 +686,8 @@ export function FlightViewer({
           font: { color: event.color, size: 10 }
         })),
         xaxis: {
-          title: xAxis.title,
+          title: { text: xAxis.title, standoff: 12 },
+          automargin: true,
           gridcolor: '#30343a',
           showspikes: true,
           spikemode: 'across',
@@ -754,7 +697,7 @@ export function FlightViewer({
           spikethickness: 1
         },
         yaxis: {
-          title: 'Value',
+          title: yAxisTitle,
           gridcolor: '#30343a'
         },
         legend: {
@@ -776,24 +719,9 @@ export function FlightViewer({
         durationMs: Math.round(performance.now() - started),
         selectedSeriesCount: selectedSeries.length,
         visiblePointCount: visibleRows.length,
-        visibleEventCount: visibleEvents.length
+        visibleEventCount: plotEvents.length
       });
-      const interactivePlot = plotElement as PlotElement;
-      interactivePlot.removeAllListeners?.('plotly_hover');
-      interactivePlot.removeAllListeners?.('plotly_unhover');
-      interactivePlot.on?.('plotly_hover', (event) => {
-        if (!event.points?.length) return;
-
-        const hoveredX = event.points[0]?.x;
-        const hoverValue = typeof hoveredX === 'number' ? hoveredX.toFixed(3) : hoveredX;
-        const values = event.points
-          .map((point) => `${point.data.name ?? 'series'}: ${point.y.toFixed(3)}`)
-          .join('   ');
-        setHoverText(`${xAxis.hoverLabel}: ${hoverValue}${xAxis.hoverLabel === 'time' ? ' s' : ''}   ${values}`);
-      });
-      interactivePlot.on?.('plotly_unhover', () => {
-        setHoverText('Hover over the chart to inspect values.');
-      });
+      attachPlotHoverDashboard(plotElement, xAxis, setHoverText);
       Plotly2D.Plots.resize(plotElement);
     });
 
@@ -803,10 +731,11 @@ export function FlightViewer({
   }, [
     activeSection,
     dataset,
-    eventLabelLevels,
+    eventLabelShifts,
     isActive,
     selectedSeries,
-    visibleEvents,
+    displayUnits,
+    plotEvents,
     visibleRows,
     visibleXValues,
     xAxis.hoverLabel,
@@ -819,82 +748,17 @@ export function FlightViewer({
       return;
     }
 
-    Plotly3D.newPlot(
+    void renderGpsPlot3d(
       plotElement,
-      [
-        {
-          type: 'scatter3d',
-          mode: 'lines+markers',
-          x: gpsPoints.map((point) => point.longitude),
-          y: gpsPoints.map((point) => point.latitude),
-          z: gpsPoints.map((point) => point.altitude),
-          text: gpsPoints.map((point) => `t=${point.time.toFixed(2)}s`),
-          hovertemplate:
-            'Lon: %{x:.6f}<br>Lat: %{y:.6f}<br>Alt: %{z:.2f} m<br>%{text}<extra></extra>',
-          line: {
-            width: 4,
-            color: gpsPoints.map((point) => point.time),
-            colorscale: 'Turbo'
-          },
-          marker: {
-            size: 3,
-            color: gpsPoints.map((point) => point.time),
-            colorscale: 'Turbo',
-            showscale: true,
-            colorbar: { title: 'Time (s)' }
-          }
-        },
-        {
-          type: 'scatter3d',
-          mode: 'markers+text',
-          x: gpsEventMarkers.map((point) => point.longitude),
-          y: gpsEventMarkers.map((point) => point.latitude),
-          z: gpsEventMarkers.map((point) => point.altitude),
-          text: gpsEventMarkers.map((point) => point.label),
-          textposition: 'top center',
-          hovertemplate:
-            '%{text}<br>Source: %{customdata}<br>Lon: %{x:.6f}<br>Lat: %{y:.6f}<br>Alt: %{z:.2f} m<br>Time: %{meta:.2f} s<extra></extra>',
-          customdata: gpsEventMarkers.map((point) => point.sourceLabel),
-          meta: gpsEventMarkers.map((point) => point.time),
-          marker: {
-            size: 5,
-            color: gpsEventMarkers.map(
-              (point) => `rgba(${point.color[0]}, ${point.color[1]}, ${point.color[2]}, ${point.color[3] / 255})`
-            ),
-            line: {
-              color: '#ffffff',
-              width: 1
-            }
-          }
-        }
-      ],
-      {
-        autosize: true,
-        paper_bgcolor: 'rgba(0,0,0,0)',
-        font: { color: '#e4e7eb' },
-        margin: { t: 24, r: 24, b: 24, l: 24 },
-        scene: {
-          aspectmode: 'manual',
-          aspectratio: gpsAspectRatio,
-          xaxis: { title: 'Longitude', gridcolor: '#30343a' },
-          yaxis: { title: 'Latitude', gridcolor: '#30343a' },
-          zaxis: { title: 'Altitude (m)', gridcolor: '#30343a' },
-          bgcolor: 'rgba(0,0,0,0)'
-        }
-      },
-      {
-        responsive: true,
-        displaylogo: false,
-        scrollZoom: true
-      }
-    ).then(() => {
-      Plotly3D.Plots.resize(plotElement);
-    });
+      buildSingleGpsPlot3dTraces(gpsPoints, gpsEventMarkers, displayUnits),
+      gpsAspectRatio,
+      `Altitude (${displayUnitLabel(LENGTH_METERS, displayUnits)})`
+    );
 
     return () => {
-      Plotly3D.purge(plotElement);
+      purgeGpsPlot3d(plotElement);
     };
-  }, [activeSection, dataset, gpsAspectRatio, gpsColumns, gpsEventMarkers, gpsPoints, isActive]);
+  }, [activeSection, dataset, displayUnits, gpsAspectRatio, gpsColumns, gpsEventMarkers, gpsPoints, isActive]);
 
   const saveAttributes = async () => {
     if (!dataset || !hasAttributeChanges) return;
@@ -990,6 +854,14 @@ export function FlightViewer({
             type="checkbox"
           />
           <span title="Auto-detect time units, GPS columns, and flight events">Auto-detect</span>
+        </label>
+        <label className="checkbox-row toolbar-checkbox">
+          <input
+            checked={showEvents}
+            onChange={(event) => setShowEvents(event.target.checked)}
+            type="checkbox"
+          />
+          <span title="Show flight event markers on the 2D plot">Show events</span>
         </label>
       </header>
 
@@ -1147,7 +1019,9 @@ export function FlightViewer({
                         }}
                         type="checkbox"
                       />
-                      {series.header}
+                      {dataset
+                        ? seriesDisplayLabel(series.header, series.header, dataset.columnUnits, displayUnits)
+                        : series.header}
                     </label>
                   ))}
                 </div>

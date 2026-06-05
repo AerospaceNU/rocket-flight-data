@@ -2,6 +2,7 @@ import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { sanitizeRows, type SanitizationConfig } from './sanitization';
 import type { AltimeterImporter, ParseOptions, ParsedImport } from './types';
+import { EASYMINI_COLUMN_UNITS } from './columnUnits';
 
 // No range/state/GPS rules needed yet. Add them here to opt EasyMini into the
 // "Sanitize data" toggle (see fcbgroundstationSanitizer.ts for the pattern).
@@ -86,6 +87,7 @@ export const easyMiniImporter: AltimeterImporter = {
     return {
       headers: EASYMINI_HEADERS,
       rows: cleanedRows,
+      columnUnits: EASYMINI_COLUMN_UNITS,
       attributes,
       warnings,
       sourceFiles: filePaths

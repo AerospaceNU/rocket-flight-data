@@ -4,6 +4,7 @@ export {
   axisRange,
   getColumnIndex,
   getColumnIndexByAliases,
+  isMeaningfulGpsCoordinate,
   isValidLatitude,
   isValidLongitude,
   median,

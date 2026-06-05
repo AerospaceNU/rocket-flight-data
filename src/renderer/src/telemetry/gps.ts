@@ -2,6 +2,7 @@ import type { GpsMapPoint } from '../GpsMapView';
 import {
   autoDetectEnabled,
   getColumnIndexByAliases,
+  isMeaningfulGpsCoordinate,
   isValidLatitude,
   isValidLongitude,
   parseNumber,
@@ -19,6 +20,7 @@ export type GpsColumns = GpsPositionColumns & {
 
 function scoreGpsColumnPair(rows: string[][], latitudeIndex: number, longitudeIndex: number) {
   let validCount = 0;
+  let meaningfulCount = 0;
   let localLookingCount = 0;
 
   for (const row of rows) {
@@ -31,12 +33,18 @@ function scoreGpsColumnPair(rows: string[][], latitudeIndex: number, longitudeIn
 
     validCount += 1;
 
+    if (!isMeaningfulGpsCoordinate(latitude, longitude)) {
+      continue;
+    }
+
+    meaningfulCount += 1;
+
     if (Math.abs(latitude) < 5 && Math.abs(longitude) < 5) {
       localLookingCount += 1;
     }
   }
 
-  return { validCount, localLookingCount };
+  return { validCount, meaningfulCount, localLookingCount };
 }
 
 export function findGpsColumns(headers: string[], rows: string[][], options?: AutoDetectOptions): GpsPositionColumns | null {
@@ -64,7 +72,7 @@ export function findGpsColumns(headers: string[], rows: string[][], options?: Au
       };
     })
     .filter((candidate): candidate is NonNullable<typeof candidate> => candidate !== null)
-    .filter((candidate) => candidate.validCount > 0);
+    .filter((candidate) => candidate.meaningfulCount > 0);
 
   if (candidates.length === 0) {
     return null;
@@ -72,8 +80,8 @@ export function findGpsColumns(headers: string[], rows: string[][], options?: Au
 
   if (autoDetectEnabled(options)) {
     candidates.sort((left, right) => {
-      const leftLocalRatio = left.localLookingCount / left.validCount;
-      const rightLocalRatio = right.localLookingCount / right.validCount;
+      const leftLocalRatio = left.localLookingCount / left.meaningfulCount;
+      const rightLocalRatio = right.localLookingCount / right.meaningfulCount;
       const leftIsMostlyLocal = leftLocalRatio > 0.95;
       const rightIsMostlyLocal = rightLocalRatio > 0.95;
 
@@ -81,8 +89,8 @@ export function findGpsColumns(headers: string[], rows: string[][], options?: Au
         return leftIsMostlyLocal ? 1 : -1;
       }
 
-      if (left.validCount !== right.validCount) {
-        return right.validCount - left.validCount;
+      if (left.meaningfulCount !== right.meaningfulCount) {
+        return right.meaningfulCount - left.meaningfulCount;
       }
 
       return left.preferenceIndex - right.preferenceIndex;
@@ -125,8 +133,7 @@ export function buildGpsPoints(
         point.latitude !== null &&
         point.longitude !== null &&
         point.altitude !== null &&
-        isValidLatitude(point.latitude) &&
-        isValidLongitude(point.longitude) &&
+        isMeaningfulGpsCoordinate(point.latitude, point.longitude) &&
         Number.isFinite(point.time)
     )
     .map((point) => ({

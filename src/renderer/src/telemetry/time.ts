@@ -34,11 +34,18 @@ function timeColumnStats(rows: string[][], columnIndex: number) {
   let min: number | null = null;
   let max: number | null = null;
   let previous: number | null = null;
+  let numericCount = 0;
+  let fractionalCount = 0;
   const deltas: number[] = [];
 
   for (const row of rows) {
-    const value = parseNumber(row[columnIndex]);
+    const raw = row[columnIndex];
+    const value = parseNumber(raw);
     if (value === null) continue;
+    numericCount += 1;
+    if (raw?.includes('.') && Math.abs(value - Math.trunc(value)) > 1e-9) {
+      fractionalCount += 1;
+    }
     if (first === null) first = value;
     if (min === null || value < min) min = value;
     if (max === null || value > max) max = value;
@@ -52,7 +59,7 @@ function timeColumnStats(rows: string[][], columnIndex: number) {
   const sortedDeltas = deltas.sort((left, right) => left - right);
   const medianDelta = sortedDeltas[Math.floor(sortedDeltas.length / 2)] ?? null;
 
-  return { first, min, max, medianDelta };
+  return { first, min, max, medianDelta, numericCount, fractionalCount };
 }
 
 function isLikelyMillisecondTimestamp(
@@ -79,6 +86,40 @@ function isLikelyMillisecondTimestamp(
   return rawRange > 10_000 && medianDeltaAsSeconds > 1 && medianDeltaAsMilliseconds <= 10;
 }
 
+function isLikelySecondTimestampInMillisecondField(
+  header: string,
+  secondsPerUnit: number,
+  stats: {
+    min: number | null;
+    max: number | null;
+    medianDelta: number | null;
+    numericCount: number;
+    fractionalCount: number;
+  }
+) {
+  if (secondsPerUnit !== 0.001) return false;
+  if (stats.min === null || stats.max === null || stats.medianDelta === null) return false;
+
+  const normalized = normalizedHeader(header);
+  const looksLikeMillisecondField =
+    normalized.includes('timestamp_ms') ||
+    normalized.includes('timestampms') ||
+    normalized.includes('time_ms') ||
+    normalized.includes('timems');
+  if (!looksLikeMillisecondField) return false;
+
+  const rawRange = Math.abs(stats.max - stats.min);
+  const rangeIfMilliseconds = rawRange * 0.001;
+  const rangeIfSeconds = rawRange;
+  const fractionalRatio = stats.numericCount > 0 ? stats.fractionalCount / stats.numericCount : 0;
+
+  return (
+    rangeIfMilliseconds < 5 &&
+    rangeIfSeconds >= 5 &&
+    (fractionalRatio > 0.05 || stats.medianDelta < 5)
+  );
+}
+
 export function getTimeColumn(headers: string[], rows: string[][] = [], options?: AutoDetectOptions) {
   const normalizedHeaders = headers.map(normalizedHeader);
   const candidates: Array<TimeColumnDefinition & { index: number; rangeSeconds: number }> = [];
@@ -89,12 +130,27 @@ export function getTimeColumn(headers: string[], rows: string[][] = [], options?
 
     if (index >= 0) {
       const stats = rows.length > 0 ? timeColumnStats(rows, index) : null;
-      const adjustedSecondsPerUnit =
-        applyAutoDetect &&
-        stats &&
-        isLikelyMillisecondTimestamp(headers[index] ?? '', definition.relativeToFirstValue, definition.secondsPerUnit, stats)
-          ? 0.001
-          : definition.secondsPerUnit;
+      let adjustedSecondsPerUnit = definition.secondsPerUnit;
+      if (applyAutoDetect && stats) {
+        if (
+          isLikelyMillisecondTimestamp(
+            headers[index] ?? '',
+            definition.relativeToFirstValue,
+            definition.secondsPerUnit,
+            stats
+          )
+        ) {
+          adjustedSecondsPerUnit = 0.001;
+        } else if (
+          isLikelySecondTimestampInMillisecondField(
+            headers[index] ?? '',
+            definition.secondsPerUnit,
+            stats
+          )
+        ) {
+          adjustedSecondsPerUnit = 1;
+        }
+      }
       const rangeSeconds =
         stats && stats.min !== null && stats.max !== null
           ? Math.abs(stats.max - stats.min) * adjustedSecondsPerUnit
@@ -145,7 +201,7 @@ export function buildXAxis(dataset: ImportedDataset, options?: AutoDetectOptions
       const relativeValue = timeColumn.relativeToFirstValue ? timeValue - firstTimeValue : timeValue;
       return relativeValue * timeColumn.secondsPerUnit;
     }),
-    title: 'Time (s)',
+    title: 'Time(s)',
     hoverLabel: 'time'
   };
 }

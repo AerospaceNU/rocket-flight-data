@@ -22,6 +22,8 @@ export type StateEventProfile = {
 export type EventProfile = {
   /** State-machine config, or undefined for altimeters with no state column. */
   state?: StateEventProfile;
+  /** True when the file starts at launch with no useful pre-flight samples. */
+  launchAtStart?: boolean;
   /**
    * When true the raw state column is considered unreliable: it is only used
    * when auto-detect is OFF. With auto-detect ON the builder ignores it and

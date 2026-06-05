@@ -3,7 +3,12 @@ import logoUrl from './assets/logo.png';
 import { CompareView } from './CompareView';
 import { FlightViewer } from './FlightViewer';
 import { ImportWorkflow } from './ImportWorkflow';
-import type { FlightSummary, ImportConfig, SaveImportResult, ThemeId } from './importTypes';
+import type { DisplayUnitSystem, FlightSummary, ImportConfig, SaveImportResult, ThemeId } from './importTypes';
+import {
+  convertDisplayValue,
+  displayUnitLabel,
+  type ColumnUnit
+} from '../../shared/units';
 
 type BaseTab = {
   id: string;
@@ -34,6 +39,9 @@ type AppTab = HomeTab | CompareTab | ImportTab | ViewerTab;
 
 const HOME_TAB_ID = 'home';
 const COMPARE_TAB_ID = 'compare';
+const LENGTH_METERS: ColumnUnit = { family: 'length', unit: 'm' };
+const VELOCITY_METERS_PER_SECOND: ColumnUnit = { family: 'velocity', unit: 'm/s' };
+const ACCELERATION_METERS_PER_SECOND_SQUARED: ColumnUnit = { family: 'acceleration', unit: 'm/s^2' };
 
 export function App() {
   const [tabs, setTabs] = useState<AppTab[]>([
@@ -45,6 +53,7 @@ export function App() {
   const [config, setConfig] = useState<ImportConfig | null>(null);
   const [flights, setFlights] = useState<FlightSummary[]>([]);
   const [theme, setTheme] = useState<ThemeId>('default-dark');
+  const [displayUnits, setDisplayUnits] = useState<DisplayUnitSystem>('metric');
   const [searchKeyword, setSearchKeyword] = useState('');
   const [altimeterTypeFilter, setAltimeterTypeFilter] = useState('');
   const [gpsDataFilter, setGpsDataFilter] = useState<'all' | 'with-gps' | 'without-gps'>('all');
@@ -58,22 +67,37 @@ export function App() {
   const filteredFlights = useMemo(() => {
     const keyword = searchKeyword.trim().toLowerCase();
 
-    const inRange = (value: number | null, min: string, max: string) => {
+    const inRange = (
+      value: number | null,
+      min: string,
+      max: string,
+      columnUnit: ColumnUnit
+    ) => {
       const minNum = Number.parseFloat(min);
       const maxNum = Number.parseFloat(max);
       const hasMin = Number.isFinite(minNum);
       const hasMax = Number.isFinite(maxNum);
       if (!hasMin && !hasMax) return true;
       if (value === null) return false;
-      if (hasMin && value < minNum) return false;
-      if (hasMax && value > maxNum) return false;
+      const displayValue = convertDisplayValue(value, columnUnit, displayUnits);
+      if (hasMin && displayValue < minNum) return false;
+      if (hasMax && displayValue > maxNum) return false;
       return true;
     };
 
     return flights.filter((flight) => {
-      if (!inRange(flight.peakAltitudeMeters, altitudeMinInput, altitudeMaxInput)) return false;
-      if (!inRange(flight.peakVelocityMs, velocityMinInput, velocityMaxInput)) return false;
-      if (!inRange(flight.peakAccelerationMss, accelerationMinInput, accelerationMaxInput)) return false;
+      if (!inRange(flight.peakAltitudeMeters, altitudeMinInput, altitudeMaxInput, LENGTH_METERS)) return false;
+      if (!inRange(flight.peakVelocityMs, velocityMinInput, velocityMaxInput, VELOCITY_METERS_PER_SECOND)) return false;
+      if (
+        !inRange(
+          flight.peakAccelerationMss,
+          accelerationMinInput,
+          accelerationMaxInput,
+          ACCELERATION_METERS_PER_SECOND_SQUARED
+        )
+      ) {
+        return false;
+      }
       if (altimeterTypeFilter) {
         const hasMatch = flight.altimeters.some(
           (altimeter) => altimeter.altimeterName === altimeterTypeFilter
@@ -107,7 +131,8 @@ export function App() {
     velocityMinInput,
     velocityMaxInput,
     accelerationMinInput,
-    accelerationMaxInput
+    accelerationMaxInput,
+    displayUnits
   ]);
 
   const refreshFlights = useCallback(async () => {
@@ -323,7 +348,7 @@ export function App() {
               </select>
             </label>
             <label>
-              <span className="summary-label">Min altitude (m)</span>
+              <span className="summary-label">Min altitude ({displayUnitLabel(LENGTH_METERS, displayUnits)})</span>
               <input
                 type="number"
                 value={altitudeMinInput}
@@ -332,7 +357,7 @@ export function App() {
               />
             </label>
             <label>
-              <span className="summary-label">Max altitude (m)</span>
+              <span className="summary-label">Max altitude ({displayUnitLabel(LENGTH_METERS, displayUnits)})</span>
               <input
                 type="number"
                 value={altitudeMaxInput}
@@ -341,7 +366,9 @@ export function App() {
               />
             </label>
             <label>
-              <span className="summary-label">Min velocity (m/s)</span>
+              <span className="summary-label">
+                Min velocity ({displayUnitLabel(VELOCITY_METERS_PER_SECOND, displayUnits)})
+              </span>
               <input
                 type="number"
                 value={velocityMinInput}
@@ -350,7 +377,9 @@ export function App() {
               />
             </label>
             <label>
-              <span className="summary-label">Max velocity (m/s)</span>
+              <span className="summary-label">
+                Max velocity ({displayUnitLabel(VELOCITY_METERS_PER_SECOND, displayUnits)})
+              </span>
               <input
                 type="number"
                 value={velocityMaxInput}
@@ -359,7 +388,9 @@ export function App() {
               />
             </label>
             <label>
-              <span className="summary-label">Min accel (m/s&sup2;)</span>
+              <span className="summary-label">
+                Min accel ({displayUnitLabel(ACCELERATION_METERS_PER_SECOND_SQUARED, displayUnits)})
+              </span>
               <input
                 type="number"
                 value={accelerationMinInput}
@@ -368,7 +399,9 @@ export function App() {
               />
             </label>
             <label>
-              <span className="summary-label">Max accel (m/s&sup2;)</span>
+              <span className="summary-label">
+                Max accel ({displayUnitLabel(ACCELERATION_METERS_PER_SECOND_SQUARED, displayUnits)})
+              </span>
               <input
                 type="number"
                 value={accelerationMaxInput}
@@ -381,13 +414,31 @@ export function App() {
             {filteredFlights.map((flight) => {
               const metaParts = [flight.location || 'No location set'];
               if (flight.peakAltitudeMeters !== null) {
-                metaParts.push(`${Math.round(flight.peakAltitudeMeters).toLocaleString()} m`);
+                const value = convertDisplayValue(flight.peakAltitudeMeters, LENGTH_METERS, displayUnits);
+                metaParts.push(`${Math.round(value).toLocaleString()} ${displayUnitLabel(LENGTH_METERS, displayUnits)}`);
               }
               if (flight.peakVelocityMs !== null) {
-                metaParts.push(`${Math.round(flight.peakVelocityMs).toLocaleString()} m/s`);
+                const value = convertDisplayValue(
+                  flight.peakVelocityMs,
+                  VELOCITY_METERS_PER_SECOND,
+                  displayUnits
+                );
+                metaParts.push(
+                  `${Math.round(value).toLocaleString()} ${displayUnitLabel(VELOCITY_METERS_PER_SECOND, displayUnits)}`
+                );
               }
               if (flight.peakAccelerationMss !== null) {
-                metaParts.push(`${Math.round(flight.peakAccelerationMss).toLocaleString()} m/s²`);
+                const value = convertDisplayValue(
+                  flight.peakAccelerationMss,
+                  ACCELERATION_METERS_PER_SECOND_SQUARED,
+                  displayUnits
+                );
+                metaParts.push(
+                  `${Math.round(value).toLocaleString()} ${displayUnitLabel(
+                    ACCELERATION_METERS_PER_SECOND_SQUARED,
+                    displayUnits
+                  )}`
+                );
               }
               const handleOpen = () => openFlight({ directoryName: flight.directoryName });
               return (
@@ -454,12 +505,13 @@ export function App() {
     }
 
     if (tab.kind === 'compare') {
-      return <CompareView config={config} flights={flights} isActive={isActive} />;
+      return <CompareView config={config} displayUnits={displayUnits} flights={flights} isActive={isActive} />;
     }
 
     return (
       <FlightViewer
         config={config}
+        displayUnits={displayUnits}
         flight={flights.find((flight) => flight.directoryName === tab.flightDirectoryName) ?? null}
         isActive={isActive}
         onDatasetUpdated={refreshFlights}
@@ -496,6 +548,17 @@ export function App() {
             ) : null}
           </button>
         ))}
+        <span className="tabbar-spacer" />
+        <label className="unit-selector">
+          <span>Units</span>
+          <select
+            value={displayUnits}
+            onChange={(event) => setDisplayUnits(event.target.value as DisplayUnitSystem)}
+          >
+            <option value="metric">Meters</option>
+            <option value="imperial">Feet</option>
+          </select>
+        </label>
       </nav>
       <section className="tab-content">
         {tabs.map((tab) => (

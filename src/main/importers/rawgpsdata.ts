@@ -2,6 +2,7 @@ import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { sanitizeRows, type SanitizationConfig } from './sanitization';
 import type { AltimeterImporter, ParseOptions, ParsedImport } from './types';
+import { RAW_GPS_COLUMN_UNITS } from './columnUnits';
 
 // No range/state/GPS rules needed yet. Add them here to opt RawGPSData into the
 // "Sanitize data" toggle (see fcbgroundstationSanitizer.ts for the pattern).
@@ -83,6 +84,7 @@ export const rawGpsDataImporter: AltimeterImporter = {
     return {
       headers: RAW_GPS_HEADERS,
       rows: cleanedRows,
+      columnUnits: RAW_GPS_COLUMN_UNITS,
       attributes,
       warnings,
       sourceFiles: filePaths

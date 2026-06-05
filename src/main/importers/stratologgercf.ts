@@ -1,6 +1,7 @@
 import { readFile } from 'node:fs/promises';
 import { sanitizeRows, type SanitizationConfig } from './sanitization';
 import type { AltimeterImporter, ParseOptions, ParsedImport } from './types';
+import { STRATOLOGGER_COLUMN_UNITS } from './columnUnits';
 
 // No range/state/GPS rules needed yet. Add them here to opt StratoLoggerCF into
 // the "Sanitize data" toggle (see fcbgroundstationSanitizer.ts for the pattern).
@@ -91,6 +92,7 @@ export const stratoLoggerCfImporter: AltimeterImporter = {
     return {
       headers: STRATOLOGGER_HEADERS,
       rows: cleanedRows,
+      columnUnits: STRATOLOGGER_COLUMN_UNITS,
       attributes,
       warnings,
       sourceFiles: filePaths

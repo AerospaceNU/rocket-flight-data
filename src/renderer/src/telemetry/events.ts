@@ -27,11 +27,36 @@ export type EventWindow = {
 };
 
 const MAX_EVENT_MARKERS = 200;
+const CONTINUITY_LOST_DEBOUNCE_SECONDS = 2;
 
 export function getImporterId(dataset: ImportedDataset) {
   return dataset.attributes.find((attribute) => attribute.key === 'importer_id')?.value ??
     dataset.summary.attributes.importer_id ??
     '';
+}
+
+function collectValidAltitudeVelocitySamples(
+  rows: string[][],
+  startIndex: number,
+  altitudeIndex: number,
+  velocityIndex: number | null,
+  limit: number,
+  requireVelocity: boolean
+) {
+  const samples: Array<{ altitude: number; velocity: number | null }> = [];
+
+  for (let index = startIndex; index < rows.length && samples.length < limit; index += 1) {
+    const altitude = parseNumber(rows[index]?.[altitudeIndex]);
+    const velocity = velocityIndex === null ? null : parseNumber(rows[index]?.[velocityIndex]);
+
+    if (altitude === null || (requireVelocity && velocity === null)) {
+      continue;
+    }
+
+    samples.push({ altitude, velocity });
+  }
+
+  return samples;
 }
 
 export function estimateLaunchTimeFromAltitude(
@@ -62,9 +87,17 @@ export function estimateLaunchTimeFromAltitude(
   }
 
   const altitudes = dataset.rows.map((row) => parseNumber(row[altitudeIndex]));
-  const baselineSample = altitudes
-    .slice(0, Math.min(30, Math.max(5, Math.floor(altitudes.length * 0.1))))
-    .filter((value): value is number => value !== null);
+  const baselineSampleLimit = Math.min(30, Math.max(5, Math.floor(altitudes.length * 0.1)));
+  const baselineSample: number[] = [];
+  for (const altitude of altitudes) {
+    if (altitude === null) {
+      continue;
+    }
+    baselineSample.push(altitude);
+    if (baselineSample.length >= baselineSampleLimit) {
+      break;
+    }
+  }
 
   if (baselineSample.length < 5) {
     return null;
@@ -81,15 +114,11 @@ export function estimateLaunchTimeFromAltitude(
         continue;
       }
 
-      const nextRows = dataset.rows.slice(index, Math.min(index + 7, dataset.rows.length));
+      const nextSamples = collectValidAltitudeVelocitySamples(dataset.rows, index, altitudeIndex, velocityIndex, 7, true);
       let lastAltitude: number | null = null;
-      const sustained = nextRows.filter((row) => {
-        const nextAltitude = parseNumber(row[altitudeIndex]);
-        const nextVelocity = parseNumber(row[velocityIndex]);
-        if (nextAltitude !== null) {
-          lastAltitude = nextAltitude;
-        }
-        return nextAltitude !== null && nextVelocity !== null && nextAltitude >= baseline + 0.25 && nextVelocity > 2;
+      const sustained = nextSamples.filter((sample) => {
+        lastAltitude = sample.altitude;
+        return sample.altitude >= baseline + 0.25 && sample.velocity !== null && sample.velocity > 2;
       });
 
       if (sustained.length >= 4 && lastAltitude !== null && lastAltitude >= baseline + 8) {
@@ -105,11 +134,9 @@ export function estimateLaunchTimeFromAltitude(
       continue;
     }
 
-    const nextRows = dataset.rows.slice(index, Math.min(index + 5, dataset.rows.length));
-    const sustained = nextRows.filter((row) => {
-      const nextAltitude = parseNumber(row[altitudeIndex]);
-      const nextVelocity = velocityIndex === null ? null : parseNumber(row[velocityIndex]);
-      return nextAltitude !== null && nextAltitude >= baseline + 8 && (nextVelocity === null || nextVelocity > 0);
+    const nextSamples = collectValidAltitudeVelocitySamples(dataset.rows, index, altitudeIndex, velocityIndex, 5, false);
+    const sustained = nextSamples.filter((sample) => {
+      return sample.altitude >= baseline + 8 && (sample.velocity === null || sample.velocity > 0);
     });
 
     if (sustained.length >= 3) {
@@ -214,9 +241,20 @@ export function buildEventMarkers(
   const stateNameIndex = getColumnIndex(dataset.headers, 'state_name');
   const drogueFiredIndex = getColumnIndex(dataset.headers, 'drogueFired');
   const mainFiredIndex = getColumnIndex(dataset.headers, 'mainFired');
+  const drogueContinuityIndex = importerId === 'sillygoose' ? getColumnIndex(dataset.headers, 'drogueCont') : null;
+  const mainContinuityIndex = importerId === 'sillygoose' ? getColumnIndex(dataset.headers, 'mainCont') : null;
   const events: EventMarker[] = [];
-  let launchTime: number | null = null;
+  let launchTime: number | null = profile?.launchAtStart ? xValues[0] ?? 0 : null;
   let flightEndTime: number | null = null;
+  let hasSeenDrogueContinuity = false;
+  let hasSeenMainContinuity = false;
+  let lastDrogueContinuityLostTime = Number.NEGATIVE_INFINITY;
+  let lastMainContinuityLostTime = Number.NEGATIVE_INFINITY;
+
+  const continuityPresent = (value: string | undefined) => {
+    const parsed = Number.parseFloat(value ?? '');
+    return Number.isFinite(parsed) && parsed > 0;
+  };
 
   for (let index = 1; index < dataset.rows.length; index += 1) {
     if (stateIndex !== null && stateProfile !== null) {
@@ -265,6 +303,56 @@ export function buildEventMarkers(
         rowIndex: index,
         color: '#b07cff'
       });
+    }
+
+    if (drogueContinuityIndex !== null) {
+      const previousContinuity = continuityPresent(dataset.rows[index - 1]?.[drogueContinuityIndex]);
+      const currentContinuity = continuityPresent(dataset.rows[index]?.[drogueContinuityIndex]);
+      const eventTime = xValues[index];
+
+      if (previousContinuity || currentContinuity) {
+        hasSeenDrogueContinuity = true;
+      }
+      if (
+        hasSeenDrogueContinuity &&
+        previousContinuity &&
+        !currentContinuity &&
+        Number.isFinite(eventTime) &&
+        eventTime - lastDrogueContinuityLostTime >= CONTINUITY_LOST_DEBOUNCE_SECONDS
+      ) {
+        events.push({
+          label: 'DROGUE CONTINUITY LOST',
+          time: eventTime,
+          rowIndex: index,
+          color: '#ffbf66'
+        });
+        lastDrogueContinuityLostTime = eventTime;
+      }
+    }
+
+    if (mainContinuityIndex !== null) {
+      const previousContinuity = continuityPresent(dataset.rows[index - 1]?.[mainContinuityIndex]);
+      const currentContinuity = continuityPresent(dataset.rows[index]?.[mainContinuityIndex]);
+      const eventTime = xValues[index];
+
+      if (previousContinuity || currentContinuity) {
+        hasSeenMainContinuity = true;
+      }
+      if (
+        hasSeenMainContinuity &&
+        previousContinuity &&
+        !currentContinuity &&
+        Number.isFinite(eventTime) &&
+        eventTime - lastMainContinuityLostTime >= CONTINUITY_LOST_DEBOUNCE_SECONDS
+      ) {
+        events.push({
+          label: 'MAIN CONTINUITY LOST',
+          time: eventTime,
+          rowIndex: index,
+          color: '#ffbf66'
+        });
+        lastMainContinuityLostTime = eventTime;
+      }
     }
 
     if (
@@ -343,6 +431,8 @@ export function buildWindow(xValues: number[], flightStartTime: number, flightEn
 
 export function normalizeEventLabel(label: string) {
   const normalized = label.trim().toUpperCase();
+  if (normalized.includes('DROGUE') && normalized.includes('CONTINUITY')) return 'DROGUE_CONTINUITY';
+  if (normalized.includes('MAIN') && normalized.includes('CONTINUITY')) return 'MAIN_CONTINUITY';
   if (normalized.includes('DROGUE')) return 'DROGUE';
   if (normalized.includes('MAIN')) return 'MAIN';
   if (normalized.includes('LAND') || normalized.includes('POST_FLIGHT')) return 'LANDING';

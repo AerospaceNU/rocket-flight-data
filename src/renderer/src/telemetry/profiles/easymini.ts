@@ -10,10 +10,11 @@ export const EASYMINI_STATE_NAMES: Record<number, string> = {
 };
 
 export const easyMiniProfile: EventProfile = {
+  launchAtStart: true,
   state: {
     stateColumn: 'state',
     stateNames: EASYMINI_STATE_NAMES,
-    isLaunchTransition: (_previousState, currentState) => currentState === 5,
+    isLaunchTransition: () => false,
     isEndTransition: (_previousState, currentState) => currentState === 8
   }
 };

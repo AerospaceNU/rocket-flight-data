@@ -8,7 +8,8 @@ import {
 import type { ImportPreview, ParsedImport, ParseOptions } from './importers/types';
 import type { StandardColumnMapping, StandardColumnRef } from '../shared/importConfig';
 import { getStandardColumnsForImporter } from '../shared/importConfig';
-import { getColumnIndexByAliases } from '../shared/telemetryMath';
+import { getColumnIndexByAliases, isMeaningfulGpsCoordinate, parseNumber } from '../shared/telemetryMath';
+import type { ColumnUnitMap } from '../shared/units';
 
 export type FlightSummary = {
   directoryName: string;
@@ -53,6 +54,7 @@ export type ImportedDataset = {
   summary: ImportedAltimeterSummary;
   attributes: CustomAttribute[];
   headers: string[];
+  columnUnits: ColumnUnitMap;
   rows: string[][];
 };
 
@@ -261,7 +263,7 @@ async function upsertFlightAttributes(
 
   await writeFlightAttributesRecord(outputDirectory, flightDirectoryName, next);
 }
-const PARSE_CACHE_VERSION = '4';
+const PARSE_CACHE_VERSION = '5';
 
 async function copyOriginalFiles(filePaths: string[], destinationDirectory: string) {
   await mkdir(destinationDirectory, { recursive: true });
@@ -319,11 +321,17 @@ function attributesToRecord(attributes: CustomAttribute[]) {
   }, {});
 }
 
-function datasetHasGpsHeaders(headers: string[]) {
+function datasetHasGpsHeaders(headers: string[], rows: string[][]) {
   const latitudeIndex = getColumnIndexByAliases(headers, ['gps_lat_mod', 'latitude', 'lat', 'gps_lat']);
   const longitudeIndex = getColumnIndexByAliases(headers, ['gps_long_mod', 'longitude', 'lon', 'lng', 'gps_long']);
   const altitudeIndex = getColumnIndexByAliases(headers, ['altitude', 'altitude_m', 'altitudem', 'gps_alt']);
-  return latitudeIndex !== null && longitudeIndex !== null && altitudeIndex !== null;
+  if (latitudeIndex === null || longitudeIndex === null || altitudeIndex === null) {
+    return false;
+  }
+
+  return rows.some((row) =>
+    isMeaningfulGpsCoordinate(parseNumber(row[latitudeIndex]), parseNumber(row[longitudeIndex]))
+  );
 }
 
 function computePeakFromRef(
@@ -500,9 +508,9 @@ async function readDatasetRows(
   altimeterDirectory: string,
   importerId: string,
   options: ParseOptions = {}
-): Promise<{ headers: string[]; rows: string[][] }> {
+): Promise<{ headers: string[]; columnUnits: ColumnUnitMap; rows: string[][] }> {
   const parsed = await parseAltimeterOriginals(altimeterDirectory, importerId, options);
-  return { headers: parsed.headers, rows: parsed.rows };
+  return { headers: parsed.headers, columnUnits: parsed.columnUnits, rows: parsed.rows };
 }
 
 async function resolveDatasetImporterId(
@@ -597,7 +605,7 @@ async function resolveDerivedData(
   }
 
   const metrics = computeMetricsFromParsed(parsed, mapping);
-  const hasGpsData = datasetHasGpsHeaders(parsed.headers);
+  const hasGpsData = datasetHasGpsHeaders(parsed.headers, parsed.rows);
 
   const nextAttributes = { ...attributes };
   nextAttributes.row_count = String(metrics.rowCount);
@@ -793,6 +801,7 @@ export async function readImportedDataset(
     summary: effectiveSummary,
     attributes: effectiveAttributes,
     headers: parsed.headers,
+    columnUnits: parsed.columnUnits,
     rows: parsed.rows
   };
 }
@@ -859,6 +868,7 @@ export async function previewImport(altimeterId: string, filePaths: string[]): P
 
   return {
     headers: parsed.headers,
+    columnUnits: parsed.columnUnits,
     rowCount: parsed.rows.length,
     attributes: parsed.attributes,
     warnings: parsed.warnings,
@@ -1048,7 +1058,7 @@ export async function saveImport(
   if (peaks.peakAccelerationMss !== null) {
     attributes.set('peak_acceleration_mss', peaks.peakAccelerationMss.toFixed(2));
   }
-  attributes.set('has_gps_data', datasetHasGpsHeaders(parsed.headers) ? 'true' : 'false');
+  attributes.set('has_gps_data', datasetHasGpsHeaders(parsed.headers, parsed.rows) ? 'true' : 'false');
   attributes.set('parser_cache_version', PARSE_CACHE_VERSION);
 
   for (const [key, value] of Object.entries(parsed.attributes)) {

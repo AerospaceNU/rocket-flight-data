@@ -2,6 +2,7 @@ import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { sanitizeRows, type SanitizationConfig } from './sanitization';
 import type { AltimeterImporter, ParseOptions, ParsedImport } from './types';
+import { SILLYGOOSE_COLUMN_UNITS } from './columnUnits';
 
 // No range/state/GPS rules needed yet. Add them here to opt SillyGoose into the
 // "Sanitize data" toggle (see fcbgroundstationSanitizer.ts for the pattern).
@@ -120,6 +121,7 @@ export const sillyGooseImporter: AltimeterImporter = {
     return {
       headers,
       rows: cleanedRows,
+      columnUnits: SILLYGOOSE_COLUMN_UNITS,
       attributes,
       warnings,
       sourceFiles: filePaths

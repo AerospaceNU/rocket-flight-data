@@ -1,28 +1,44 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import Plotly2D from 'plotly.js-basic-dist-min';
-import Plotly3D from 'plotly.js-gl3d-dist-min';
 import { CompareGpsMapView, type CompareGpsTrack } from './CompareGpsMapView';
 import type {
+  DisplayUnitSystem,
   FlightSummary,
   ImportedAltimeterSummary,
   ImportedDataset,
-  ImportConfig,
-  StandardColumnRef
+  ImportConfig
 } from './importTypes';
 import type { GpsMapPoint } from './GpsMapView';
-import { axisRange, parseNumber } from './telemetry/core';
-import { buildEventWindow, getImporterId } from './telemetry/events';
+import {
+  attachPlotHoverDashboard,
+  computeEventLabelShifts,
+  HOVER_DASHBOARD_IDLE_TEXT
+} from './plot2dShared';
+import {
+  buildCompareGpsPlot3dTraces,
+  computeGpsPlot3dAspectRatio,
+  purgeGpsPlot3d,
+  renderGpsPlot3d
+} from './plot3dShared';
+import { parseNumber } from './telemetry/core';
+import {
+  parseDisplaySeriesValue,
+  seriesDisplayLabel,
+  yAxisTitleForSeries
+} from './plotUnits';
+import { displayUnitLabel, type ColumnUnit, type ColumnUnitMap } from '../../shared/units';
+import { buildEventMarkers, buildEventWindow, getImporterId, type EventMarker } from './telemetry/events';
 import { buildGpsPoints, findAltitudeIndex, findGpsColumns } from './telemetry/gps';
 import { buildXAxis } from './telemetry/time';
 
 type CompareViewProps = {
   config: ImportConfig | null;
+  displayUnits: DisplayUnitSystem;
   flights: FlightSummary[];
   isActive: boolean;
 };
 
 type CompareMode = 'plot2d' | 'plot3d' | 'map2d' | 'map3d';
-type CompareMetric = 'altitude' | 'velocity' | 'acceleration' | 'all';
 
 type CompareDataset = {
   id: string;
@@ -34,6 +50,7 @@ type CompareDataset = {
   xValues: number[];
   visibleRows: string[][];
   visibleXValues: number[];
+  eventMarkers: EventMarker[];
   gpsPoints: GpsMapPoint[];
   color: [number, number, number, number];
 };
@@ -48,33 +65,7 @@ const COLORS: Array<[number, number, number, number]> = [
   [242, 201, 76, 245],
   [235, 130, 211, 245]
 ];
-
-const METRIC_LABELS: Record<CompareMetric, string> = {
-  altitude: 'Altitude / height',
-  velocity: 'Velocity',
-  acceleration: 'Acceleration',
-  all: 'All standard metrics'
-};
-
-function standardRefForMetric(config: ImportConfig | null, importerId: string, metric: Exclude<CompareMetric, 'all'>) {
-  const mapping = config?.altimeters.find((altimeter) => altimeter.importerId === importerId)?.standardColumns;
-  if (!mapping) return null;
-  if (metric === 'altitude') return mapping.altitudeMeters ?? null;
-  if (metric === 'velocity') return mapping.velocityMetersPerSecond ?? null;
-  return mapping.accelerationMetersPerSecondSquared ?? null;
-}
-
-function metricUnit(metric: Exclude<CompareMetric, 'all'>) {
-  if (metric === 'altitude') return 'm';
-  if (metric === 'velocity') return 'm/s';
-  return 'm/s²';
-}
-
-function metricTraceName(metric: Exclude<CompareMetric, 'all'>) {
-  if (metric === 'altitude') return 'Altitude';
-  if (metric === 'velocity') return 'Velocity';
-  return 'Acceleration';
-}
+const LENGTH_METERS: ColumnUnit = { family: 'length', unit: 'm' };
 
 function colorString(color: [number, number, number, number], alphaScale = 1) {
   return `rgba(${color[0]}, ${color[1]}, ${color[2]}, ${Math.min(1, (color[3] / 255) * alphaScale)})`;
@@ -83,12 +74,12 @@ function colorString(color: [number, number, number, number], alphaScale = 1) {
 function prepareDataset(
   dataset: ImportedDataset,
   altimeter: ImportedAltimeterSummary,
-  config: ImportConfig | null,
   showFullData: boolean,
   color: [number, number, number, number],
   autoDetect: boolean
 ): CompareDataset {
   const rawXValues = buildXAxis(dataset, { autoDetect }).values;
+  const rawEventData = buildEventMarkers(dataset, rawXValues, { autoDetect });
   const window = buildEventWindow(dataset, rawXValues, { autoDetect });
   const xValues = rawXValues.map((value) => value - window.launchOffset);
   const minTime = xValues[0] ?? 0;
@@ -103,6 +94,11 @@ function prepareDataset(
         .map(({ index }) => index);
   const visibleRows = visibleIndexes.map((index) => dataset.rows[index] ?? []);
   const visibleXValues = visibleIndexes.map((index) => xValues[index]);
+  const visibleStart = visibleXValues[0] ?? xValues[0] ?? 0;
+  const visibleEnd = visibleXValues[visibleXValues.length - 1] ?? xValues[xValues.length - 1] ?? visibleStart;
+  const eventMarkers = rawEventData.events
+    .map((event) => ({ ...event, time: event.time - window.launchOffset }))
+    .filter((event) => showFullData || (event.time >= visibleStart && event.time <= visibleEnd));
   const gpsPositionColumns = findGpsColumns(dataset.headers, dataset.rows, { autoDetect });
   const altitudeIndex = findAltitudeIndex(dataset.headers);
   const launchAltitude =
@@ -129,29 +125,30 @@ function prepareDataset(
     xValues,
     visibleRows,
     visibleXValues,
+    eventMarkers,
     gpsPoints,
     color
   };
 }
 
-function seriesValues(entry: CompareDataset, ref: StandardColumnRef) {
-  const index = entry.dataset.headers.indexOf(ref.column);
+function seriesValues(entry: CompareDataset, header: string, displayUnits: DisplayUnitSystem) {
+  const index = entry.dataset.headers.indexOf(header);
   if (index < 0) return null;
-  const scale = ref.scaleToStandard ?? 1;
-  return entry.visibleRows.map((row) => {
-    const value = parseNumber(row[index]);
-    return value === null ? Number.NaN : value * scale;
-  });
+  return entry.visibleRows.map((row) =>
+    parseDisplaySeriesValue(row[index], header, entry.dataset.columnUnits, displayUnits)
+  );
 }
 
-export function CompareView({ config, flights, isActive }: CompareViewProps) {
+export function CompareView({ config, displayUnits, flights, isActive }: CompareViewProps) {
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [searchText, setSearchText] = useState('');
   const [mode, setMode] = useState<CompareMode>('plot2d');
-  const [metric, setMetric] = useState<CompareMetric>('altitude');
+  const [selectedSeriesHeaders, setSelectedSeriesHeaders] = useState<string[]>([]);
+  const [hoverText, setHoverText] = useState(HOVER_DASHBOARD_IDLE_TEXT);
   const [showFullData, setShowFullData] = useState(false);
   const [sanitizeData, setSanitizeData] = useState(true);
   const [autoDetect, setAutoDetect] = useState(true);
+  const [showEvents, setShowEvents] = useState(false);
   const [datasets, setDatasets] = useState<CompareDataset[]>([]);
   const [loadError, setLoadError] = useState('');
   const plotRef = useRef<HTMLDivElement | null>(null);
@@ -204,7 +201,6 @@ export function CompareView({ config, flights, isActive }: CompareViewProps) {
         return prepareDataset(
           dataset,
           altimeter,
-          config,
           showFullData,
           COLORS[index % COLORS.length],
           autoDetect
@@ -222,36 +218,114 @@ export function CompareView({ config, flights, isActive }: CompareViewProps) {
     return () => {
       ignore = true;
     };
-  }, [altimeters, sanitizeData, autoDetect, config, selectedIds, showFullData]);
+  }, [altimeters, sanitizeData, autoDetect, selectedIds, showFullData]);
 
-  const traces2d = useMemo(() => {
-    const selectedMetrics: Array<Exclude<CompareMetric, 'all'>> =
-      metric === 'all' ? ['altitude', 'velocity', 'acceleration'] : [metric];
+  const seriesOptions = useMemo(() => {
+    const seen = new Set<string>();
+    const options: { header: string; columnUnits: ColumnUnitMap }[] = [];
 
-    return datasets.flatMap((entry) =>
-      selectedMetrics.flatMap((selectedMetric) => {
-        const ref = standardRefForMetric(config, entry.importerId, selectedMetric);
-        if (!ref) return [];
-        const values = seriesValues(entry, ref);
-        if (!values) return [];
-        return [
-          {
-            x: entry.visibleXValues,
-            y: values,
-            name:
-              metric === 'all'
-                ? `${entry.label} · ${metricTraceName(selectedMetric)}`
-                : entry.label,
-            mode: 'lines',
-            type: 'scatter',
-            line: { color: colorString(entry.color), width: 2 },
-            hovertemplate:
-              `Time: %{x:.2f} s<br>${metricTraceName(selectedMetric)}: %{y:.3f} ${metricUnit(selectedMetric)}<extra>%{fullData.name}</extra>`
-          }
-        ];
-      })
+    for (const entry of datasets) {
+      entry.dataset.headers.forEach((header, index) => {
+        if (index === 0 || seen.has(header)) return;
+        seen.add(header);
+        options.push({ header, columnUnits: entry.dataset.columnUnits });
+      });
+    }
+
+    return options;
+  }, [datasets]);
+
+  const defaultSelectedSeriesHeaders = useMemo(() => {
+    const headers = new Set<string>();
+
+    for (const entry of datasets) {
+      const altitudeColumn = config?.altimeters.find(
+        (altimeter) => altimeter.importerId === entry.importerId
+      )?.standardColumns.altitudeMeters?.column;
+      if (altitudeColumn && entry.dataset.headers.includes(altitudeColumn)) {
+        headers.add(altitudeColumn);
+      }
+    }
+
+    return Array.from(headers);
+  }, [config, datasets]);
+
+  const fallbackSelectedSeriesHeaders = useMemo(
+    () => seriesOptions.slice(0, 3).map((series) => series.header),
+    [seriesOptions]
+  );
+  const datasetSignature = useMemo(() => datasets.map((entry) => entry.id).join('|'), [datasets]);
+  const defaultSeriesSignature = defaultSelectedSeriesHeaders.join('|');
+  const fallbackSeriesSignature = fallbackSelectedSeriesHeaders.join('|');
+
+  useEffect(() => {
+    setSelectedSeriesHeaders(
+      defaultSelectedSeriesHeaders.length > 0
+        ? defaultSelectedSeriesHeaders
+        : fallbackSelectedSeriesHeaders
     );
-  }, [config, datasets, metric]);
+    setHoverText(HOVER_DASHBOARD_IDLE_TEXT);
+  }, [datasetSignature, defaultSeriesSignature, fallbackSeriesSignature]);
+
+  const traces2d = useMemo(
+    () =>
+      datasets.flatMap((entry) =>
+        selectedSeriesHeaders.flatMap((header) => {
+          const values = seriesValues(entry, header, displayUnits);
+          if (!values) return [];
+          return [
+            {
+              x: entry.visibleXValues,
+              y: values,
+              name: seriesDisplayLabel(
+                `${entry.label} - ${header}`,
+                header,
+                entry.dataset.columnUnits,
+                displayUnits
+              ),
+              mode: 'lines',
+              type: 'scatter',
+              line: { color: colorString(entry.color), width: 2 },
+              hoverinfo: 'none'
+            }
+          ];
+        })
+      ),
+    [datasets, displayUnits, selectedSeriesHeaders]
+  );
+  const yAxisTitle2d = useMemo(() => {
+    const columnUnits: ColumnUnitMap = {};
+
+    for (const entry of datasets) {
+      for (const header of selectedSeriesHeaders) {
+        if (!columnUnits[header] && entry.dataset.columnUnits[header]) {
+          columnUnits[header] = entry.dataset.columnUnits[header];
+        }
+      }
+    }
+
+    return yAxisTitleForSeries(selectedSeriesHeaders, columnUnits, displayUnits);
+  }, [datasets, displayUnits, selectedSeriesHeaders]);
+  const compareEvents = useMemo(
+    () =>
+      showEvents
+        ? datasets.flatMap((entry) =>
+            entry.eventMarkers.map((event) => ({
+              ...event,
+              label: `${entry.label} - ${event.label}`
+            }))
+          )
+        : [],
+    [datasets, showEvents]
+  );
+  const compareVisibleXValues = useMemo(
+    () => datasets.flatMap((entry) => entry.visibleXValues).sort((left, right) => left - right),
+    [datasets]
+  );
+  const compareEventLabelShifts = useMemo(
+    () => computeEventLabelShifts(compareEvents, compareVisibleXValues),
+    [compareEvents, compareVisibleXValues]
+  );
 
   const gpsTracks = useMemo(
     (): CompareGpsTrack[] =>
@@ -268,15 +342,7 @@ export function CompareView({ config, flights, isActive }: CompareViewProps) {
 
   const gpsAspectRatio = useMemo(() => {
     const points = gpsTracks.flatMap((track) => track.points);
-    if (points.length === 0) return { x: 1, y: 1, z: 1 };
-    const lonRange = axisRange(points.map((point) => point.longitude));
-    const latRange = axisRange(points.map((point) => point.latitude));
-    const horizontalRange = Math.max(lonRange, latRange, 1e-9);
-    return {
-      x: Math.max(lonRange / horizontalRange, 1e-6),
-      y: Math.max(latRange / horizontalRange, 1e-6),
-      z: 1
-    };
+    return computeGpsPlot3dAspectRatio(points);
   }, [gpsTracks]);
 
   useEffect(() => {
@@ -292,57 +358,68 @@ export function CompareView({ config, flights, isActive }: CompareViewProps) {
         plot_bgcolor: 'rgba(0,0,0,0)',
         font: { color: '#e4e7eb' },
         margin: { t: 24, r: 24, b: 48, l: 64 },
-        hovermode: 'x unified',
-        xaxis: { title: 'Time since launch (s)', gridcolor: '#30343a' },
-        yaxis: { title: metric === 'all' ? 'Standard value' : `${METRIC_LABELS[metric]} (${metricUnit(metric)})`, gridcolor: '#30343a' },
+        hovermode: 'x',
+        shapes: compareEvents.map((event) => ({
+          type: 'line',
+          x0: event.time,
+          x1: event.time,
+          y0: 0,
+          y1: 1,
+          yref: 'paper',
+          line: { color: event.color, width: 1, dash: 'dash' }
+        })),
+        annotations: compareEvents.map((event, index) => ({
+          x: event.time,
+          y: 1,
+          yref: 'paper',
+          yanchor: 'top',
+          yshift: compareEventLabelShifts[index] ?? 0,
+          text: event.label,
+          showarrow: false,
+          textangle: -90,
+          xanchor: 'right',
+          font: { color: event.color, size: 10 }
+        })),
+        xaxis: {
+          title: { text: 'Time(s)', standoff: 12 },
+          automargin: true,
+          gridcolor: '#30343a',
+          showspikes: true,
+          spikemode: 'across',
+          spikesnap: 'cursor',
+          spikedash: 'dash',
+          spikecolor: '#aab2bd',
+          spikethickness: 1
+        },
+        yaxis: { title: yAxisTitle2d, gridcolor: '#30343a' },
         legend: { orientation: 'h', yanchor: 'bottom', y: 1.02, xanchor: 'right', x: 1 }
       },
       { responsive: true, displaylogo: false, scrollZoom: true }
-    ).then(() => Plotly2D.Plots.resize(plotElement));
+    ).then(() => {
+      attachPlotHoverDashboard(plotElement, { hoverLabel: 'time' }, setHoverText);
+      Plotly2D.Plots.resize(plotElement);
+    });
 
     return () => {
       Plotly2D.purge(plotElement);
     };
-  }, [isActive, metric, mode, traces2d]);
+  }, [compareEventLabelShifts, compareEvents, isActive, mode, traces2d, yAxisTitle2d]);
 
   useEffect(() => {
     const plotElement = plotRef.current;
     if (!isActive || !plotElement || mode !== 'plot3d') return;
 
-    Plotly3D.newPlot(
+    void renderGpsPlot3d(
       plotElement,
-      gpsTracks.map((track) => ({
-        type: 'scatter3d',
-        mode: 'lines',
-        x: track.points.map((point) => point.longitude),
-        y: track.points.map((point) => point.latitude),
-        z: track.points.map((point) => point.height),
-        text: track.points.map((point) => `t=${point.time.toFixed(2)}s`),
-        name: track.label,
-        hovertemplate: 'Lon: %{x:.6f}<br>Lat: %{y:.6f}<br>Height: %{z:.2f} m<br>%{text}<extra>%{fullData.name}</extra>',
-        line: { width: 4, color: colorString(track.color) }
-      })),
-      {
-        autosize: true,
-        paper_bgcolor: 'rgba(0,0,0,0)',
-        font: { color: '#e4e7eb' },
-        margin: { t: 24, r: 24, b: 24, l: 24 },
-        scene: {
-          aspectmode: 'manual',
-          aspectratio: gpsAspectRatio,
-          xaxis: { title: 'Longitude', gridcolor: '#30343a' },
-          yaxis: { title: 'Latitude', gridcolor: '#30343a' },
-          zaxis: { title: 'Height (m)', gridcolor: '#30343a' },
-          bgcolor: 'rgba(0,0,0,0)'
-        }
-      },
-      { responsive: true, displaylogo: false, scrollZoom: true }
-    ).then(() => Plotly3D.Plots.resize(plotElement));
+      buildCompareGpsPlot3dTraces(gpsTracks, displayUnits),
+      gpsAspectRatio,
+      `Height (${displayUnitLabel(LENGTH_METERS, displayUnits)})`
+    );
 
     return () => {
-      Plotly3D.purge(plotElement);
+      purgeGpsPlot3d(plotElement);
     };
-  }, [gpsAspectRatio, gpsTracks, isActive, mode]);
+  }, [displayUnits, gpsAspectRatio, gpsTracks, isActive, mode]);
 
   const toggleSelected = (id: string) => {
     setSelectedIds((current) =>
@@ -407,19 +484,6 @@ export function CompareView({ config, flights, isActive }: CompareViewProps) {
               Flight Map 3D
             </button>
           </div>
-          <label>
-            <span className="summary-label">2D metric</span>
-            <select
-              disabled={mode !== 'plot2d'}
-              onChange={(event) => setMetric(event.target.value as CompareMetric)}
-              value={metric}
-            >
-              <option value="altitude">Altitude / height (m)</option>
-              <option value="velocity">Velocity (m/s)</option>
-              <option value="acceleration">Acceleration (m/s²)</option>
-              <option value="all">All standard metrics</option>
-            </select>
-          </label>
           <button className="small-button" onClick={() => setShowFullData((current) => !current)} type="button">
             {showFullData ? 'Flight Window' : 'Full Data'}
           </button>
@@ -439,6 +503,14 @@ export function CompareView({ config, flights, isActive }: CompareViewProps) {
             />
             <span title="Auto-detect time units, GPS columns, and flight events">Auto-detect</span>
           </label>
+          <label className="checkbox-row toolbar-checkbox">
+            <input
+              checked={showEvents}
+              onChange={(event) => setShowEvents(event.target.checked)}
+              type="checkbox"
+            />
+            <span title="Show flight event markers on the 2D plot">Show events</span>
+          </label>
         </header>
 
         <div className="compare-status">
@@ -455,6 +527,34 @@ export function CompareView({ config, flights, isActive }: CompareViewProps) {
             </div>
           ) : mode === 'map2d' || mode === 'map3d' ? (
             <CompareGpsMapView isActive={isActive} mode={mode} tracks={gpsTracks} />
+          ) : mode === 'plot2d' ? (
+            <section className="plot-layout">
+              <aside className="series-panel">
+                <div className="section-title">Series</div>
+                <div className="series-list">
+                  {seriesOptions.map((series) => (
+                    <label className="checkbox-row" key={series.header}>
+                      <input
+                        checked={selectedSeriesHeaders.includes(series.header)}
+                        onChange={(event) => {
+                          setSelectedSeriesHeaders((current) =>
+                            event.target.checked
+                              ? [...current, series.header]
+                              : current.filter((header) => header !== series.header)
+                          );
+                        }}
+                        type="checkbox"
+                      />
+                      {seriesDisplayLabel(series.header, series.header, series.columnUnits, displayUnits)}
+                    </label>
+                  ))}
+                </div>
+              </aside>
+              <div className="plot-main">
+                <div className="hover-dashboard">{hoverText}</div>
+                <div className="plot-surface" ref={plotRef} />
+              </div>
+            </section>
           ) : (
             <div className="plot-surface" ref={plotRef} />
           )}

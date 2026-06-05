@@ -60,3 +60,11 @@ export function isValidLatitude(value: number | null): value is number {
 export function isValidLongitude(value: number | null): value is number {
   return value !== null && value >= -180 && value <= 180;
 }
+
+export function isMeaningfulGpsCoordinate(latitude: number | null, longitude: number | null) {
+  return (
+    isValidLatitude(latitude) &&
+    isValidLongitude(longitude) &&
+    (Math.abs(latitude) > 1e-9 || Math.abs(longitude) > 1e-9)
+  );
+}

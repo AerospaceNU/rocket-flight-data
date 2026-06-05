@@ -4,6 +4,7 @@ import {
   sanitizeFcbGroundStationRows
 } from './fcbgroundstationSanitizer';
 import type { AltimeterImporter, ParsedImport, ParseOptions } from './types';
+import { FCB_GROUND_STATION_COLUMN_UNITS } from './columnUnits';
 
 const FCB_GROUND_STATION_HEADERS = [
   'timestamp_ms',
@@ -348,6 +349,7 @@ export const fcbGroundStationImporter: AltimeterImporter = {
     return {
       headers: FCB_GROUND_STATION_HEADERS,
       rows,
+      columnUnits: FCB_GROUND_STATION_COLUMN_UNITS,
       attributes,
       warnings,
       sourceFiles: filePaths

@@ -1,8 +1,12 @@
+import type { ColumnUnitMap, DisplayUnitSystem } from '../../shared/units';
+
 export type CommonAttributeDefinition = {
   key: string;
   label: string;
   required: boolean;
 };
+
+export type { DisplayUnitSystem };
 
 export type ThemeId = 'default-dark' | 'slate-light' | 'forest-dark' | 'amber-dark';
 
@@ -67,11 +71,13 @@ export type ImportedDataset = {
   summary: ImportedAltimeterSummary;
   attributes: CustomAttribute[];
   headers: string[];
+  columnUnits: ColumnUnitMap;
   rows: string[][];
 };
 
 export type ImportPreview = {
   headers: string[];
+  columnUnits: ColumnUnitMap;
   rowCount: number;
   attributes: Record<string, string>;
   warnings: string[];
