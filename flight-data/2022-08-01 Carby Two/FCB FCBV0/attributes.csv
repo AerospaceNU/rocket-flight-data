@@ -8,5 +8,5 @@ peak_altitude_m,1157.32
 peak_velocity_ms,766.16
 flight_notes,
 has_gps_data,true
-parser_cache_version,4
+parser_cache_version,5
 source_fingerprint,output-post.csv:3148168:1780328415186

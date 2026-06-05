@@ -12,5 +12,5 @@ peak_altitude_m,1919.61
 peak_velocity_ms,223.21
 peak_acceleration_mss,131.06
 has_gps_data,false
-parser_cache_version,4
+parser_cache_version,5
 source_fingerprint,EZ Mini 2025-11-17-serial-9895-flight-0005.csv:340121:1780328415622

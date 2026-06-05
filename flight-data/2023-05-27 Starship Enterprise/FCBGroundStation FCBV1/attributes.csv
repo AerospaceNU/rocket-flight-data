@@ -8,7 +8,7 @@ peak_altitude_m,2994.20
 peak_velocity_ms,273.80
 peak_acceleration_mss,87.93
 has_gps_data,true
-parser_cache_version,4
+parser_cache_version,5
 flight_notes,
 source_format,FCB Ground Station parsed log
 time_units,ms

@@ -16,5 +16,5 @@ apogee_timestamp,1970-01-16T15:15:15.000Z
 trigger_fire_status,-4
 gyro_offsets,0.01771610975265503
 has_gps_data,true
-parser_cache_version,4
+parser_cache_version,5
 source_fingerprint,teapot_fcb_02_25-output-FCB-post.csv:1864299:1780328415516

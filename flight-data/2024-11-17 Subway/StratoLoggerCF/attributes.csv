@@ -7,7 +7,7 @@ row_count,1072
 peak_altitude_m,470.92
 peak_velocity_ms,114.30
 has_gps_data,false
-parser_cache_version,4
+parser_cache_version,5
 product,PerfectFlite SLCF
 firmware,1.0
 software,1.16

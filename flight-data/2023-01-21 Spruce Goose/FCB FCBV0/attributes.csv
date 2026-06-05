@@ -9,5 +9,5 @@ peak_velocity_ms,81.13
 peak_acceleration_mss,142.16
 flight_notes,
 has_gps_data,true
-parser_cache_version,4
+parser_cache_version,5
 source_fingerprint,spruce-goose-jan-21-output-FCB-post.csv:3680141:1780328415306

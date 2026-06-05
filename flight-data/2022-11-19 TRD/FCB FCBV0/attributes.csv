@@ -9,5 +9,5 @@ peak_velocity_ms,116.89
 peak_acceleration_mss,121.29
 flight_notes,
 has_gps_data,true
-parser_cache_version,4
+parser_cache_version,5
 source_fingerprint,pleasetrd-output-FCB-post.csv:1365950:1780328415289

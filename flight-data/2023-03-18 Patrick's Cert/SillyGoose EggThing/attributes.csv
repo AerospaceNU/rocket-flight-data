@@ -12,5 +12,5 @@ converted_from,03-18-2023 11-17-42 GroundStationDataInterface_parsed.txt
 conversion,groundstation_to_sillygoose
 filtered_crc,Good
 has_gps_data,false
-parser_cache_version,4
+parser_cache_version,5
 source_fingerprint,03-18-2023 11-17-42 GroundStationDataInterface_sillygoose.txt:4400813:1780328415362
