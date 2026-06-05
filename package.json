@@ -32,12 +32,6 @@
           "arch": [
             "x64"
           ]
-        },
-        {
-          "target": "portable",
-          "arch": [
-            "x64"
-          ]
         }
       ]
     },
@@ -45,7 +39,8 @@
       "oneClick": false,
       "perMachine": false,
       "allowToChangeInstallationDirectory": true,
-      "shortcutName": "Rocket Flight Data"
+      "shortcutName": "Rocket Flight Data",
+      "differentialPackage": false
     },
     "portable": {
       "artifactName": "${productName}-${version}-portable.${ext}"

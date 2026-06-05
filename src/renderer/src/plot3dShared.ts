@@ -1,5 +1,6 @@
 import Plotly3D from 'plotly.js-gl3d-dist-min';
 import type { GpsEventMarker, GpsMapPoint } from './gpsMapShared';
+import { getPlotTheme } from './plotTheme';
 import { axisRange } from './telemetry/core';
 import {
   convertDisplayValue,
@@ -122,21 +123,23 @@ export function renderGpsPlot3d(
   aspectRatio: Plot3dAspectRatio,
   zAxisTitle: string
 ) {
+  const theme = getPlotTheme();
+
   return Plotly3D.newPlot(
     plotElement,
     traces,
     {
       autosize: true,
-      paper_bgcolor: 'rgba(0,0,0,0)',
-      font: { color: '#e4e7eb' },
+      paper_bgcolor: theme.paperBg,
+      font: { color: theme.textColor },
       margin: { t: 24, r: 24, b: 24, l: 24 },
       scene: {
         aspectmode: 'manual',
         aspectratio: aspectRatio,
-        xaxis: { title: 'Longitude', gridcolor: '#30343a' },
-        yaxis: { title: 'Latitude', gridcolor: '#30343a' },
-        zaxis: { title: zAxisTitle, gridcolor: '#30343a' },
-        bgcolor: 'rgba(0,0,0,0)'
+        xaxis: { title: 'Longitude', gridcolor: theme.gridColor },
+        yaxis: { title: 'Latitude', gridcolor: theme.gridColor },
+        zaxis: { title: zAxisTitle, gridcolor: theme.gridColor },
+        bgcolor: theme.plotBg
       }
     },
     {

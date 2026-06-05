@@ -26,8 +26,46 @@ export type EventWindow = {
   flightEndTime: number;
 };
 
+export type DataWindow = {
+  start: number;
+  end: number;
+};
+
+export type RelativeFlightTimeline = {
+  rawEventData: EventWindow;
+  eventData: EventWindow;
+  launchOffset: number;
+  xValues: number[];
+  dataWindow: DataWindow;
+  visibleIndexes: number[];
+  visibleEvents: EventMarker[];
+};
+
 const MAX_EVENT_MARKERS = 200;
 const CONTINUITY_LOST_DEBOUNCE_SECONDS = 2;
+export const FLIGHT_START_TIME_ATTRIBUTE = 'flight_start_time_s';
+
+function getDatasetAttribute(dataset: ImportedDataset, key: string) {
+  const direct = dataset.attributes.find(
+    (attribute) => attribute.key.trim().toLowerCase() === key
+  )?.value;
+
+  if (direct !== undefined) {
+    return direct;
+  }
+
+  return Object.entries(dataset.summary.attributes).find(
+    ([attributeKey]) => attributeKey.trim().toLowerCase() === key
+  )?.[1];
+}
+
+function getManualFlightStartTime(dataset: ImportedDataset): number | null {
+  const value = getDatasetAttribute(dataset, FLIGHT_START_TIME_ATTRIBUTE);
+  if (value === undefined) return null;
+
+  const parsed = parseNumber(value);
+  return parsed !== null ? parsed : null;
+}
 
 export function getImporterId(dataset: ImportedDataset) {
   return dataset.attributes.find((attribute) => attribute.key === 'importer_id')?.value ??
@@ -244,7 +282,8 @@ export function buildEventMarkers(
   const drogueContinuityIndex = importerId === 'sillygoose' ? getColumnIndex(dataset.headers, 'drogueCont') : null;
   const mainContinuityIndex = importerId === 'sillygoose' ? getColumnIndex(dataset.headers, 'mainCont') : null;
   const events: EventMarker[] = [];
-  let launchTime: number | null = profile?.launchAtStart ? xValues[0] ?? 0 : null;
+  let launchTime: number | null =
+    getManualFlightStartTime(dataset) ?? (profile?.launchAtStart ? xValues[0] ?? 0 : null);
   let flightEndTime: number | null = null;
   let hasSeenDrogueContinuity = false;
   let hasSeenMainContinuity = false;
@@ -404,8 +443,12 @@ export function buildEventMarkers(
   };
 }
 
-export function buildEventWindow(dataset: ImportedDataset, xValues: number[], options?: AutoDetectOptions) {
-  const eventData = buildEventMarkers(dataset, xValues, options);
+export function buildEventWindow(
+  dataset: ImportedDataset,
+  xValues: number[],
+  options?: AutoDetectOptions,
+  eventData = buildEventMarkers(dataset, xValues, options)
+) {
   let launchTime = eventData.launchTime;
   const first = xValues[0] ?? 0;
   const last = xValues[xValues.length - 1] ?? first;
@@ -426,6 +469,54 @@ export function buildWindow(xValues: number[], flightStartTime: number, flightEn
   return {
     start: Math.max(minTime, flightStartTime - 20),
     end: Math.min(maxTime, flightEndTime + 20)
+  };
+}
+
+export function buildRelativeFlightTimeline(
+  dataset: ImportedDataset,
+  rawXValues: number[],
+  options: AutoDetectOptions | undefined,
+  showFullData: boolean
+): RelativeFlightTimeline {
+  const rawEventData = buildEventMarkers(dataset, rawXValues, options);
+  const window = buildEventWindow(dataset, rawXValues, options, rawEventData);
+  const launchOffset = window.launchOffset;
+  const xValues = launchOffset === 0
+    ? rawXValues
+    : rawXValues.map((value) => value - launchOffset);
+
+  const eventData =
+    launchOffset === 0
+      ? rawEventData
+      : {
+          ...rawEventData,
+          events: rawEventData.events.map((event) => ({ ...event, time: event.time - launchOffset })),
+          flightStartTime:
+            rawEventData.launchTime !== null ? rawEventData.flightStartTime - launchOffset : 0,
+          flightEndTime:
+            rawEventData.launchTime !== null
+              ? rawEventData.flightEndTime - launchOffset
+              : (rawXValues[rawXValues.length - 1] ?? launchOffset) - launchOffset
+        };
+  const dataWindow = buildWindow(xValues, eventData.flightStartTime, eventData.flightEndTime);
+  const visibleIndexes = showFullData
+    ? dataset.rows.map((_, index) => index)
+    : xValues
+        .map((time, index) => ({ time, index }))
+        .filter(({ time }) => time >= dataWindow.start && time <= dataWindow.end)
+        .map(({ index }) => index);
+  const visibleEvents = eventData.events.filter((event) =>
+    showFullData ? true : event.time >= dataWindow.start && event.time <= dataWindow.end
+  );
+
+  return {
+    rawEventData,
+    eventData,
+    launchOffset,
+    xValues,
+    dataWindow,
+    visibleIndexes,
+    visibleEvents
   };
 }
 

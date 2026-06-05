@@ -1,6 +1,6 @@
 name: Release
 
-# Builds the Windows installer + portable and publishes them (plus latest.yml
+# Builds the Windows installer and publishes it (plus latest.yml
 # for the in-app auto-updater) to a GitHub Release when a version tag is pushed.
 #
 # To cut a release:

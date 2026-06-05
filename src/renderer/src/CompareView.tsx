@@ -6,13 +6,16 @@ import type {
   FlightSummary,
   ImportedAltimeterSummary,
   ImportedDataset,
-  ImportConfig
+  ImportConfig,
+  ThemeId
 } from './importTypes';
 import type { GpsMapPoint } from './GpsMapView';
 import {
   attachPlotHoverDashboard,
+  buildPlot2dLayout,
   computeEventLabelShifts,
-  HOVER_DASHBOARD_IDLE_TEXT
+  HOVER_DASHBOARD_IDLE_TEXT,
+  PLOTLY_INTERACTION_CONFIG
 } from './plot2dShared';
 import {
   buildCompareGpsPlot3dTraces,
@@ -27,7 +30,7 @@ import {
   yAxisTitleForSeries
 } from './plotUnits';
 import { displayUnitLabel, type ColumnUnit, type ColumnUnitMap } from '../../shared/units';
-import { buildEventMarkers, buildEventWindow, getImporterId, type EventMarker } from './telemetry/events';
+import { buildRelativeFlightTimeline, getImporterId, type EventMarker } from './telemetry/events';
 import { buildGpsPoints, findAltitudeIndex, findGpsColumns } from './telemetry/gps';
 import { buildXAxis } from './telemetry/time';
 
@@ -36,6 +39,7 @@ type CompareViewProps = {
   displayUnits: DisplayUnitSystem;
   flights: FlightSummary[];
   isActive: boolean;
+  theme: ThemeId;
 };
 
 type CompareMode = 'plot2d' | 'plot3d' | 'map2d' | 'map3d';
@@ -79,26 +83,12 @@ function prepareDataset(
   autoDetect: boolean
 ): CompareDataset {
   const rawXValues = buildXAxis(dataset, { autoDetect }).values;
-  const rawEventData = buildEventMarkers(dataset, rawXValues, { autoDetect });
-  const window = buildEventWindow(dataset, rawXValues, { autoDetect });
-  const xValues = rawXValues.map((value) => value - window.launchOffset);
-  const minTime = xValues[0] ?? 0;
-  const maxTime = xValues[xValues.length - 1] ?? minTime;
-  const windowStart = Math.max(minTime, window.start - window.launchOffset - 20);
-  const windowEnd = Math.min(maxTime, window.end - window.launchOffset + 20);
-  const visibleIndexes = showFullData
-    ? dataset.rows.map((_, index) => index)
-    : xValues
-        .map((time, index) => ({ time, index }))
-        .filter(({ time }) => time >= windowStart && time <= windowEnd)
-        .map(({ index }) => index);
+  const timeline = buildRelativeFlightTimeline(dataset, rawXValues, { autoDetect }, showFullData);
+  const xValues = timeline.xValues;
+  const visibleIndexes = timeline.visibleIndexes;
   const visibleRows = visibleIndexes.map((index) => dataset.rows[index] ?? []);
   const visibleXValues = visibleIndexes.map((index) => xValues[index]);
-  const visibleStart = visibleXValues[0] ?? xValues[0] ?? 0;
-  const visibleEnd = visibleXValues[visibleXValues.length - 1] ?? xValues[xValues.length - 1] ?? visibleStart;
-  const eventMarkers = rawEventData.events
-    .map((event) => ({ ...event, time: event.time - window.launchOffset }))
-    .filter((event) => showFullData || (event.time >= visibleStart && event.time <= visibleEnd));
+  const eventMarkers = timeline.visibleEvents;
   const gpsPositionColumns = findGpsColumns(dataset.headers, dataset.rows, { autoDetect });
   const altitudeIndex = findAltitudeIndex(dataset.headers);
   const launchAltitude =
@@ -139,7 +129,7 @@ function seriesValues(entry: CompareDataset, header: string, displayUnits: Displ
   );
 }
 
-export function CompareView({ config, displayUnits, flights, isActive }: CompareViewProps) {
+export function CompareView({ config, displayUnits, flights, isActive, theme }: CompareViewProps) {
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [searchText, setSearchText] = useState('');
   const [mode, setMode] = useState<CompareMode>('plot2d');
@@ -352,49 +342,13 @@ export function CompareView({ config, displayUnits, flights, isActive }: Compare
     Plotly2D.newPlot(
       plotElement,
       traces2d,
-      {
-        autosize: true,
-        paper_bgcolor: 'rgba(0,0,0,0)',
-        plot_bgcolor: 'rgba(0,0,0,0)',
-        font: { color: '#e4e7eb' },
-        margin: { t: 24, r: 24, b: 48, l: 64 },
-        hovermode: 'x',
-        shapes: compareEvents.map((event) => ({
-          type: 'line',
-          x0: event.time,
-          x1: event.time,
-          y0: 0,
-          y1: 1,
-          yref: 'paper',
-          line: { color: event.color, width: 1, dash: 'dash' }
-        })),
-        annotations: compareEvents.map((event, index) => ({
-          x: event.time,
-          y: 1,
-          yref: 'paper',
-          yanchor: 'top',
-          yshift: compareEventLabelShifts[index] ?? 0,
-          text: event.label,
-          showarrow: false,
-          textangle: -90,
-          xanchor: 'right',
-          font: { color: event.color, size: 10 }
-        })),
-        xaxis: {
-          title: { text: 'Time(s)', standoff: 12 },
-          automargin: true,
-          gridcolor: '#30343a',
-          showspikes: true,
-          spikemode: 'across',
-          spikesnap: 'cursor',
-          spikedash: 'dash',
-          spikecolor: '#aab2bd',
-          spikethickness: 1
-        },
-        yaxis: { title: yAxisTitle2d, gridcolor: '#30343a' },
-        legend: { orientation: 'h', yanchor: 'bottom', y: 1.02, xanchor: 'right', x: 1 }
-      },
-      { responsive: true, displaylogo: false, scrollZoom: true }
+      buildPlot2dLayout({
+        events: compareEvents,
+        eventLabelShifts: compareEventLabelShifts,
+        xAxisTitle: 'Time(s)',
+        yAxisTitle: yAxisTitle2d
+      }),
+      PLOTLY_INTERACTION_CONFIG
     ).then(() => {
       attachPlotHoverDashboard(plotElement, { hoverLabel: 'time' }, setHoverText);
       Plotly2D.Plots.resize(plotElement);
@@ -403,7 +357,7 @@ export function CompareView({ config, displayUnits, flights, isActive }: Compare
     return () => {
       Plotly2D.purge(plotElement);
     };
-  }, [compareEventLabelShifts, compareEvents, isActive, mode, traces2d, yAxisTitle2d]);
+  }, [compareEventLabelShifts, compareEvents, isActive, mode, theme, traces2d, yAxisTitle2d]);
 
   useEffect(() => {
     const plotElement = plotRef.current;
@@ -419,7 +373,7 @@ export function CompareView({ config, displayUnits, flights, isActive }: Compare
     return () => {
       purgeGpsPlot3d(plotElement);
     };
-  }, [displayUnits, gpsAspectRatio, gpsTracks, isActive, mode]);
+  }, [displayUnits, gpsAspectRatio, gpsTracks, isActive, mode, theme]);
 
   const toggleSelected = (id: string) => {
     setSelectedIds((current) =>

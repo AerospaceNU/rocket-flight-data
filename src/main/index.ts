@@ -31,6 +31,27 @@ const DEFAULT_THEME: ThemeId = 'default-dark';
 const REMOTE_FLIGHT_DATA_REPO = 'https://github.com/AerospaceNU/rocket-flight-data.git';
 const REMOTE_FLIGHT_DATA_BRANCH = 'main';
 const REMOTE_FLIGHT_DATA_SUBDIR = 'flight-data';
+const THEME_BACKGROUND_COLORS: Record<ThemeId, string> = {
+  'default-dark': '#111315',
+  'slate-light': '#edf1f5',
+  'forest-dark': '#0f1613',
+  'amber-dark': '#17120d'
+};
+
+function configureChromiumCacheDirectory() {
+  const cacheRoot = process.env.LOCALAPPDATA ?? os.tmpdir();
+  const cacheDirectory = path.join(cacheRoot, 'rocket-flight-data', 'chromium-cache');
+
+  try {
+    fs.mkdirSync(cacheDirectory, { recursive: true });
+    app.commandLine.appendSwitch('disk-cache-dir', cacheDirectory);
+    app.commandLine.appendSwitch('disable-gpu-shader-disk-cache');
+  } catch (error) {
+    console.error('Failed to configure Chromium cache directory:', error);
+  }
+}
+
+configureChromiumCacheDirectory();
 
 function getConfigDirectory(): string {
   if (portableExecutableDir) return portableExecutableDir;
@@ -99,6 +120,10 @@ function normalizeTheme(value: unknown): ThemeId {
     return value as ThemeId;
   }
   return DEFAULT_THEME;
+}
+
+function themeBackgroundColor(theme: ThemeId) {
+  return THEME_BACKGROUND_COLORS[theme] ?? THEME_BACKGROUND_COLORS[DEFAULT_THEME];
 }
 
 function getPersistedOutputDirectory(config: AppConfig): string | null {
@@ -400,6 +425,7 @@ function buildAppMenu(mainWindow: BrowserWindow) {
     click: () => {
       currentTheme = item.id as ThemeId;
       persistTheme(currentTheme);
+      mainWindow.setBackgroundColor(themeBackgroundColor(currentTheme));
       mainWindow.webContents.send('theme:changed', currentTheme);
       buildAppMenu(mainWindow);
     }
@@ -490,6 +516,7 @@ function createWindow() {
     minWidth: 900,
     minHeight: 600,
     title: 'Rocket Flight Data',
+    backgroundColor: themeBackgroundColor(currentTheme),
     webPreferences: {
       preload: path.join(__dirname, '../preload/index.js'),
       contextIsolation: true,

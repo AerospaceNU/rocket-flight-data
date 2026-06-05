@@ -1,4 +1,5 @@
 key,value
+flight_notes,
 altimeter_name,SillyGoose
 altimeter_note,Primary PT2
 importer_id,sillygoose
@@ -11,3 +12,4 @@ peak_acceleration_mss,17.76
 has_gps_data,false
 parser_cache_version,5
 source_fingerprint,2026-02-22 V1 Haybales primary post reboot.txt:204877:1780328415805
+flight_start_time_s,-64

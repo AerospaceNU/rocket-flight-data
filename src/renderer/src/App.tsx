@@ -505,7 +505,15 @@ export function App() {
     }
 
     if (tab.kind === 'compare') {
-      return <CompareView config={config} displayUnits={displayUnits} flights={flights} isActive={isActive} />;
+      return (
+        <CompareView
+          config={config}
+          displayUnits={displayUnits}
+          flights={flights}
+          isActive={isActive}
+          theme={theme}
+        />
+      );
     }
 
     return (
@@ -516,6 +524,7 @@ export function App() {
         isActive={isActive}
         onDatasetUpdated={refreshFlights}
         selectedAltimeterDirectory={tab.selectedAltimeterDirectory}
+        theme={theme}
       />
     );
   };

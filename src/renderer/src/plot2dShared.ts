@@ -1,7 +1,19 @@
 import type { StandardColumnMapping } from './importTypes';
 import type { TimeAxis } from './telemetry/time';
+import { getPlotTheme } from './plotTheme';
 
 export const HOVER_DASHBOARD_IDLE_TEXT = 'Hover over the chart to inspect values.';
+export const PLOTLY_INTERACTION_CONFIG = {
+  responsive: true,
+  displaylogo: false,
+  scrollZoom: true
+};
+
+type PlotEvent = {
+  label: string;
+  time: number;
+  color: string;
+};
 
 type PlotHoverPoint = {
   x: number | string;
@@ -95,4 +107,70 @@ export function computeEventLabelShifts(
   }
 
   return shifts;
+}
+
+export function buildPlot2dLayout({
+  events,
+  eventLabelShifts,
+  xAxisTitle,
+  yAxisTitle
+}: {
+  events: PlotEvent[];
+  eventLabelShifts: number[];
+  xAxisTitle: string;
+  yAxisTitle: string;
+}) {
+  const theme = getPlotTheme();
+
+  return {
+    autosize: true,
+    paper_bgcolor: theme.paperBg,
+    plot_bgcolor: theme.plotBg,
+    font: { color: theme.textColor },
+    margin: { t: 24, r: 24, b: 48, l: 64 },
+    hovermode: 'x',
+    shapes: events.map((event) => ({
+      type: 'line',
+      x0: event.time,
+      x1: event.time,
+      y0: 0,
+      y1: 1,
+      yref: 'paper',
+      line: { color: event.color, width: 1, dash: 'dash' }
+    })),
+    annotations: events.map((event, index) => ({
+      x: event.time,
+      y: 1,
+      yref: 'paper',
+      yanchor: 'top',
+      yshift: eventLabelShifts[index] ?? 0,
+      text: event.label,
+      showarrow: false,
+      textangle: -90,
+      xanchor: 'right',
+      font: { color: event.color, size: 10 }
+    })),
+    xaxis: {
+      title: { text: xAxisTitle, standoff: 12 },
+      automargin: true,
+      gridcolor: theme.gridColor,
+      showspikes: true,
+      spikemode: 'across',
+      spikesnap: 'cursor',
+      spikedash: 'dash',
+      spikecolor: theme.spikeColor,
+      spikethickness: 1
+    },
+    yaxis: {
+      title: yAxisTitle,
+      gridcolor: theme.gridColor
+    },
+    legend: {
+      orientation: 'h',
+      yanchor: 'bottom',
+      y: 1.02,
+      xanchor: 'right',
+      x: 1
+    }
+  };
 }
