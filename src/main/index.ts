@@ -1,4 +1,4 @@
-import { app, BrowserWindow, Menu, dialog, ipcMain } from 'electron';
+import { app, BrowserWindow, Menu, dialog, ipcMain, shell } from 'electron';
 import updaterPkg from 'electron-updater';
 import { spawn } from 'node:child_process';
 import fs from 'node:fs';
@@ -31,6 +31,8 @@ const DEFAULT_THEME: ThemeId = 'default-dark';
 const REMOTE_FLIGHT_DATA_REPO = 'https://github.com/AerospaceNU/rocket-flight-data.git';
 const REMOTE_FLIGHT_DATA_BRANCH = 'main';
 const REMOTE_FLIGHT_DATA_SUBDIR = 'flight-data';
+const MANAGED_REPOSITORY_DIRECTORY_NAME = 'repo';
+const REPOSITORY_DIRECTORY_NAME = 'rocket-flight-data';
 const THEME_BACKGROUND_COLORS: Record<ThemeId, string> = {
   'default-dark': '#111315',
   'slate-light': '#edf1f5',
@@ -77,13 +79,16 @@ function findFlightDataUpwards(startDir: string, maxLevels = 5): string | null {
 
 function getDefaultOutputDirectory(): string {
   const base = getConfigDirectory();
-  // Portable exe + dev: walk up looking for an existing flight-data/ so the
-  // exe can sit in release/ (or anywhere inside a repo) and still locate it.
-  if (portableExecutableDir || !app.isPackaged) {
+  // Dev: use the source checkout. Packaged/portable: use the app-managed repo.
+  if (!app.isPackaged) {
     const found = findFlightDataUpwards(base);
     if (found) return found;
   }
-  return path.join(base, 'flight-data');
+  return path.join(getManagedRepositoryDirectory(), REMOTE_FLIGHT_DATA_SUBDIR);
+}
+
+function getManagedRepositoryDirectory(): string {
+  return path.join(getConfigDirectory(), MANAGED_REPOSITORY_DIRECTORY_NAME);
 }
 
 function getConfigFilePath(): string {
@@ -178,15 +183,93 @@ async function runLogged<T>(
   }
 }
 
-function runGitCommand(args: string[], cwd?: string): Promise<void> {
+type GitCommandResult = {
+  stdout: string;
+  stderr: string;
+};
+
+type GitDataChange = {
+  path: string;
+  status: string;
+};
+
+type GitDataSubmitPreview = {
+  repositoryRoot: string;
+  dataDirectory: string;
+  dataPath: string;
+  currentBranch: string;
+  baseBranch: string;
+  remoteName: string;
+  remoteUrl: string;
+  gitVersion: string;
+  credentialManagerVersion: string | null;
+  changes: GitDataChange[];
+  warnings: string[];
+};
+
+type SubmitGitDataRequest = {
+  selectedPaths: string[];
+  commitMessage: string;
+};
+
+type SubmitGitDataResult = {
+  branchName: string;
+  commitSha: string;
+  pullRequestUrl: string | null;
+};
+
+function getBundledGitExecutable(): string | null {
+  const candidates = app.isPackaged
+    ? [
+        path.join(process.resourcesPath, 'bundled-git', 'cmd', 'git.exe'),
+        path.join(process.resourcesPath, 'bundled-git', 'bin', 'git.exe')
+      ]
+    : [
+        path.join(app.getAppPath(), 'build', 'bundled-git', 'cmd', 'git.exe'),
+        path.join(app.getAppPath(), 'build', 'bundled-git', 'bin', 'git.exe')
+      ];
+
+  return candidates.find((candidate) => fs.existsSync(candidate)) ?? null;
+}
+
+function getGitExecutable(): string {
+  return getBundledGitExecutable() ?? 'git';
+}
+
+function gitEnvironment(gitExecutable: string): NodeJS.ProcessEnv {
+  const env = { ...process.env };
+  const gitRoot =
+    path.basename(path.dirname(gitExecutable)).toLowerCase() === 'cmd'
+      ? path.dirname(path.dirname(gitExecutable))
+      : null;
+
+  if (gitRoot) {
+    env.PATH = [
+      path.join(gitRoot, 'cmd'),
+      path.join(gitRoot, 'mingw64', 'bin'),
+      path.join(gitRoot, 'usr', 'bin'),
+      env.PATH
+    ].filter(Boolean).join(path.delimiter);
+  }
+
+  return env;
+}
+
+function runGitCommand(args: string[], cwd?: string): Promise<GitCommandResult> {
   return new Promise((resolve, reject) => {
-    logMain('git:start', { args, cwd });
-    const child = spawn('git', args, {
+    const gitExecutable = getGitExecutable();
+    logMain('git:start', { args, cwd, bundled: gitExecutable !== 'git' });
+    const child = spawn(gitExecutable, args, {
       cwd,
-      windowsHide: true
+      windowsHide: true,
+      env: gitEnvironment(gitExecutable)
     });
+    let stdout = '';
     let stderr = '';
 
+    child.stdout.on('data', (chunk: Buffer | string) => {
+      stdout += chunk.toString();
+    });
     child.stderr.on('data', (chunk: Buffer | string) => {
       stderr += chunk.toString();
     });
@@ -196,7 +279,7 @@ function runGitCommand(args: string[], cwd?: string): Promise<void> {
     child.on('close', (code) => {
       if (code === 0) {
         logMain('git:ok', { args, cwd });
-        resolve();
+        resolve({ stdout, stderr });
         return;
       }
       logMain('git:fail', { args, cwd, code, stderr: stderr.trim() });
@@ -205,25 +288,197 @@ function runGitCommand(args: string[], cwd?: string): Promise<void> {
   });
 }
 
-function resolveFlightDataDownloadTarget(selectedDirectory: string): string {
+function normalizeGitPath(value: string) {
+  return value.replace(/\\/g, '/').replace(/^\/+/, '');
+}
+
+function parseGitStatus(output: string): GitDataChange[] {
+  const entries = output.split('\0').filter(Boolean);
+  const changes: GitDataChange[] = [];
+
+  for (let index = 0; index < entries.length; index += 1) {
+    const entry = entries[index];
+    if (entry.length < 4) continue;
+
+    const status = entry.slice(0, 2).trim() || 'modified';
+    changes.push({
+      status,
+      path: normalizeGitPath(entry.slice(3))
+    });
+
+    // Rename/copy records include the previous path as a second NUL-delimited
+    // field. The new path above is the path the user can commit.
+    if (status.includes('R') || status.includes('C')) {
+      index += 1;
+    }
+  }
+
+  return changes;
+}
+
+async function resolveDataRepository() {
+  const root = (await runGitCommand(['rev-parse', '--show-toplevel'], outputDirectory)).stdout.trim();
+  const repositoryRoot = path.resolve(root);
+  const dataDirectory = path.resolve(outputDirectory);
+  const dataPath = normalizeGitPath(path.relative(repositoryRoot, dataDirectory));
+
+  if (!dataPath || dataPath.startsWith('..') || path.isAbsolute(dataPath)) {
+    throw new Error('The active flight data directory is not inside a Git repository.');
+  }
+
+  if (dataPath !== REMOTE_FLIGHT_DATA_SUBDIR) {
+    throw new Error(`The active data directory must be the repository's ${REMOTE_FLIGHT_DATA_SUBDIR} folder.`);
+  }
+
+  return { repositoryRoot, dataDirectory, dataPath };
+}
+
+async function gitCredentialManagerVersion(repositoryRoot: string) {
+  try {
+    const result = await runGitCommand(['credential-manager', '--version'], repositoryRoot);
+    return result.stdout.trim() || result.stderr.trim() || null;
+  } catch {
+    return null;
+  }
+}
+
+function githubCompareUrl(remoteUrl: string, baseBranch: string, branchName: string) {
+  const httpsMatch = remoteUrl.match(/^https:\/\/github\.com\/([^/]+)\/([^/.]+)(?:\.git)?$/i);
+  const sshMatch = remoteUrl.match(/^git@github\.com:([^/]+)\/([^/.]+)(?:\.git)?$/i);
+  const match = httpsMatch ?? sshMatch;
+  if (!match) return null;
+
+  return `https://github.com/${match[1]}/${match[2]}/compare/${baseBranch}...${branchName}?expand=1`;
+}
+
+function validateSelectedGitDataPaths(pathsToValidate: string[], dataPath: string) {
+  const normalizedDataPath = `${normalizeGitPath(dataPath)}/`;
+  const normalized = pathsToValidate.map(normalizeGitPath);
+
+  for (const selectedPath of normalized) {
+    if (!selectedPath.startsWith(normalizedDataPath)) {
+      throw new Error(`Refusing to submit a file outside ${dataPath}: ${selectedPath}`);
+    }
+  }
+
+  return normalized;
+}
+
+function dataBranchName() {
+  const stamp = new Date().toISOString().replace(/[-:]/g, '').replace(/\..+$/, '').replace('T', '-');
+  return `data/${stamp}`;
+}
+
+export async function previewGitDataSubmit(): Promise<GitDataSubmitPreview> {
+  const { repositoryRoot, dataDirectory, dataPath } = await resolveDataRepository();
+  const [gitVersion, currentBranch, remoteUrl, status] = await Promise.all([
+    runGitCommand(['--version'], repositoryRoot),
+    runGitCommand(['branch', '--show-current'], repositoryRoot),
+    runGitCommand(['remote', 'get-url', 'origin'], repositoryRoot),
+    runGitCommand(['status', '--porcelain=v1', '-z', '--', dataPath], repositoryRoot)
+  ]);
+  const credentialManagerVersion = await gitCredentialManagerVersion(repositoryRoot);
+  const warnings: string[] = [];
+
+  if (!credentialManagerVersion) {
+    warnings.push('Git Credential Manager was not detected. GitHub may prompt for authentication outside the app.');
+  }
+
+  return {
+    repositoryRoot,
+    dataDirectory,
+    dataPath,
+    currentBranch: currentBranch.stdout.trim() || '(detached)',
+    baseBranch: REMOTE_FLIGHT_DATA_BRANCH,
+    remoteName: 'origin',
+    remoteUrl: remoteUrl.stdout.trim(),
+    gitVersion: gitVersion.stdout.trim(),
+    credentialManagerVersion,
+    changes: parseGitStatus(status.stdout),
+    warnings
+  };
+}
+
+export async function submitGitDataChanges(request: SubmitGitDataRequest): Promise<SubmitGitDataResult> {
+  const preview = await previewGitDataSubmit();
+  const selectedPaths = validateSelectedGitDataPaths(request.selectedPaths, preview.dataPath);
+  const message = request.commitMessage.trim();
+
+  if (selectedPaths.length === 0) {
+    throw new Error('Select at least one flight-data file to submit.');
+  }
+  if (!message) {
+    throw new Error('Enter a commit message.');
+  }
+
+  await runGitCommand(['fetch', preview.remoteName, preview.baseBranch], preview.repositoryRoot);
+  const branchName = dataBranchName();
+  await runGitCommand(['switch', '-c', branchName], preview.repositoryRoot);
+  await runGitCommand(['add', '--', ...selectedPaths], preview.repositoryRoot);
+  await runGitCommand(['commit', '-m', message, '--', ...selectedPaths], preview.repositoryRoot);
+  const commitSha = (await runGitCommand(['rev-parse', 'HEAD'], preview.repositoryRoot)).stdout.trim();
+  await runGitCommand(['push', '-u', preview.remoteName, branchName], preview.repositoryRoot);
+
+  const pullRequestUrl = githubCompareUrl(preview.remoteUrl, preview.baseBranch, branchName);
+  if (pullRequestUrl) {
+    await shell.openExternal(pullRequestUrl);
+  }
+
+  return { branchName, commitSha, pullRequestUrl };
+}
+
+function resolveRepositoryDownloadTarget(selectedDirectory: string): string {
   const resolved = path.resolve(selectedDirectory);
-  return path.basename(resolved).toLowerCase() === 'flight-data'
+  return path.basename(resolved).toLowerCase() === REPOSITORY_DIRECTORY_NAME
     ? resolved
-    : path.join(resolved, 'flight-data');
+    : path.join(resolved, REPOSITORY_DIRECTORY_NAME);
 }
 
-// Default download: no directory picker. Data always lands in the app's
-// installed location (the default output directory).
+function isGitRepository(directory: string) {
+  return fs.existsSync(path.join(directory, '.git'));
+}
+
+function isEmptyDirectory(directory: string) {
+  try {
+    return fs.readdirSync(directory).length === 0;
+  } catch {
+    return true;
+  }
+}
+
+function isEmptyPlaceholderRepositoryDirectory(directory: string) {
+  try {
+    const entries = fs.readdirSync(directory);
+    if (entries.length === 0) return true;
+    if (entries.length !== 1 || entries[0] !== REMOTE_FLIGHT_DATA_SUBDIR) return false;
+    return isEmptyDirectory(path.join(directory, REMOTE_FLIGHT_DATA_SUBDIR));
+  } catch {
+    return true;
+  }
+}
+
+function flightDataDirectoryForRepository(repositoryDirectory: string) {
+  return path.join(repositoryDirectory, REMOTE_FLIGHT_DATA_SUBDIR);
+}
+
+async function setActiveRepository(mainWindow: BrowserWindow, repositoryDirectory: string) {
+  outputDirectory = flightDataDirectoryForRepository(repositoryDirectory);
+  await ensureOutputDirectory(outputDirectory);
+  persistOutputDirectory(outputDirectory);
+  mainWindow.webContents.send('directory:changed', outputDirectory);
+}
+
+// Default download/sync: maintain a full app-managed checkout, then point the
+// app at its flight-data subdirectory.
 async function downloadRemoteFlightData(mainWindow: BrowserWindow): Promise<void> {
-  await syncRemoteFlightData(mainWindow, getDefaultOutputDirectory());
+  await syncRemoteFlightData(mainWindow, getManagedRepositoryDirectory());
 }
 
-// Optional download: lets the user pick where the flight-data folder goes,
-// matching the original behaviour.
+// Optional download: lets the user pick where the full repository checkout goes.
 async function downloadRemoteFlightDataToChosenLocation(mainWindow: BrowserWindow): Promise<void> {
   const result = await dialog.showOpenDialog(mainWindow, {
-    title: 'Select Location for Downloaded Flight Data',
-    defaultPath: path.dirname(outputDirectory),
+    title: 'Select Location for Repository Checkout',
+    defaultPath: path.dirname(path.dirname(outputDirectory)),
     properties: ['openDirectory', 'createDirectory']
   });
 
@@ -231,64 +486,96 @@ async function downloadRemoteFlightDataToChosenLocation(mainWindow: BrowserWindo
     return;
   }
 
-  await syncRemoteFlightData(mainWindow, resolveFlightDataDownloadTarget(result.filePaths[0]));
+  await syncRemoteFlightData(mainWindow, resolveRepositoryDownloadTarget(result.filePaths[0]));
 }
 
-async function syncRemoteFlightData(mainWindow: BrowserWindow, targetDirectory: string): Promise<void> {
-  if (fs.existsSync(targetDirectory)) {
+async function syncExistingRepository(mainWindow: BrowserWindow, repositoryDirectory: string) {
+  const currentBranch = (await runGitCommand(['branch', '--show-current'], repositoryDirectory)).stdout.trim();
+
+  if (currentBranch && currentBranch !== REMOTE_FLIGHT_DATA_BRANCH) {
+    const pendingChanges = (await runGitCommand(['status', '--porcelain=v1'], repositoryDirectory)).stdout.trim();
+    if (pendingChanges) {
+      throw new Error(
+        `Repository is on ${currentBranch} with uncommitted changes. Submit or discard those changes before syncing ${REMOTE_FLIGHT_DATA_BRANCH}.`
+      );
+    }
+
+    const confirm = await dialog.showMessageBox(mainWindow, {
+      type: 'warning',
+      buttons: [`Switch to ${REMOTE_FLIGHT_DATA_BRANCH}`, 'Cancel'],
+      defaultId: 1,
+      cancelId: 1,
+      message: `Switch repository from ${currentBranch} to ${REMOTE_FLIGHT_DATA_BRANCH}?`,
+      detail:
+        'Submitted but unmerged data may stop appearing locally until the pull request is merged into main.'
+    });
+
+    if (confirm.response !== 0) {
+      return false;
+    }
+
+    await runGitCommand(['switch', REMOTE_FLIGHT_DATA_BRANCH], repositoryDirectory);
+  }
+
+  await runGitCommand(['fetch', 'origin', REMOTE_FLIGHT_DATA_BRANCH], repositoryDirectory);
+  await runGitCommand(['pull', '--ff-only', 'origin', REMOTE_FLIGHT_DATA_BRANCH], repositoryDirectory);
+  await setActiveRepository(mainWindow, repositoryDirectory);
+  return true;
+}
+
+async function cloneRemoteRepository(mainWindow: BrowserWindow, repositoryDirectory: string) {
+  if (fs.existsSync(repositoryDirectory) && !isEmptyPlaceholderRepositoryDirectory(repositoryDirectory)) {
     const confirm = await dialog.showMessageBox(mainWindow, {
       type: 'warning',
       buttons: ['Replace', 'Cancel'],
       defaultId: 1,
       cancelId: 1,
-      message: `Replace existing data in:\n${targetDirectory}?`,
-      detail: 'This will remove the existing folder before downloading the latest data.'
+      message: `Replace existing folder with a fresh repository clone?\n${repositoryDirectory}`,
+      detail: 'This removes that folder before cloning. Existing Git repositories are updated instead of replaced.'
     });
 
     if (confirm.response !== 0) {
-      return;
+      return false;
     }
+
+    fs.rmSync(repositoryDirectory, { recursive: true, force: true });
+  } else if (fs.existsSync(repositoryDirectory)) {
+    fs.rmSync(repositoryDirectory, { recursive: true, force: true });
   }
 
-  const tempRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'rocket-flight-data-sync-'));
-  const cloneDirectory = path.join(tempRoot, 'repo');
+  fs.mkdirSync(path.dirname(repositoryDirectory), { recursive: true });
+  await runGitCommand(
+    [
+      'clone',
+      '--branch',
+      REMOTE_FLIGHT_DATA_BRANCH,
+      REMOTE_FLIGHT_DATA_REPO,
+      repositoryDirectory
+    ],
+    undefined
+  );
 
+  if (!fs.existsSync(flightDataDirectoryForRepository(repositoryDirectory))) {
+    throw new Error(`Remote folder not found: ${REMOTE_FLIGHT_DATA_SUBDIR}`);
+  }
+
+  await setActiveRepository(mainWindow, repositoryDirectory);
+  return true;
+}
+
+async function syncRemoteFlightData(mainWindow: BrowserWindow, repositoryDirectory: string): Promise<void> {
   try {
-    await runGitCommand(
-      [
-        'clone',
-        '--depth',
-        '1',
-        '--branch',
-        REMOTE_FLIGHT_DATA_BRANCH,
-        '--filter=blob:none',
-        '--sparse',
-        REMOTE_FLIGHT_DATA_REPO,
-        cloneDirectory
-      ],
-      undefined
-    );
-    await runGitCommand(['sparse-checkout', 'set', REMOTE_FLIGHT_DATA_SUBDIR], cloneDirectory);
+    const didSync = isGitRepository(repositoryDirectory)
+      ? await syncExistingRepository(mainWindow, repositoryDirectory)
+      : await cloneRemoteRepository(mainWindow, repositoryDirectory);
 
-    const sourceDirectory = path.join(cloneDirectory, REMOTE_FLIGHT_DATA_SUBDIR);
-    if (!fs.existsSync(sourceDirectory) || !fs.statSync(sourceDirectory).isDirectory()) {
-      throw new Error(`Remote folder not found: ${REMOTE_FLIGHT_DATA_SUBDIR}`);
-    }
-
-    fs.rmSync(targetDirectory, { recursive: true, force: true });
-    fs.mkdirSync(path.dirname(targetDirectory), { recursive: true });
-    fs.cpSync(sourceDirectory, targetDirectory, { recursive: true, force: true });
-
-    outputDirectory = targetDirectory;
-    await ensureOutputDirectory(outputDirectory);
-    persistOutputDirectory(outputDirectory);
-    mainWindow.webContents.send('directory:changed', outputDirectory);
+    if (!didSync) return;
 
     await dialog.showMessageBox(mainWindow, {
       type: 'info',
       buttons: ['OK'],
-      message: 'Flight data downloaded.',
-      detail: `Downloaded ${REMOTE_FLIGHT_DATA_SUBDIR} from ${REMOTE_FLIGHT_DATA_BRANCH} and set it as the active directory.\n\n${outputDirectory}`
+      message: 'Repository synced.',
+      detail: `Synced ${REMOTE_FLIGHT_DATA_REPO} and set flight-data as the active directory.\n\n${outputDirectory}`
     });
   } catch (error) {
     const message =
@@ -296,11 +583,9 @@ async function syncRemoteFlightData(mainWindow: BrowserWindow, targetDirectory: 
     await dialog.showMessageBox(mainWindow, {
       type: 'error',
       buttons: ['OK'],
-      message: 'Download failed.',
+      message: 'Repository sync failed.',
       detail: message
     });
-  } finally {
-    fs.rmSync(tempRoot, { recursive: true, force: true });
   }
 }
 
@@ -473,18 +758,24 @@ function buildAppMenu(mainWindow: BrowserWindow) {
       submenu: themeItems
     },
     {
-      label: 'Download',
+      label: 'GitHub',
       submenu: [
         {
-          label: 'Sync Flight Data From GitHub',
+          label: 'Sync Repository From GitHub',
           click: () => {
             void downloadRemoteFlightData(mainWindow);
           }
         },
         {
-          label: 'Sync Flight Data From GitHub To…',
+          label: 'Sync Repository From GitHub To...',
           click: () => {
             void downloadRemoteFlightDataToChosenLocation(mainWindow);
+          }
+        },
+        {
+          label: 'Submit Data as Pull Request',
+          click: () => {
+            mainWindow.webContents.send('menu:submit-data');
           }
         }
       ]
@@ -493,7 +784,7 @@ function buildAppMenu(mainWindow: BrowserWindow) {
       label: 'Help',
       submenu: [
         {
-          label: 'Check for Updates…',
+          label: 'Check for Updates...',
           click: () => {
             checkForUpdates(mainWindow, true);
           }
@@ -554,6 +845,16 @@ function createWindow() {
 ipcMain.handle('import:get-config', () => getImportConfig());
 ipcMain.handle('import:get-output-directory', () => outputDirectory);
 ipcMain.handle('theme:get', () => currentTheme);
+ipcMain.handle('git-data:preview-submit', () =>
+  runLogged('ipc:git-data:preview-submit', { outputDirectory }, () => previewGitDataSubmit())
+);
+ipcMain.handle('git-data:submit', (_event, request: SubmitGitDataRequest) =>
+  runLogged(
+    'ipc:git-data:submit',
+    { outputDirectory, selectedCount: request.selectedPaths.length },
+    () => submitGitDataChanges(request)
+  )
+);
 ipcMain.handle('import:list-flights', () =>
   runLogged('ipc:import:list-flights', { outputDirectory }, () => listFlights(outputDirectory))
 );

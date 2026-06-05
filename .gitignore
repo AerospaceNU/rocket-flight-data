@@ -4,6 +4,7 @@ node_modules/
 dist/
 dist-electron/
 release/
+build/bundled-git/
 logs/
 
 # refactor parse-snapshot safety net

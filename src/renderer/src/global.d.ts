@@ -9,7 +9,10 @@ import type {
   AltimeterDetectionResult,
   ThemeId,
   SaveImportRequest,
-  SaveImportResult
+  SaveImportResult,
+  GitDataSubmitPreview,
+  SubmitGitDataRequest,
+  SubmitGitDataResult
 } from './importTypes';
 
 declare global {
@@ -23,6 +26,8 @@ declare global {
       getOutputDirectory: () => Promise<string>;
       getTheme: () => Promise<ThemeId>;
       listFlights: () => Promise<FlightSummary[]>;
+      previewGitDataSubmit: () => Promise<GitDataSubmitPreview>;
+      submitGitDataChanges: (request: SubmitGitDataRequest) => Promise<SubmitGitDataResult>;
       detectAltimeter: (filePaths: string[]) => Promise<AltimeterDetectionResult>;
       readDataset: (
         datasetDirectory: string,
@@ -44,6 +49,7 @@ declare global {
       saveImport: (request: SaveImportRequest) => Promise<SaveImportResult>;
       debugLog: (message: string, data?: unknown) => Promise<void>;
       onImportRequested: (callback: (paths: string[]) => void) => () => void;
+      onSubmitDataRequested: (callback: () => void) => () => void;
       onOutputDirectoryChanged: (callback: (path: string) => void) => () => void;
       onThemeChanged: (callback: (theme: ThemeId) => void) => () => void;
     };

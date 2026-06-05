@@ -10,6 +10,8 @@ contextBridge.exposeInMainWorld('appBridge', {
   getOutputDirectory: () => ipcRenderer.invoke('import:get-output-directory'),
   getTheme: () => ipcRenderer.invoke('theme:get'),
   listFlights: () => ipcRenderer.invoke('import:list-flights'),
+  previewGitDataSubmit: () => ipcRenderer.invoke('git-data:preview-submit'),
+  submitGitDataChanges: (request: unknown) => ipcRenderer.invoke('git-data:submit', request),
   detectAltimeter: (filePaths: string[]) => ipcRenderer.invoke('import:detect-altimeter', filePaths),
   readDataset: (datasetDirectory: string, options?: { sanitize?: boolean }) =>
     ipcRenderer.invoke('dataset:read', datasetDirectory, options),
@@ -28,6 +30,13 @@ contextBridge.exposeInMainWorld('appBridge', {
     ipcRenderer.on('menu:import', listener);
     return () => {
       ipcRenderer.removeListener('menu:import', listener);
+    };
+  },
+  onSubmitDataRequested: (callback: () => void) => {
+    const listener = () => callback();
+    ipcRenderer.on('menu:submit-data', listener);
+    return () => {
+      ipcRenderer.removeListener('menu:submit-data', listener);
     };
   },
   onOutputDirectoryChanged: (callback: (path: string) => void) => {

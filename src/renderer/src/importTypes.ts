@@ -118,3 +118,33 @@ export type SaveImportResult = {
   rowsWritten: number;
   dataset: ImportedAltimeterSummary;
 };
+
+export type GitDataChange = {
+  path: string;
+  status: string;
+};
+
+export type GitDataSubmitPreview = {
+  repositoryRoot: string;
+  dataDirectory: string;
+  dataPath: string;
+  currentBranch: string;
+  baseBranch: string;
+  remoteName: string;
+  remoteUrl: string;
+  gitVersion: string;
+  credentialManagerVersion: string | null;
+  changes: GitDataChange[];
+  warnings: string[];
+};
+
+export type SubmitGitDataRequest = {
+  selectedPaths: string[];
+  commitMessage: string;
+};
+
+export type SubmitGitDataResult = {
+  branchName: string;
+  commitSha: string;
+  pullRequestUrl: string | null;
+};

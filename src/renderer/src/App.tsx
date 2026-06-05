@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import logoUrl from './assets/logo.png';
 import { CompareView } from './CompareView';
+import { DataSubmitView } from './DataSubmitView';
 import { FlightViewer } from './FlightViewer';
 import { ImportWorkflow } from './ImportWorkflow';
 import type { DisplayUnitSystem, FlightSummary, ImportConfig, SaveImportResult, ThemeId } from './importTypes';
@@ -13,7 +14,7 @@ import {
 type BaseTab = {
   id: string;
   title: string;
-  kind: 'home' | 'compare' | 'import' | 'viewer';
+  kind: 'home' | 'compare' | 'import' | 'viewer' | 'submit';
 };
 
 type HomeTab = BaseTab & {
@@ -22,6 +23,10 @@ type HomeTab = BaseTab & {
 
 type CompareTab = BaseTab & {
   kind: 'compare';
+};
+
+type SubmitTab = BaseTab & {
+  kind: 'submit';
 };
 
 type ImportTab = BaseTab & {
@@ -35,10 +40,11 @@ type ViewerTab = BaseTab & {
   selectedAltimeterDirectory?: string;
 };
 
-type AppTab = HomeTab | CompareTab | ImportTab | ViewerTab;
+type AppTab = HomeTab | CompareTab | SubmitTab | ImportTab | ViewerTab;
 
 const HOME_TAB_ID = 'home';
 const COMPARE_TAB_ID = 'compare';
+const SUBMIT_TAB_ID = 'submit';
 const LENGTH_METERS: ColumnUnit = { family: 'length', unit: 'm' };
 const VELOCITY_METERS_PER_SECOND: ColumnUnit = { family: 'velocity', unit: 'm/s' };
 const ACCELERATION_METERS_PER_SECOND_SQUARED: ColumnUnit = { family: 'acceleration', unit: 'm/s^2' };
@@ -194,6 +200,18 @@ export function App() {
     document.documentElement.setAttribute('data-theme', theme);
   }, [theme]);
 
+  const openSubmitData = useCallback(() => {
+    setTabs((currentTabs) => {
+      if (currentTabs.some((tab) => tab.id === SUBMIT_TAB_ID)) {
+        setActiveTabId(SUBMIT_TAB_ID);
+        return currentTabs;
+      }
+
+      setActiveTabId(SUBMIT_TAB_ID);
+      return [...currentTabs, { id: SUBMIT_TAB_ID, title: 'Submit Data', kind: 'submit' }];
+    });
+  }, []);
+
   useEffect(() => {
     const removeImportListener = window.appBridge.onImportRequested((files) => {
       setTabs((currentTabs) => {
@@ -208,6 +226,7 @@ export function App() {
         return [...currentTabs, newTab];
       });
     });
+    const removeSubmitDataListener = window.appBridge.onSubmitDataRequested(openSubmitData);
 
     const removeDirectoryListener = window.appBridge.onOutputDirectoryChanged((directory) => {
       setOutputDirectory(directory);
@@ -219,10 +238,11 @@ export function App() {
 
     return () => {
       removeImportListener();
+      removeSubmitDataListener();
       removeDirectoryListener();
       removeThemeListener();
     };
-  }, [refreshFlights]);
+  }, [openSubmitData, refreshFlights]);
 
   const closeTab = (tabId: string) => {
     setTabs((currentTabs) => {
@@ -514,6 +534,10 @@ export function App() {
           theme={theme}
         />
       );
+    }
+
+    if (tab.kind === 'submit') {
+      return <DataSubmitView />;
     }
 
     return (
