@@ -1,6 +1,7 @@
 import Plotly3D from 'plotly.js-gl3d-dist-min';
 import type { GpsEventMarker, GpsMapPoint } from './gpsMapShared';
-import { getPlotTheme } from './plotTheme';
+import { getPlotTheme, type PlotTheme } from './plotTheme';
+import type { PlotViewState } from './plotViewState';
 import { axisRange } from './telemetry/core';
 import {
   convertDisplayValue,
@@ -10,6 +11,9 @@ import {
 } from '../../shared/units';
 
 type PlotlyTrace = Record<string, unknown>;
+type PlotElement = HTMLElement & {
+  __gpsPlot3dRenderGeneration?: number;
+};
 
 export type Plot3dAspectRatio = {
   x: number;
@@ -25,6 +29,47 @@ export type Gps3dTrack = {
 
 function rgbaString(color: [number, number, number, number], alphaScale = 1) {
   return `rgba(${color[0]}, ${color[1]}, ${color[2]}, ${Math.min(1, (color[3] / 255) * alphaScale)})`;
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
+function themedColorbarTitle(title: unknown, theme: PlotTheme) {
+  if (typeof title === 'string') {
+    return { text: title, font: { color: theme.textColor } };
+  }
+
+  if (isRecord(title)) {
+    const font = isRecord(title.font) ? title.font : {};
+    return { ...title, font: { ...font, color: theme.textColor } };
+  }
+
+  return title;
+}
+
+function applyTraceTextTheme(trace: PlotlyTrace, theme: PlotTheme): PlotlyTrace {
+  const themedTrace = { ...trace };
+  const mode = typeof themedTrace.mode === 'string' ? themedTrace.mode : '';
+
+  if (mode.includes('text')) {
+    const textfont = isRecord(themedTrace.textfont) ? themedTrace.textfont : {};
+    themedTrace.textfont = { ...textfont, color: theme.textColor };
+  }
+
+  if (isRecord(themedTrace.marker) && isRecord(themedTrace.marker.colorbar)) {
+    const colorbar = themedTrace.marker.colorbar;
+    themedTrace.marker = {
+      ...themedTrace.marker,
+      colorbar: {
+        ...colorbar,
+        title: themedColorbarTitle(colorbar.title, theme),
+        tickfont: { ...(isRecord(colorbar.tickfont) ? colorbar.tickfont : {}), color: theme.textColor }
+      }
+    };
+  }
+
+  return themedTrace;
 }
 
 const LENGTH_METERS: ColumnUnit = { family: 'length', unit: 'm' };
@@ -121,24 +166,47 @@ export function renderGpsPlot3d(
   plotElement: HTMLElement,
   traces: PlotlyTrace[],
   aspectRatio: Plot3dAspectRatio,
-  zAxisTitle: string
+  zAxisTitle: string,
+  themeId?: string,
+  _viewState?: PlotViewState | null,
+  _onViewStateChange?: (viewState: PlotViewState) => void
 ) {
-  const theme = getPlotTheme();
+  const theme = getPlotTheme(themeId);
+  const themedTraces = traces.map((trace) => applyTraceTextTheme(trace, theme));
+  const element = plotElement as PlotElement;
+  const renderGeneration = (element.__gpsPlot3dRenderGeneration ?? 0) + 1;
+  element.__gpsPlot3dRenderGeneration = renderGeneration;
+
+  Plotly3D.purge(plotElement);
 
   return Plotly3D.newPlot(
     plotElement,
-    traces,
+    themedTraces,
     {
       autosize: true,
       paper_bgcolor: theme.paperBg,
       font: { color: theme.textColor },
+      hoverlabel: { font: { color: theme.textColor } },
       margin: { t: 24, r: 24, b: 24, l: 24 },
+      legend: { font: { color: theme.textColor } },
       scene: {
         aspectmode: 'manual',
         aspectratio: aspectRatio,
-        xaxis: { title: 'Longitude', gridcolor: theme.gridColor },
-        yaxis: { title: 'Latitude', gridcolor: theme.gridColor },
-        zaxis: { title: zAxisTitle, gridcolor: theme.gridColor },
+        xaxis: {
+          title: 'Longitude',
+          gridcolor: theme.gridColor,
+          tickfont: { color: theme.textColor }
+        },
+        yaxis: {
+          title: 'Latitude',
+          gridcolor: theme.gridColor,
+          tickfont: { color: theme.textColor }
+        },
+        zaxis: {
+          title: zAxisTitle,
+          gridcolor: theme.gridColor,
+          tickfont: { color: theme.textColor }
+        },
         bgcolor: theme.plotBg
       }
     },
@@ -148,10 +216,15 @@ export function renderGpsPlot3d(
       scrollZoom: true
     }
   ).then(() => {
+    if (element.__gpsPlot3dRenderGeneration !== renderGeneration) {
+      return;
+    }
     Plotly3D.Plots.resize(plotElement);
   });
 }
 
 export function purgeGpsPlot3d(plotElement: HTMLElement) {
+  const element = plotElement as PlotElement;
+  element.__gpsPlot3dRenderGeneration = (element.__gpsPlot3dRenderGeneration ?? 0) + 1;
   Plotly3D.purge(plotElement);
 }

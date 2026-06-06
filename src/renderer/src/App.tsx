@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useMemo, useState } from 'react';
 import logoUrl from './assets/logo.png';
 import { CompareView } from './CompareView';
 import { DataSubmitView } from './DataSubmitView';
@@ -196,7 +196,7 @@ export function App() {
     };
   }, []);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
   }, [theme]);
 

@@ -16,9 +16,11 @@ type PlotEvent = {
 };
 
 type PlotHoverPoint = {
+  curveNumber?: number;
   x: number | string;
   y: number;
   data: {
+    meta?: unknown;
     name?: string;
   };
 };
@@ -69,8 +71,12 @@ export function attachPlotHoverDashboard(
 
     const hoveredX = event.points[0]?.x;
     const hoverValue = typeof hoveredX === 'number' ? hoveredX.toFixed(3) : hoveredX;
-    const values = event.points
-      .map((point) => `${point.data.name ?? 'series'}: ${point.y.toFixed(3)}`)
+    const values = [...event.points]
+      .sort((left, right) => (left.curveNumber ?? 0) - (right.curveNumber ?? 0))
+      .map((point) => {
+        const label = typeof point.data.meta === 'string' ? point.data.meta : point.data.name ?? 'series';
+        return `${label}: ${point.y.toFixed(3)}`;
+      })
       .join('   ');
     setHoverText(`${xAxis.hoverLabel}: ${hoverValue}${xAxis.hoverLabel === 'time' ? ' s' : ''}   ${values}`);
   });
@@ -113,20 +119,23 @@ export function buildPlot2dLayout({
   events,
   eventLabelShifts,
   xAxisTitle,
-  yAxisTitle
+  yAxisTitle,
+  themeId
 }: {
   events: PlotEvent[];
   eventLabelShifts: number[];
   xAxisTitle: string;
   yAxisTitle: string;
+  themeId?: string;
 }) {
-  const theme = getPlotTheme();
+  const theme = getPlotTheme(themeId);
 
   return {
     autosize: true,
     paper_bgcolor: theme.paperBg,
     plot_bgcolor: theme.plotBg,
     font: { color: theme.textColor },
+    hoverlabel: { font: { color: theme.textColor } },
     margin: { t: 24, r: 24, b: 48, l: 64 },
     hovermode: 'x',
     shapes: events.map((event) => ({
@@ -151,9 +160,10 @@ export function buildPlot2dLayout({
       font: { color: event.color, size: 10 }
     })),
     xaxis: {
-      title: { text: xAxisTitle, standoff: 12 },
+      title: { text: xAxisTitle, standoff: 12, font: { color: theme.textColor } },
       automargin: true,
       gridcolor: theme.gridColor,
+      tickfont: { color: theme.textColor },
       showspikes: true,
       spikemode: 'across',
       spikesnap: 'cursor',
@@ -162,10 +172,12 @@ export function buildPlot2dLayout({
       spikethickness: 1
     },
     yaxis: {
-      title: yAxisTitle,
-      gridcolor: theme.gridColor
+      title: { text: yAxisTitle, font: { color: theme.textColor } },
+      gridcolor: theme.gridColor,
+      tickfont: { color: theme.textColor }
     },
     legend: {
+      font: { color: theme.textColor },
       orientation: 'h',
       yanchor: 'bottom',
       y: 1.02,

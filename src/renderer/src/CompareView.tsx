@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import Plotly2D from 'plotly.js-basic-dist-min';
+import Plotly3D from 'plotly.js-gl3d-dist-min';
 import { CompareGpsMapView, type CompareGpsTrack } from './CompareGpsMapView';
 import type {
   DisplayUnitSystem,
@@ -23,6 +24,9 @@ import {
   purgeGpsPlot3d,
   renderGpsPlot3d
 } from './plot3dShared';
+import {
+  schedulePlotRedraw
+} from './plotViewState';
 import { parseNumber } from './telemetry/core';
 import {
   parseDisplaySeriesValue,
@@ -73,6 +77,12 @@ const LENGTH_METERS: ColumnUnit = { family: 'length', unit: 'm' };
 
 function colorString(color: [number, number, number, number], alphaScale = 1) {
   return `rgba(${color[0]}, ${color[1]}, ${color[2]}, ${Math.min(1, (color[3] / 255) * alphaScale)})`;
+}
+
+function tracePrefix(index: number) {
+  const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  if (index < alphabet.length) return `(${alphabet[index]})`;
+  return `(${index + 1})`;
 }
 
 function prepareDataset(
@@ -132,6 +142,8 @@ function seriesValues(entry: CompareDataset, header: string, displayUnits: Displ
 export function CompareView({ config, displayUnits, flights, isActive, theme }: CompareViewProps) {
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [searchText, setSearchText] = useState('');
+  const [altimeterTypeFilter, setAltimeterTypeFilter] = useState('');
+  const [gpsDataFilter, setGpsDataFilter] = useState<'all' | 'with-gps' | 'without-gps'>('all');
   const [mode, setMode] = useState<CompareMode>('plot2d');
   const [selectedSeriesHeaders, setSelectedSeriesHeaders] = useState<string[]>([]);
   const [hoverText, setHoverText] = useState(HOVER_DASHBOARD_IDLE_TEXT);
@@ -139,9 +151,12 @@ export function CompareView({ config, displayUnits, flights, isActive, theme }: 
   const [sanitizeData, setSanitizeData] = useState(true);
   const [autoDetect, setAutoDetect] = useState(true);
   const [showEvents, setShowEvents] = useState(false);
+  const [showSelector, setShowSelector] = useState(true);
+  const [plot2dResetNonce, setPlot2dResetNonce] = useState(0);
   const [datasets, setDatasets] = useState<CompareDataset[]>([]);
   const [loadError, setLoadError] = useState('');
   const plotRef = useRef<HTMLDivElement | null>(null);
+  const plot2dRenderGenerationRef = useRef(0);
 
   const altimeters = useMemo(
     () =>
@@ -157,22 +172,38 @@ export function CompareView({ config, displayUnits, flights, isActive, theme }: 
 
   const filteredFlights = useMemo(() => {
     const keyword = searchText.trim().toLowerCase();
-    if (!keyword) return flights;
     return flights
-      .map((flight) => ({
-        ...flight,
-        altimeters: flight.altimeters.filter((altimeter) =>
-          [
+      .map((flight) => {
+        const altimeters = flight.altimeters.filter((altimeter) => {
+          if (altimeterTypeFilter && altimeter.altimeterName !== altimeterTypeFilter) {
+            return false;
+          }
+          if (gpsDataFilter === 'with-gps' && !altimeter.hasGpsData) {
+            return false;
+          }
+          if (gpsDataFilter === 'without-gps' && altimeter.hasGpsData) {
+            return false;
+          }
+
+          if (!keyword) {
+            return true;
+          }
+
+          return [
             flight.directoryName,
+            flight.name,
             flight.location,
             altimeter.altimeterDirectoryName,
             altimeter.altimeterName,
-            altimeter.motor
-          ].some((value) => value?.toLowerCase().includes(keyword))
-        )
-      }))
+            altimeter.motor,
+            ...Object.values(altimeter.attributes)
+          ].some((value) => value?.toLowerCase().includes(keyword));
+        });
+
+        return { ...flight, altimeters };
+      })
       .filter((flight) => flight.altimeters.length > 0);
-  }, [flights, searchText]);
+  }, [altimeterTypeFilter, flights, gpsDataFilter, searchText]);
 
   useEffect(() => {
     let ignore = false;
@@ -247,6 +278,8 @@ export function CompareView({ config, displayUnits, flights, isActive, theme }: 
   const datasetSignature = useMemo(() => datasets.map((entry) => entry.id).join('|'), [datasets]);
   const defaultSeriesSignature = defaultSelectedSeriesHeaders.join('|');
   const fallbackSeriesSignature = fallbackSelectedSeriesHeaders.join('|');
+  const selectedSeriesSignature = selectedSeriesHeaders.join('|');
+  const plot2dSurfaceKey = `compare-plot2d:${plot2dResetNonce}:${selectedSeriesSignature}`;
 
   useEffect(() => {
     setSelectedSeriesHeaders(
@@ -258,21 +291,25 @@ export function CompareView({ config, displayUnits, flights, isActive, theme }: 
   }, [datasetSignature, defaultSeriesSignature, fallbackSeriesSignature]);
 
   const traces2d = useMemo(
-    () =>
-      datasets.flatMap((entry) =>
+    () => {
+      let traceIndex = 0;
+      return datasets.flatMap((entry) =>
         selectedSeriesHeaders.flatMap((header) => {
           const values = seriesValues(entry, header, displayUnits);
           if (!values) return [];
+          const prefix = tracePrefix(traceIndex);
+          traceIndex += 1;
           return [
             {
               x: entry.visibleXValues,
               y: values,
-              name: seriesDisplayLabel(
+              name: `${prefix} ${seriesDisplayLabel(
                 `${entry.label} - ${header}`,
                 header,
                 entry.dataset.columnUnits,
                 displayUnits
-              ),
+              )}`,
+              meta: prefix,
               mode: 'lines',
               type: 'scatter',
               line: { color: colorString(entry.color), width: 2 },
@@ -280,7 +317,8 @@ export function CompareView({ config, displayUnits, flights, isActive, theme }: 
             }
           ];
         })
-      ),
+      );
+    },
     [datasets, displayUnits, selectedSeriesHeaders]
   );
   const yAxisTitle2d = useMemo(() => {
@@ -338,6 +376,9 @@ export function CompareView({ config, displayUnits, flights, isActive, theme }: 
   useEffect(() => {
     const plotElement = plotRef.current;
     if (!isActive || !plotElement || mode !== 'plot2d') return;
+    const renderGeneration = plot2dRenderGenerationRef.current + 1;
+    plot2dRenderGenerationRef.current = renderGeneration;
+    Plotly2D.purge(plotElement);
 
     Plotly2D.newPlot(
       plotElement,
@@ -346,18 +387,33 @@ export function CompareView({ config, displayUnits, flights, isActive, theme }: 
         events: compareEvents,
         eventLabelShifts: compareEventLabelShifts,
         xAxisTitle: 'Time(s)',
-        yAxisTitle: yAxisTitle2d
+        yAxisTitle: yAxisTitle2d,
+        themeId: theme
       }),
       PLOTLY_INTERACTION_CONFIG
     ).then(() => {
+      if (plot2dRenderGenerationRef.current !== renderGeneration) {
+        return;
+      }
       attachPlotHoverDashboard(plotElement, { hoverLabel: 'time' }, setHoverText);
       Plotly2D.Plots.resize(plotElement);
     });
 
     return () => {
+      plot2dRenderGenerationRef.current += 1;
       Plotly2D.purge(plotElement);
     };
-  }, [compareEventLabelShifts, compareEvents, isActive, mode, theme, traces2d, yAxisTitle2d]);
+  }, [
+    compareEventLabelShifts,
+    compareEvents,
+    isActive,
+    mode,
+    plot2dResetNonce,
+    selectedSeriesSignature,
+    theme,
+    traces2d,
+    yAxisTitle2d
+  ]);
 
   useEffect(() => {
     const plotElement = plotRef.current;
@@ -367,13 +423,50 @@ export function CompareView({ config, displayUnits, flights, isActive, theme }: 
       plotElement,
       buildCompareGpsPlot3dTraces(gpsTracks, displayUnits),
       gpsAspectRatio,
-      `Height (${displayUnitLabel(LENGTH_METERS, displayUnits)})`
+      `Height (${displayUnitLabel(LENGTH_METERS, displayUnits)})`,
+      theme
     );
 
     return () => {
       purgeGpsPlot3d(plotElement);
     };
   }, [displayUnits, gpsAspectRatio, gpsTracks, isActive, mode, theme]);
+
+  useEffect(() => {
+    const plotElement = plotRef.current;
+    if (!isActive || !plotElement || (mode !== 'plot2d' && mode !== 'plot3d')) {
+      return;
+    }
+
+    let cancelScheduledRedraw = () => {};
+    const resizePlot = () => {
+      cancelScheduledRedraw();
+      if (mode === 'plot2d') {
+        cancelScheduledRedraw = schedulePlotRedraw(Plotly2D, plotElement);
+        return;
+      }
+
+      cancelScheduledRedraw = schedulePlotRedraw(Plotly3D, plotElement);
+    };
+    const scheduleResize = () => {
+      resizePlot();
+    };
+
+    const resizeObserver = new ResizeObserver(() => {
+      scheduleResize();
+    });
+
+    resizeObserver.observe(plotElement);
+    if (plotElement.parentElement) {
+      resizeObserver.observe(plotElement.parentElement);
+    }
+    scheduleResize();
+
+    return () => {
+      cancelScheduledRedraw();
+      resizeObserver.disconnect();
+    };
+  }, [isActive, mode, showSelector]);
 
   const toggleSelected = (id: string) => {
     setSelectedIds((current) =>
@@ -382,96 +475,144 @@ export function CompareView({ config, displayUnits, flights, isActive, theme }: 
   };
 
   const selectedCount = selectedIds.length;
-  const gpsCount = gpsTracks.length;
 
   return (
-    <section className="compare-view">
-      <aside className="compare-selector panel">
-        <div className="panel-header">
-          <h2>Compare</h2>
-          <span>{selectedCount} selected</span>
-        </div>
-        <label>
-          <span className="summary-label">Search</span>
-          <input
-            onChange={(event) => setSearchText(event.target.value)}
-            placeholder="Flight, altimeter, location..."
-            type="search"
-            value={searchText}
-          />
-        </label>
-        <div className="compare-flight-list">
-          {filteredFlights.map((flight) => (
-            <div className="compare-flight-group" key={flight.directoryName}>
-              <div className="compare-flight-heading">
-                <span>{flight.directoryName}</span>
-                <small>{flight.location || 'No location'}</small>
-              </div>
-              {flight.altimeters.map((altimeter) => (
-                <label className="checkbox-row compare-checkbox" key={altimeter.id}>
-                  <input
-                    checked={selectedIds.includes(altimeter.altimeterDirectory)}
-                    onChange={() => toggleSelected(altimeter.altimeterDirectory)}
-                    type="checkbox"
-                  />
-                  <span>{altimeter.altimeterDirectoryName}</span>
-                </label>
+    <section className={`compare-view${showSelector ? '' : ' compare-view--selector-collapsed'}`}>
+      <aside className={`compare-selector panel${showSelector ? '' : ' compare-selector--collapsed'}`}>
+        <button
+          aria-label={showSelector ? 'Collapse flights' : 'Expand flights'}
+          aria-expanded={showSelector}
+          className="compare-selector-toggle"
+          onClick={() => setShowSelector((current) => !current)}
+          title={showSelector ? 'Collapse flights' : 'Expand flights'}
+          type="button"
+        >
+          <span>{showSelector ? 'Collapse Flights' : 'Flights'}</span>
+          <small>{selectedCount} selected</small>
+        </button>
+        {showSelector ? (
+          <>
+            <div className="compare-selector-actions">
+              <button
+                className="small-button"
+                disabled={selectedCount === 0}
+                onClick={() => setSelectedIds([])}
+                type="button"
+              >
+                Unselect All
+              </button>
+            </div>
+            <div className="compare-filters">
+              <label className="filter-wide">
+                <span className="summary-label">Search</span>
+                <input
+                  onChange={(event) => setSearchText(event.target.value)}
+                  placeholder="Flight, altimeter, location..."
+                  type="search"
+                  value={searchText}
+                />
+              </label>
+              <label>
+                <span className="summary-label">Altimeter</span>
+                <select
+                  onChange={(event) => setAltimeterTypeFilter(event.target.value)}
+                  value={altimeterTypeFilter}
+                >
+                  <option value="">All</option>
+                  {config?.altimeters.map((altimeter) => (
+                    <option key={altimeter.id} value={altimeter.name}>
+                      {altimeter.name}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label>
+                <span className="summary-label">3D data</span>
+                <select
+                  onChange={(event) =>
+                    setGpsDataFilter(event.target.value as 'all' | 'with-gps' | 'without-gps')
+                  }
+                  value={gpsDataFilter}
+                >
+                  <option value="all">All</option>
+                  <option value="with-gps">Has GPS / 3D</option>
+                  <option value="without-gps">No GPS / 3D</option>
+                </select>
+              </label>
+            </div>
+            <div className="compare-flight-list">
+              {filteredFlights.map((flight) => (
+                <div className="compare-flight-group" key={flight.directoryName}>
+                  <div className="compare-flight-heading">
+                    <span>{flight.directoryName}</span>
+                    <small>{flight.location || 'No location'}</small>
+                  </div>
+                  {flight.altimeters.map((altimeter) => (
+                    <label className="checkbox-row compare-checkbox" key={altimeter.id}>
+                      <input
+                        checked={selectedIds.includes(altimeter.altimeterDirectory)}
+                        onChange={() => toggleSelected(altimeter.altimeterDirectory)}
+                        type="checkbox"
+                      />
+                      <span>{altimeter.altimeterDirectoryName}</span>
+                    </label>
+                  ))}
+                </div>
               ))}
             </div>
-          ))}
-        </div>
+          </>
+        ) : null}
       </aside>
 
       <div className="compare-main">
         <header className="compare-toolbar panel">
-          <div className="segmented-control">
-            <button className={mode === 'plot2d' ? 'selected' : ''} onClick={() => setMode('plot2d')} type="button">
-              2D Plot
-            </button>
-            <button className={mode === 'plot3d' ? 'selected' : ''} onClick={() => setMode('plot3d')} type="button">
-              3D Graph
-            </button>
-            <button className={mode === 'map2d' ? 'selected' : ''} onClick={() => setMode('map2d')} type="button">
-              Flight Map
-            </button>
-            <button className={mode === 'map3d' ? 'selected' : ''} onClick={() => setMode('map3d')} type="button">
-              Flight Map 3D
-            </button>
+          <div className="compare-toolbar-main">
+            <div className="segmented-control">
+              <button className={mode === 'plot2d' ? 'selected' : ''} onClick={() => setMode('plot2d')} type="button">
+                2D Plot
+              </button>
+              <button className={mode === 'plot3d' ? 'selected' : ''} onClick={() => setMode('plot3d')} type="button">
+                3D Graph
+              </button>
+              <button className={mode === 'map2d' ? 'selected' : ''} onClick={() => setMode('map2d')} type="button">
+                Flight Map
+              </button>
+              <button className={mode === 'map3d' ? 'selected' : ''} onClick={() => setMode('map3d')} type="button">
+                Flight Map 3D
+              </button>
+            </div>
           </div>
-          <button className="small-button" onClick={() => setShowFullData((current) => !current)} type="button">
-            {showFullData ? 'Flight Window' : 'Full Data'}
-          </button>
-          <label className="checkbox-row toolbar-checkbox">
-            <input
-              checked={sanitizeData}
-              onChange={(event) => setSanitizeData(event.target.checked)}
-              type="checkbox"
-            />
-            <span title="Blank out-of-range / corrupt values while parsing">Sanitize data</span>
-          </label>
-          <label className="checkbox-row toolbar-checkbox">
-            <input
-              checked={autoDetect}
-              onChange={(event) => setAutoDetect(event.target.checked)}
-              type="checkbox"
-            />
-            <span title="Auto-detect time units, GPS columns, and flight events">Auto-detect</span>
-          </label>
-          <label className="checkbox-row toolbar-checkbox">
-            <input
-              checked={showEvents}
-              onChange={(event) => setShowEvents(event.target.checked)}
-              type="checkbox"
-            />
-            <span title="Show flight event markers on the 2D plot">Show events</span>
-          </label>
+          <div className="toolbar-controls">
+            <button className="small-button" onClick={() => setShowFullData((current) => !current)} type="button">
+              {showFullData ? 'Flight Window' : 'Full Data'}
+            </button>
+            <label className="checkbox-row toolbar-checkbox">
+              <input
+                checked={sanitizeData}
+                onChange={(event) => setSanitizeData(event.target.checked)}
+                type="checkbox"
+              />
+              <span title="Blank out-of-range / corrupt values while parsing">Sanitize data</span>
+            </label>
+            <label className="checkbox-row toolbar-checkbox">
+              <input
+                checked={autoDetect}
+                onChange={(event) => setAutoDetect(event.target.checked)}
+                type="checkbox"
+              />
+              <span title="Auto-detect time units, GPS columns, and flight events">Auto-detect</span>
+            </label>
+            <label className="checkbox-row toolbar-checkbox">
+              <input
+                checked={showEvents}
+                onChange={(event) => setShowEvents(event.target.checked)}
+                type="checkbox"
+              />
+              <span title="Show flight event markers on the 2D plot">Show events</span>
+            </label>
+          </div>
+          {loadError ? <div className="error-text compare-toolbar-error">{loadError}</div> : null}
         </header>
-
-        <div className="compare-status">
-          <span>{datasets.length} loaded</span>
-          <span>{gpsCount} with GPS / 3D</span>
-          {loadError ? <span className="error-text">{loadError}</span> : null}
-        </div>
 
         <div className="compare-plot-area">
           {selectedCount === 0 ? (
@@ -491,6 +632,7 @@ export function CompareView({ config, displayUnits, flights, isActive, theme }: 
                       <input
                         checked={selectedSeriesHeaders.includes(series.header)}
                         onChange={(event) => {
+                          setPlot2dResetNonce((current) => current + 1);
                           setSelectedSeriesHeaders((current) =>
                             event.target.checked
                               ? [...current, series.header]
@@ -506,7 +648,7 @@ export function CompareView({ config, displayUnits, flights, isActive, theme }: 
               </aside>
               <div className="plot-main">
                 <div className="hover-dashboard">{hoverText}</div>
-                <div className="plot-surface" ref={plotRef} />
+                <div className="plot-surface" key={plot2dSurfaceKey} ref={plotRef} />
               </div>
             </section>
           ) : (

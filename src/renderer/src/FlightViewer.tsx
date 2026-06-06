@@ -33,6 +33,12 @@ import {
   renderGpsPlot3d
 } from './plot3dShared';
 import {
+  applyPlotViewState,
+  attachPlotViewStateTracker,
+  saveCurrentPlotViewState,
+  type PlotViewState
+} from './plotViewState';
+import {
   parseDisplaySeriesValue,
   seriesDisplayLabel,
   yAxisTitleForSeries
@@ -262,6 +268,7 @@ export function FlightViewer({
   const [isSavingFlight, setIsSavingFlight] = useState(false);
   const plot2dRef = useRef<HTMLDivElement | null>(null);
   const plot3dRef = useRef<HTMLDivElement | null>(null);
+  const plotViewStatesRef = useRef<Record<string, PlotViewState>>({});
 
   useEffect(() => {
     if (!flight) {
@@ -570,6 +577,7 @@ export function FlightViewer({
     if (!isActive || !plotElement || !dataset || activeSection !== 'plot2d') {
       return;
     }
+    const plot2dViewKey = `${selectedDirectory}:plot2d`;
     const started = performance.now();
     void window.appBridge.debugLog('viewer:plot2d:start', {
       selectedDirectory,
@@ -607,12 +615,16 @@ export function FlightViewer({
     Plotly2D.newPlot(
       plotElement,
       traces,
-      buildPlot2dLayout({
-        events: plotEvents,
-        eventLabelShifts,
-        xAxisTitle: xAxis.title,
-        yAxisTitle
-      }),
+      applyPlotViewState(
+        buildPlot2dLayout({
+          events: plotEvents,
+          eventLabelShifts,
+          xAxisTitle: xAxis.title,
+          yAxisTitle,
+          themeId: theme
+        }),
+        plotViewStatesRef.current[plot2dViewKey]
+      ),
       PLOTLY_INTERACTION_CONFIG
     ).then(() => {
       void window.appBridge.debugLog('viewer:plot2d:ok', {
@@ -623,10 +635,16 @@ export function FlightViewer({
         visibleEventCount: plotEvents.length
       });
       attachPlotHoverDashboard(plotElement, xAxis, setHoverText);
+      attachPlotViewStateTracker(plotElement, 'plot2d', (viewState) => {
+        plotViewStatesRef.current[plot2dViewKey] = viewState;
+      });
       Plotly2D.Plots.resize(plotElement);
     });
 
     return () => {
+      saveCurrentPlotViewState(plotElement, 'plot2d', (viewState) => {
+        plotViewStatesRef.current[plot2dViewKey] = viewState;
+      });
       Plotly2D.purge(plotElement);
     };
   }, [
@@ -635,6 +653,7 @@ export function FlightViewer({
     eventLabelShifts,
     isActive,
     selectedSeries,
+    selectedDirectory,
     displayUnits,
     plotEvents,
     theme,
@@ -654,13 +673,24 @@ export function FlightViewer({
       plotElement,
       buildSingleGpsPlot3dTraces(gpsPoints, gpsEventMarkers, displayUnits),
       gpsAspectRatio,
-      `Altitude (${displayUnitLabel(LENGTH_METERS, displayUnits)})`
+      `Altitude (${displayUnitLabel(LENGTH_METERS, displayUnits)})`,
+      theme
     );
 
     return () => {
       purgeGpsPlot3d(plotElement);
     };
-  }, [activeSection, dataset, displayUnits, gpsAspectRatio, gpsColumns, gpsEventMarkers, gpsPoints, isActive, theme]);
+  }, [
+    activeSection,
+    dataset,
+    displayUnits,
+    gpsAspectRatio,
+    gpsColumns,
+    gpsEventMarkers,
+    gpsPoints,
+    isActive,
+    theme
+  ]);
 
   const saveAttributes = async () => {
     if (!dataset || !hasAttributeChanges) return;
@@ -734,37 +764,39 @@ export function FlightViewer({
         <div>
           <h2>{flight.directoryName}</h2>
         </div>
-        <button
-          className="small-button"
-          onClick={() => setShowFullData((current) => !current)}
-          type="button"
-        >
-          {showFullData ? 'Flight Window' : 'Full Data'}
-        </button>
-        <label className="checkbox-row toolbar-checkbox">
-          <input
-            checked={sanitizeData}
-            onChange={(event) => setSanitizeData(event.target.checked)}
-            type="checkbox"
-          />
-          <span title="Blank out-of-range / corrupt values while parsing">Sanitize data</span>
-        </label>
-        <label className="checkbox-row toolbar-checkbox">
-          <input
-            checked={autoDetect}
-            onChange={(event) => setAutoDetect(event.target.checked)}
-            type="checkbox"
-          />
-          <span title="Auto-detect time units, GPS columns, and flight events">Auto-detect</span>
-        </label>
-        <label className="checkbox-row toolbar-checkbox">
-          <input
-            checked={showEvents}
-            onChange={(event) => setShowEvents(event.target.checked)}
-            type="checkbox"
-          />
-          <span title="Show flight event markers on the 2D plot">Show events</span>
-        </label>
+        <div className="toolbar-controls">
+          <button
+            className="small-button"
+            onClick={() => setShowFullData((current) => !current)}
+            type="button"
+          >
+            {showFullData ? 'Flight Window' : 'Full Data'}
+          </button>
+          <label className="checkbox-row toolbar-checkbox">
+            <input
+              checked={sanitizeData}
+              onChange={(event) => setSanitizeData(event.target.checked)}
+              type="checkbox"
+            />
+            <span title="Blank out-of-range / corrupt values while parsing">Sanitize data</span>
+          </label>
+          <label className="checkbox-row toolbar-checkbox">
+            <input
+              checked={autoDetect}
+              onChange={(event) => setAutoDetect(event.target.checked)}
+              type="checkbox"
+            />
+            <span title="Auto-detect time units, GPS columns, and flight events">Auto-detect</span>
+          </label>
+          <label className="checkbox-row toolbar-checkbox">
+            <input
+              checked={showEvents}
+              onChange={(event) => setShowEvents(event.target.checked)}
+              type="checkbox"
+            />
+            <span title="Show flight event markers on the 2D plot">Show events</span>
+          </label>
+        </div>
       </header>
 
       <nav className="altimeter-tabbar" aria-label="Altimeters">

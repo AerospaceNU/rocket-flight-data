@@ -40,12 +40,23 @@ const THEME_BACKGROUND_COLORS: Record<ThemeId, string> = {
   'amber-dark': '#17120d'
 };
 
-function configureChromiumCacheDirectory() {
+function getSessionDataDirectory() {
+  if (portableExecutableDir) {
+    return path.join(portableExecutableDir, 'session-data');
+  }
+
   const cacheRoot = process.env.LOCALAPPDATA ?? os.tmpdir();
-  const cacheDirectory = path.join(cacheRoot, 'rocket-flight-data', 'chromium-cache');
+  return path.join(cacheRoot, 'rocket-flight-data', 'session-data');
+}
+
+function configureChromiumCacheDirectory() {
+  const sessionDataDirectory = getSessionDataDirectory();
+  const cacheDirectory = path.join(sessionDataDirectory, 'Cache');
 
   try {
+    fs.mkdirSync(sessionDataDirectory, { recursive: true });
     fs.mkdirSync(cacheDirectory, { recursive: true });
+    app.setPath('sessionData', sessionDataDirectory);
     app.commandLine.appendSwitch('disk-cache-dir', cacheDirectory);
     app.commandLine.appendSwitch('disable-gpu-shader-disk-cache');
   } catch (error) {
