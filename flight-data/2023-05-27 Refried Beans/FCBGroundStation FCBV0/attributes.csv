@@ -22,4 +22,4 @@ end_timestamp_ms,2165008752
 packet_count_ground_station_gps,272
 has_gps_data,true
 parser_cache_version,5
-source_fingerprint,2023-05-27 14-45-02 GroundStationDataInterface_parsed.txt:5042200:1780328415425
+source_fingerprint,2023-05-27 14-45-02 GroundStationDataInterface_parsed.txt:5049948:1780704152938
