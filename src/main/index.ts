@@ -316,6 +316,30 @@ function parseGitStatus(output: string): GitDataChange[] {
   return changes;
 }
 
+async function isSourceFingerprintOnlyChange(repositoryRoot: string, change: GitDataChange) {
+  if (!change.path.endsWith('/attributes.csv') || change.status.includes('?') || change.status.includes('A')) {
+    return false;
+  }
+
+  const [unstagedDiff, stagedDiff] = await Promise.all([
+    runGitCommand(['diff', '--unified=0', '--', change.path], repositoryRoot),
+    runGitCommand(['diff', '--cached', '--unified=0', '--', change.path], repositoryRoot)
+  ]);
+  const changedLines = `${unstagedDiff.stdout}\n${stagedDiff.stdout}`
+    .split(/\r?\n/)
+    .filter(
+      (line) =>
+        (line.startsWith('+') || line.startsWith('-')) &&
+        !line.startsWith('+++') &&
+        !line.startsWith('---')
+    );
+
+  return (
+    changedLines.length > 0 &&
+    changedLines.every((line) => line.slice(1).startsWith('source_fingerprint,'))
+  );
+}
+
 async function resolveDataRepository() {
   const root = (await runGitCommand(['rev-parse', '--show-toplevel'], outputDirectory)).stdout.trim();
   const repositoryRoot = path.resolve(root);
@@ -379,9 +403,19 @@ export async function previewGitDataSubmit(): Promise<GitDataSubmitPreview> {
   ]);
   const credentialManagerVersion = await gitCredentialManagerVersion(repositoryRoot);
   const warnings: string[] = [];
+  const rawChanges = parseGitStatus(status.stdout);
+  const sourceFingerprintOnlyFlags = await Promise.all(
+    rawChanges.map((change) => isSourceFingerprintOnlyChange(repositoryRoot, change))
+  );
+  const ignoredSourceFingerprintOnlyCount = sourceFingerprintOnlyFlags.filter(Boolean).length;
 
   if (!credentialManagerVersion) {
     warnings.push('Git Credential Manager was not detected. GitHub may prompt for authentication outside the app.');
+  }
+  if (ignoredSourceFingerprintOnlyCount > 0) {
+    warnings.push(
+      `Ignored ${ignoredSourceFingerprintOnlyCount} source_fingerprint-only attribute change(s).`
+    );
   }
 
   return {
@@ -394,7 +428,7 @@ export async function previewGitDataSubmit(): Promise<GitDataSubmitPreview> {
     remoteUrl: remoteUrl.stdout.trim(),
     gitVersion: gitVersion.stdout.trim(),
     credentialManagerVersion,
-    changes: parseGitStatus(status.stdout),
+    changes: rawChanges.filter((_change, index) => !sourceFingerprintOnlyFlags[index]),
     warnings
   };
 }
