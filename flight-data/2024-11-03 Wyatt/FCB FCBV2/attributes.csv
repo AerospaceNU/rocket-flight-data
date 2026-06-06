@@ -19,4 +19,4 @@ gyro_offset_y,0.01171875
 gyro_offset_z,7.327471962526033e-15
 has_gps_data,true
 parser_cache_version,5
-source_fingerprint,wyatt-fcbv2-2024-11-03-output-FCB-post.csv:3887412:1780704153044
+source_fingerprint,v2:wyatt-fcbv2-2024-11-03-output-FCB-post.csv:3882401

@@ -27,4 +27,4 @@ start_timestamp_ms,1201
 end_timestamp_ms,2057405
 packet_count_ground_station_gps,970
 packet_count_cli_data,823
-source_fingerprint,2024-05-19 13-37-32 GroundStationDataInterface_parsed.txt:13213959:1780704153028
+source_fingerprint,v2:2024-05-19 13-37-32 GroundStationDataInterface_parsed.txt:13192663

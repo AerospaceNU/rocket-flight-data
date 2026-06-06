@@ -16,4 +16,4 @@ apogee_timestamp,1970-01-13T10:44:17.000Z
 trigger_fire_status,-4
 has_gps_data,true
 parser_cache_version,5
-source_fingerprint,V0 2023-04-15-oorr-output-FCB-post.csv:8440130:1780704152878
+source_fingerprint,v2:V0 2023-04-15-oorr-output-FCB-post.csv:8430741

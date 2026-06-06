@@ -10,4 +10,4 @@ peak_velocity_ms,187.26
 peak_acceleration_mss,68.98
 has_gps_data,false
 parser_cache_version,5
-source_fingerprint,2025-11-15 V1 MBTA ridealong board2.txt:2646309:1780704153139
+source_fingerprint,v2:2025-11-15 V1 MBTA ridealong board2.txt:2627403

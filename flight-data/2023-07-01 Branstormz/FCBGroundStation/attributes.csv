@@ -30,4 +30,4 @@ packet_count_groundstation_status,64
 packet_count_line_cutter_data,144
 packet_count_line_cutter_vars,16
 packet_count_cli_data,1
-source_fingerprint,GroundStationDataInterface_parsed.txt:613425:1780704152963
+source_fingerprint,v2:GroundStationDataInterface_parsed.txt:612010
