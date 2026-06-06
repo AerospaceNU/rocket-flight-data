@@ -1,13 +1,13 @@
 key,value
 altimeter_name,SillyGoose
-altimeter_note,Backup Backup
+altimeter_note,test
 importer_id,sillygoose
-imported_at,2026-05-28T18:14:44.380Z
-BOARD_NAME,SillyGooseV1
+imported_at,2026-06-06T00:04:15.322Z
 row_count,15934
 peak_altitude_m,1916.39
 peak_velocity_ms,268.46
 peak_acceleration_mss,142.80
 has_gps_data,false
 parser_cache_version,5
-source_fingerprint,2025-11-15 V1 Crocket backup.txt:2223966:1780704153108
+flight_notes,
+source_fingerprint,2025-11-15 V1 Crocket backup.txt:2223966:1780685040118
