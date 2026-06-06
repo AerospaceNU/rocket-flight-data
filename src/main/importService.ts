@@ -307,7 +307,7 @@ async function computeSourceFingerprint(altimeterDirectory: string) {
   const parts = await Promise.all(
     filePaths.map(async (filePath) => {
       const fileStat = await stat(filePath);
-      return `${path.basename(filePath)}:${fileStat.size}:${Math.round(fileStat.mtimeMs)}`;
+      return `v2:${path.basename(filePath)}:${fileStat.size}`;
     })
   );
 
@@ -468,10 +468,33 @@ function parseBooleanAttribute(value: string | undefined): boolean | null {
   return null;
 }
 
+function sourceFingerprintIdentity(sourceFingerprint: string) {
+  return sourceFingerprint
+    .split('|')
+    .filter(Boolean)
+    .map((part) => {
+      const fields = part.split(':');
+      if (fields[0] === 'v2') {
+        return fields.slice(1, 3).join(':');
+      }
+      return fields.slice(0, 2).join(':');
+    })
+    .sort()
+    .join('|');
+}
+
+function hasMatchingSourceFingerprint(storedFingerprint: string | undefined, sourceFingerprint: string) {
+  if (!storedFingerprint || !sourceFingerprint) return false;
+  return (
+    storedFingerprint === sourceFingerprint ||
+    sourceFingerprintIdentity(storedFingerprint) === sourceFingerprintIdentity(sourceFingerprint)
+  );
+}
+
 function hasFreshDerivedAttributes(attributes: Record<string, string>, sourceFingerprint: string) {
   return (
     attributes.parser_cache_version === PARSE_CACHE_VERSION &&
-    attributes.source_fingerprint === sourceFingerprint &&
+    hasMatchingSourceFingerprint(attributes.source_fingerprint, sourceFingerprint) &&
     metricsFromAttributes(attributes).rowCount !== undefined &&
     parseBooleanAttribute(attributes.has_gps_data) !== null
   );
