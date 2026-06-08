@@ -40,6 +40,15 @@ const THEME_BACKGROUND_COLORS: Record<ThemeId, string> = {
   'amber-dark': '#17120d'
 };
 
+function configureLinuxAppImageSandbox() {
+  if (process.platform !== 'linux' || !process.env.APPIMAGE) {
+    return;
+  }
+
+  // AppImage mounts commonly cannot expose chrome-sandbox with root:4755.
+  app.commandLine.appendSwitch('no-sandbox');
+}
+
 function getSessionDataDirectory() {
   if (portableExecutableDir) {
     return path.join(portableExecutableDir, 'session-data');
@@ -64,6 +73,7 @@ function configureChromiumCacheDirectory() {
   }
 }
 
+configureLinuxAppImageSandbox();
 configureChromiumCacheDirectory();
 
 function getConfigDirectory(): string {
