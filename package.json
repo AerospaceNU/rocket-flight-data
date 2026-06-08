@@ -1,6 +1,6 @@
 {
   "name": "rocket-flight-data",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "description": "Desktop app for rocket flight data exploration.",
   "main": "dist-electron/main/index.js",
   "scripts": {
