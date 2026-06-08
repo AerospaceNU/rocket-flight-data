@@ -41,6 +41,17 @@
         }
       ]
     },
+    "linux": {
+      "target": [
+        {
+          "target": "AppImage",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "category": "Science"
+    },
     "nsis": {
       "oneClick": false,
       "perMachine": false,

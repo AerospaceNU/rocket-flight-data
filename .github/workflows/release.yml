@@ -1,14 +1,14 @@
 name: Release
 
-# Builds the Windows installer and publishes it (plus latest.yml
-# for the in-app auto-updater) to a GitHub Release when a version tag is pushed.
+# Builds the Windows installer and Linux AppImage, then publishes them
+# with auto-updater metadata to a GitHub Release when a version tag is pushed.
 #
 # To cut a release:
 #   1. Bump "version" in package.json (must match the tag, e.g. 0.1.1)
 #   2. Commit + push
 #   3. git tag v0.1.1 && git push origin v0.1.1
-# electron-builder creates a DRAFT release named for the package.json version;
-# publish it from the Releases page so the auto-updater can see it.
+# electron-builder publishes a GitHub Release named for the package.json version;
+# the auto-updater reads the uploaded latest*.yml metadata from that release.
 
 on:
   push:
@@ -20,7 +20,16 @@ permissions:
 
 jobs:
   release:
-    runs-on: windows-latest
+    strategy:
+      fail-fast: false
+      # Publish jobs share one GitHub Release, so keep them serial to avoid
+      # competing draft/create operations.
+      max-parallel: 1
+      matrix:
+        os:
+          - windows-latest
+          - ubuntu-latest
+    runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -33,6 +42,12 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
+
+      - name: Install Linux packaging dependencies
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libfuse2t64 || sudo apt-get install -y libfuse2
 
       - name: Typecheck
         run: npm run typecheck

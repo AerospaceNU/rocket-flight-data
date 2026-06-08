@@ -1,5 +1,6 @@
 /.idea
 /.claude
+config.json
 node_modules/
 dist/
 dist-electron/
