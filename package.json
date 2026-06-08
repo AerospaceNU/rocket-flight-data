@@ -1,6 +1,6 @@
 {
   "name": "rocket-flight-data",
-  "version": "0.1.8",
+  "version": "0.1.9",
   "description": "Desktop app for rocket flight data exploration.",
   "main": "dist-electron/main/index.js",
   "scripts": {
@@ -17,6 +17,7 @@
   "build": {
     "appId": "com.rocket-flight-data.app",
     "productName": "Rocket Flight Data",
+    "afterPack": "scripts/wrapLinuxAppImageExecutable.cjs",
     "directories": {
       "output": "release"
     },
@@ -50,10 +51,7 @@
           ]
         }
       ],
-      "category": "Science",
-      "executableArgs": [
-        "--no-sandbox"
-      ]
+      "category": "Science"
     },
     "nsis": {
       "oneClick": false,
