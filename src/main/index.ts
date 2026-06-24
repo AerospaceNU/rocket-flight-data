@@ -1,4 +1,4 @@
-import { app, BrowserWindow, Menu, dialog, ipcMain, shell } from 'electron';
+import { app, BrowserWindow, Menu, dialog, ipcMain, nativeTheme, shell } from 'electron';
 import updaterPkg from 'electron-updater';
 import { spawn } from 'node:child_process';
 import fs from 'node:fs';
@@ -154,6 +154,13 @@ function normalizeTheme(value: unknown): ThemeId {
 
 function themeBackgroundColor(theme: ThemeId) {
   return THEME_BACKGROUND_COLORS[theme] ?? THEME_BACKGROUND_COLORS[DEFAULT_THEME];
+}
+
+// The native menu bar and dialogs are drawn by the OS (GTK on Linux), not the
+// renderer, so they can't follow our custom themes. Driving nativeTheme.themeSource
+// makes that native chrome render dark or light to match the selected theme.
+function applyNativeTheme(theme: ThemeId): void {
+  nativeTheme.themeSource = theme.endsWith('-light') ? 'light' : 'dark';
 }
 
 function getPersistedOutputDirectory(config: AppConfig): string | null {
@@ -769,6 +776,7 @@ function buildAppMenu(mainWindow: BrowserWindow) {
     click: () => {
       currentTheme = item.id as ThemeId;
       persistTheme(currentTheme);
+      applyNativeTheme(currentTheme);
       mainWindow.setBackgroundColor(themeBackgroundColor(currentTheme));
       mainWindow.webContents.send('theme:changed', currentTheme);
       buildAppMenu(mainWindow);
@@ -1008,6 +1016,7 @@ app.whenReady().then(async () => {
   const relaunching = await ensureLinuxAppImageIntegration();
   if (relaunching) return;
 
+  applyNativeTheme(currentTheme);
   await ensureOutputDirectory(outputDirectory);
   logMain('app:ready');
   createWindow();
