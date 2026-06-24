@@ -10,6 +10,32 @@ data/
     <log files for this flight day>
 ```
 
+## Desktop builds
+
+```bash
+npm run dist           # Windows installer + Linux AppImage for the current platform
+npm run dist:installer # Windows NSIS installer
+npm run dist:linux     # Linux AppImage
+```
+
+## Linux AppImage install behavior
+
+The Linux release artifact is still a portable AppImage, but on first launch the
+packaged app offers to install itself for the current user. Accepting that prompt:
+
+- copies the AppImage to `~/.local/share/Rocket Flight Data/Rocket Flight Data.AppImage`
+  (or `$XDG_DATA_HOME/Rocket Flight Data/Rocket Flight Data.AppImage` when
+  `XDG_DATA_HOME` is set);
+- creates an app launcher at
+  `~/.local/share/applications/com.rocket-flight-data.app.desktop`;
+- installs the logo at
+  `~/.local/share/icons/hicolor/256x256/apps/com.rocket-flight-data.app.png`;
+- relaunches from the installed copy.
+
+That gives Linux desktops a searchable app entry with the app icon, and future
+AppImage updates run against the stable installed copy instead of the file that
+happened to be in `Downloads`.
+
 Each subdirectory of `data/` corresponds to a single launch day on a single rocket. The directory name is the **launch date** (not the offload date) followed by the **rocket name**.
 
 ## SillyGoose log file naming

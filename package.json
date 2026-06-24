@@ -1,6 +1,6 @@
 {
   "name": "rocket-flight-data",
-  "version": "0.1.12",
+  "version": "0.1.13",
   "description": "Desktop app for rocket flight data exploration.",
   "main": "dist-electron/main/index.js",
   "scripts": {
@@ -12,6 +12,7 @@
     "bundle:git": "node scripts/stageBundledGit.cjs",
     "dist": "npm run bundle:git && electron-vite build && electron-builder",
     "dist:installer": "npm run bundle:git && electron-vite build && electron-builder --win nsis",
+    "dist:linux": "npm run bundle:git && electron-vite build && electron-builder --linux AppImage",
     "release": "npm run bundle:git && electron-vite build && electron-builder --publish always"
   },
   "build": {
@@ -24,6 +25,7 @@
     "files": [
       "dist/**",
       "dist-electron/**",
+      "build/icon.png",
       "package.json"
     ],
     "extraResources": [

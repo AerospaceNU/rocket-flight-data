@@ -12,6 +12,13 @@ import {
   logRenderer
 } from './logger';
 import {
+  APP_CLASS,
+  APP_ID,
+  APP_NAME,
+  ensureLinuxAppImageIntegration,
+  getBundledIconPath
+} from './linuxAppImage';
+import {
   detectAltimeter,
   ensureOutputDirectory,
   listFlights,
@@ -39,6 +46,13 @@ const THEME_BACKGROUND_COLORS: Record<ThemeId, string> = {
   'forest-dark': '#0f1613',
   'amber-dark': '#17120d'
 };
+
+app.setName(APP_NAME);
+if (process.platform === 'win32') app.setAppUserModelId(APP_ID);
+if (process.platform === 'linux') {
+  app.commandLine.appendSwitch('class', APP_CLASS);
+  app.commandLine.appendSwitch('no-sandbox');
+}
 
 function getSessionDataDirectory() {
   if (portableExecutableDir) {
@@ -852,6 +866,7 @@ function createWindow() {
     minWidth: 900,
     minHeight: 600,
     title: 'Rocket Flight Data',
+    icon: getBundledIconPath(),
     backgroundColor: themeBackgroundColor(currentTheme),
     webPreferences: {
       preload: path.join(__dirname, '../preload/index.js'),
@@ -990,6 +1005,9 @@ app.on('child-process-gone', (_event, details) => {
 });
 
 app.whenReady().then(async () => {
+  const relaunching = await ensureLinuxAppImageIntegration();
+  if (relaunching) return;
+
   await ensureOutputDirectory(outputDirectory);
   logMain('app:ready');
   createWindow();
