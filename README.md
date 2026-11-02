@@ -76,6 +76,15 @@ Stack any combination, separated by spaces. Order is not significant but the exa
 2026-05-16 V2 Gianni L3 ridealong.txt
 ```
 
+## SeriousGoose log file naming
+
+Same convention as SillyGoose, with `SeriousGoose` before the hardware revision. A binary offload of the same flight (raw `[id][data]` records, as saved by the SillyGoose Tool) sits next to the text log with a `.bin` extension.
+
+```
+2026-10-31 SeriousGoose V1 Airbreaks Rocket ridealong.txt
+2026-10-31 SeriousGoose V1 Airbreaks Rocket ridealong.bin
+```
+
 ## Non-SillyGoose files
 
 Logs from other altimeters (PerfectFlite Stratologger, AltusMetrum EasyMini, etc.) are kept under their original filenames so the source device is obvious. They live alongside the SillyGoose logs in the same flight-day directory.

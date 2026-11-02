@@ -3,12 +3,14 @@ import { fcbGroundStationImporter } from './fcbgroundstation';
 import { easyMiniImporter } from './easymini';
 import { fcbImporter } from './fcb';
 import { rawGpsDataImporter } from './rawgpsdata';
+import { seriousGooseImporter } from './seriousgoose';
 import { sillyGooseImporter } from './sillygoose';
 import { stratoLoggerCfImporter } from './stratologgercf';
 import type { AltimeterImporter } from './types';
 
 const importers = new Map<string, AltimeterImporter>([
   [sillyGooseImporter.id, sillyGooseImporter],
+  [seriousGooseImporter.id, seriousGooseImporter],
   [easyMiniImporter.id, easyMiniImporter],
   [stratoLoggerCfImporter.id, stratoLoggerCfImporter],
   [rawGpsDataImporter.id, rawGpsDataImporter],

@@ -47,6 +47,16 @@ export const ALTIMETERS: AltimeterDefinition[] = [
     }
   },
   {
+    id: 'seriousgoose',
+    name: 'SeriousGoose',
+    importerId: 'seriousgoose',
+    standardColumns: {
+      altitudeMeters: { column: 'altitudeM' },
+      velocityMetersPerSecond: { column: 'velocityMS' },
+      accelerationMetersPerSecondSquared: { column: 'accelerationMSS' }
+    }
+  },
+  {
     id: 'easymini',
     name: 'EasyMini',
     importerId: 'easymini',

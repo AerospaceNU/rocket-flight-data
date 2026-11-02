@@ -51,7 +51,12 @@ import {
   type EventMarker
 } from './telemetry/events';
 import { buildGpsPoints, findGpsColumns } from './telemetry/gps';
-import { computeNorthAlignmentDegrees, normalizeQuaternion } from './telemetry/orientation';
+import {
+  computeGooseReplayPose,
+  computeNorthAlignmentDegrees,
+  findGooseQuaternionColumns,
+  normalizeQuaternion
+} from './telemetry/orientation';
 import { buildXAxis, getTimeColumn } from './telemetry/time';
 
 // Altimeter-level: motor moved to the per-flight editor below, so the only
@@ -103,6 +108,7 @@ const EVENT_SOURCE_PRIORITY: Record<string, number> = {
   fcb: 4,
   fcbgroundstation: 4,
   sillygoose: 3,
+  seriousgoose: 3,
   easymini: 2,
   stratologgercf: 1
 };
@@ -461,8 +467,59 @@ export function FlightViewer({
   }, [gpsColumns, visibleRows, visibleXValues]);
   const gpsAspectRatio = useMemo(() => computeGpsPlot3dAspectRatio(gpsPoints), [gpsPoints]);
   const selectedImporterId = dataset ? getImporterId(dataset) : '';
+  const rocketReplaySupported = selectedImporterId === 'fcb' || selectedImporterId === 'seriousgoose';
   const fcbRocketSamples = useMemo((): RocketPosePoint[] => {
-    if (!dataset || selectedImporterId !== 'fcb' || !gpsColumns) {
+    if (!dataset || !gpsColumns) {
+      return [];
+    }
+
+    if (selectedImporterId === 'seriousgoose') {
+      const gooseColumns = findGooseQuaternionColumns(dataset.headers);
+      const pose = gooseColumns ? computeGooseReplayPose(dataset, xValues, gpsColumns, gooseColumns) : null;
+      if (!pose) {
+        return [];
+      }
+
+      const launchAltitude =
+        visibleRows
+          .map((row) => parseNumber(row[gpsColumns.altitudeIndex]))
+          .find((value) => value !== null) ?? 0;
+
+      return visibleIndexes
+        .map((rowIndex, index) => {
+          const row = dataset.rows[rowIndex] ?? [];
+          const latitude = parseNumber(row[gpsColumns.latitudeIndex]);
+          const longitude = parseNumber(row[gpsColumns.longitudeIndex]);
+          const altitude = parseNumber(row[gpsColumns.altitudeIndex]);
+          const quaternion = pose.quaternions[rowIndex];
+          const time = visibleXValues[index];
+
+          if (
+            latitude === null ||
+            longitude === null ||
+            altitude === null ||
+            !isValidLatitude(latitude) ||
+            !isValidLongitude(longitude) ||
+            !quaternion ||
+            !Number.isFinite(time)
+          ) {
+            return null;
+          }
+
+          return {
+            latitude,
+            longitude,
+            altitude,
+            height: Math.max(0, altitude - launchAltitude),
+            time,
+            northCorrectionDeg: pose.northCorrectionDeg,
+            ...quaternion
+          };
+        })
+        .filter((sample): sample is RocketPosePoint => sample !== null);
+    }
+
+    if (selectedImporterId !== 'fcb') {
       return [];
     }
 
@@ -525,7 +582,7 @@ export function FlightViewer({
         };
       })
       .filter((sample): sample is RocketPosePoint => sample !== null);
-  }, [dataset, gpsColumns, selectedImporterId, visibleRows, visibleXValues, xValues]);
+  }, [dataset, gpsColumns, selectedImporterId, visibleIndexes, visibleRows, visibleXValues, xValues]);
   const gpsViewActive =
     activeSection === 'plot3d' ||
     activeSection === 'map2d' ||
@@ -1018,7 +1075,7 @@ export function FlightViewer({
 
           {dataset && activeSection === 'rocketReplay' ? (
             <section className="plot3d-layout">
-              {selectedImporterId === 'fcb' ? (
+              {rocketReplaySupported ? (
                 <FcbRocketReplayMap
                   eventMarkers={gpsEventMarkers}
                   isActive={isActive}
@@ -1027,7 +1084,7 @@ export function FlightViewer({
               ) : (
                 <div className="viewer-panel">
                   <h2>Rocket Replay</h2>
-                  <p>Rocket replay is currently only supported for FCB altimeters.</p>
+                  <p>Rocket replay is currently only supported for FCB and SeriousGoose altimeters.</p>
                 </div>
               )}
             </section>

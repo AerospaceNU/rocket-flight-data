@@ -322,8 +322,8 @@ function attributesToRecord(attributes: CustomAttribute[]) {
 }
 
 function datasetHasGpsHeaders(headers: string[], rows: string[][]) {
-  const latitudeIndex = getColumnIndexByAliases(headers, ['gps_lat_mod', 'latitude', 'lat', 'gps_lat']);
-  const longitudeIndex = getColumnIndexByAliases(headers, ['gps_long_mod', 'longitude', 'lon', 'lng', 'gps_long']);
+  const latitudeIndex = getColumnIndexByAliases(headers, ['gps_lat_mod', 'latitude', 'lat', 'gps_lat', 'gpslatitudedeg']);
+  const longitudeIndex = getColumnIndexByAliases(headers, ['gps_long_mod', 'longitude', 'lon', 'lng', 'gps_long', 'gpslongitudedeg']);
   const altitudeIndex = getColumnIndexByAliases(headers, ['altitude', 'altitude_m', 'altitudem', 'gps_alt']);
   if (latitudeIndex === null || longitudeIndex === null || altitudeIndex === null) {
     return false;
@@ -956,6 +956,18 @@ function detectFromText(contents: string): AltimeterDetectionResult {
       altimeterId: 'fcbgroundstation',
       confidence: 'high',
       reason: 'FCB ground station parsed log detected.'
+    };
+  }
+
+  if (
+    lowerFirstLines.includes('timestampms\t') &&
+    lowerFirstLines.includes('magfieldteslaraw_x') &&
+    lowerFirstLines.includes('gpslatitudedeg')
+  ) {
+    return {
+      altimeterId: 'seriousgoose',
+      confidence: 'high',
+      reason: 'SeriousGoose header detected.'
     };
   }
 

@@ -47,6 +47,38 @@ export const SILLYGOOSE_COLUMN_UNITS: ColumnUnitMap = {
   quaternion_d: DIMENSIONLESS
 };
 
+export const SERIOUSGOOSE_COLUMN_UNITS: ColumnUnitMap = {
+  timestampMs: TIME_MS,
+  pressurePa: PRESSURE_PA,
+  barometerTemperatureK: TEMP_K,
+  accelerationMSS_x: ACCELERATION_MSS,
+  accelerationMSS_y: ACCELERATION_MSS,
+  accelerationMSS_z: ACCELERATION_MSS,
+  velocityRadS_x: ANGULAR_VELOCITY_RADS,
+  velocityRadS_y: ANGULAR_VELOCITY_RADS,
+  velocityRadS_z: ANGULAR_VELOCITY_RADS,
+  imuTemperatureK: TEMP_K,
+  magFieldTeslaRaw_x: unit('other', 'T'),
+  magFieldTeslaRaw_y: unit('other', 'T'),
+  magFieldTeslaRaw_z: unit('other', 'T'),
+  batteryVoltageV: VOLTAGE_V,
+  altitudeM: LENGTH_M,
+  velocityMS: VELOCITY_MS,
+  accelerationMSS: ACCELERATION_MSS,
+  unfilteredAltitudeM: LENGTH_M,
+  tiltMagnitudeDeg: ANGLE_DEG,
+  angularVelRadS_x: ANGULAR_VELOCITY_RADS,
+  angularVelRadS_y: ANGULAR_VELOCITY_RADS,
+  angularVelRadS_z: ANGULAR_VELOCITY_RADS,
+  quaternion_a: DIMENSIONLESS,
+  quaternion_b: DIMENSIONLESS,
+  quaternion_c: DIMENSIONLESS,
+  quaternion_d: DIMENSIONLESS,
+  gpsLatitudeDeg: ANGLE_DEG,
+  gpsLongitudeDeg: ANGLE_DEG,
+  gpsAltitudeM: LENGTH_M
+};
+
 export const EASYMINI_COLUMN_UNITS: ColumnUnitMap = {
   time: TIME_S,
   acceleration: ACCELERATION_MSS,

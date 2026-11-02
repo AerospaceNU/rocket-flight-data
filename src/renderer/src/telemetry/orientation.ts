@@ -230,3 +230,156 @@ export function computeNorthAlignmentDegrees(
 
   return normalizeDegrees(declination - measuredMagneticBearing);
 }
+
+/*
+ * SillyGoose-family (SeriousGoose) replay orientation.
+ *
+ * The firmware logs quaternion_a..d (a = scalar part) rotating the board frame into a world frame
+ * with +Z up and an arbitrary heading. The replay mesh points along +X in an east/north/up world,
+ * so the board's nose axis is taken from the pre-launch samples (the board axis that points up on
+ * the pad) and the heading is aligned to the GPS ground track during ascent.
+ */
+type Quaternion = { qX: number; qY: number; qZ: number; qW: number };
+type Vector3 = [number, number, number];
+
+const BOARD_AXES: Vector3[] = [
+  [1, 0, 0],
+  [-1, 0, 0],
+  [0, 1, 0],
+  [0, -1, 0],
+  [0, 0, 1],
+  [0, 0, -1]
+];
+const EARTH_METERS_PER_DEGREE = 111_320;
+const TRACK_BASELINE_SECONDS = 1;
+const TRACK_MIN_HORIZONTAL_METERS = 2;
+const NOSE_MIN_HORIZONTAL = 0.05;
+
+function multiplyQuaternions(left: Quaternion, right: Quaternion): Quaternion {
+  return {
+    qW: left.qW * right.qW - left.qX * right.qX - left.qY * right.qY - left.qZ * right.qZ,
+    qX: left.qW * right.qX + left.qX * right.qW + left.qY * right.qZ - left.qZ * right.qY,
+    qY: left.qW * right.qY - left.qX * right.qZ + left.qY * right.qW + left.qZ * right.qX,
+    qZ: left.qW * right.qZ + left.qX * right.qY - left.qY * right.qX + left.qZ * right.qW
+  };
+}
+
+function rotationFromPlusX(target: Vector3): Quaternion {
+  const dot = target[0];
+  if (dot > 0.999999) return { qX: 0, qY: 0, qZ: 0, qW: 1 };
+  if (dot < -0.999999) return { qX: 0, qY: 0, qZ: 1, qW: 0 };
+  const axis: Vector3 = [0, -target[2], target[1]];
+  const halfAngle = Math.acos(dot) / 2;
+  const axisLength = Math.hypot(axis[1], axis[2]);
+  const scale = Math.sin(halfAngle) / axisLength;
+  return { qX: 0, qY: axis[1] * scale, qZ: axis[2] * scale, qW: Math.cos(halfAngle) };
+}
+
+export function findGooseQuaternionColumns(headers: string[]): QuaternionColumns | null {
+  const qwIndex = getColumnIndexByAliases(headers, ['quaternion_a']);
+  const qxIndex = getColumnIndexByAliases(headers, ['quaternion_b']);
+  const qyIndex = getColumnIndexByAliases(headers, ['quaternion_c']);
+  const qzIndex = getColumnIndexByAliases(headers, ['quaternion_d']);
+  if (qwIndex === null || qxIndex === null || qyIndex === null || qzIndex === null) return null;
+  return { qxIndex, qyIndex, qzIndex, qwIndex };
+}
+
+function rowQuaternion(row: string[], columns: QuaternionColumns) {
+  const qx = parseNumber(row[columns.qxIndex]);
+  const qy = parseNumber(row[columns.qyIndex]);
+  const qz = parseNumber(row[columns.qzIndex]);
+  const qw = parseNumber(row[columns.qwIndex]);
+  if (qx === null || qy === null || qz === null || qw === null) return null;
+  return normalizeQuaternion(qx, qy, qz, qw);
+}
+
+export type GooseReplayPose = {
+  quaternions: (Quaternion | null)[];
+  northCorrectionDeg: number;
+};
+
+export function computeGooseReplayPose(
+  dataset: ImportedDataset,
+  xValues: number[],
+  gpsColumns: GpsColumns,
+  columns: QuaternionColumns
+): GooseReplayPose | null {
+  if (dataset.rows.length === 0 || xValues.length !== dataset.rows.length) return null;
+  const boardQuaternions = dataset.rows.map((row) => rowQuaternion(row, columns));
+
+  const padIndexes = calibrationIndexes(xValues);
+  let noseAxis: Vector3 | null = null;
+  let bestUp = Number.NEGATIVE_INFINITY;
+  for (const axis of BOARD_AXES) {
+    let upSum = 0;
+    let count = 0;
+    for (const index of padIndexes) {
+      const quaternion = boardQuaternions[index];
+      if (!quaternion) continue;
+      upSum += rotateVectorByQuaternion(quaternion, axis)[2];
+      count += 1;
+    }
+    if (count > 0 && upSum / count > bestUp) {
+      bestUp = upSum / count;
+      noseAxis = axis;
+    }
+  }
+  if (!noseAxis) return null;
+
+  const meshToBoard = rotationFromPlusX(noseAxis);
+  const quaternions = boardQuaternions.map((quaternion) =>
+    quaternion ? multiplyQuaternions(quaternion, meshToBoard) : null
+  );
+
+  let apogeeIndex = -1;
+  let apogeeAltitude = Number.NEGATIVE_INFINITY;
+  dataset.rows.forEach((row, index) => {
+    const altitude = parseNumber(row[gpsColumns.altitudeIndex]);
+    if (altitude !== null && xValues[index] >= 0 && altitude > apogeeAltitude) {
+      apogeeAltitude = altitude;
+      apogeeIndex = index;
+    }
+  });
+
+  let sinSum = 0;
+  let cosSum = 0;
+  let baseIndex = -1;
+  for (let index = 0; index <= apogeeIndex; index += 1) {
+    const time = xValues[index];
+    if (!Number.isFinite(time) || time < 0) continue;
+    if (baseIndex < 0) {
+      baseIndex = index;
+      continue;
+    }
+    if (time - xValues[baseIndex] < TRACK_BASELINE_SECONDS) continue;
+
+    const baseRow = dataset.rows[baseIndex];
+    const row = dataset.rows[index];
+    const baseIndexUsed = baseIndex;
+    baseIndex = index;
+    const latitude = parseNumber(row[gpsColumns.latitudeIndex]);
+    const longitude = parseNumber(row[gpsColumns.longitudeIndex]);
+    const baseLatitude = parseNumber(baseRow[gpsColumns.latitudeIndex]);
+    const baseLongitude = parseNumber(baseRow[gpsColumns.longitudeIndex]);
+    if (!isValidLatitude(latitude) || !isValidLongitude(longitude) || !isValidLatitude(baseLatitude) || !isValidLongitude(baseLongitude)) continue;
+
+    const north = (latitude - baseLatitude) * EARTH_METERS_PER_DEGREE;
+    const east = (longitude - baseLongitude) * EARTH_METERS_PER_DEGREE * Math.cos((latitude * Math.PI) / 180);
+    const trackMeters = Math.hypot(east, north);
+    if (trackMeters < TRACK_MIN_HORIZONTAL_METERS) continue;
+
+    const quaternion = quaternions[Math.round((baseIndexUsed + index) / 2)];
+    if (!quaternion) continue;
+    const nose = rotateVectorByQuaternion(quaternion, [1, 0, 0]);
+    const noseHorizontal = Math.hypot(nose[0], nose[1]);
+    if (noseHorizontal < NOSE_MIN_HORIZONTAL) continue;
+
+    const offset = Math.atan2(north, east) - Math.atan2(nose[1], nose[0]);
+    const weight = trackMeters * noseHorizontal;
+    sinSum += Math.sin(offset) * weight;
+    cosSum += Math.cos(offset) * weight;
+  }
+
+  const northCorrectionDeg = sinSum === 0 && cosSum === 0 ? 0 : (Math.atan2(sinSum, cosSum) * 180) / Math.PI;
+  return { quaternions, northCorrectionDeg };
+}

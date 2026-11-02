@@ -52,7 +52,8 @@ export function findGpsColumns(headers: string[], rows: string[][], options?: Au
     { latitudeAliases: ['latitude'], longitudeAliases: ['longitude'] },
     { latitudeAliases: ['lat'], longitudeAliases: ['lon', 'lng'] },
     { latitudeAliases: ['gps_lat'], longitudeAliases: ['gps_long'] },
-    { latitudeAliases: ['gps_lat_mod'], longitudeAliases: ['gps_long_mod'] }
+    { latitudeAliases: ['gps_lat_mod'], longitudeAliases: ['gps_long_mod'] },
+    { latitudeAliases: ['gpslatitudedeg'], longitudeAliases: ['gpslongitudedeg'] }
   ];
 
   const candidates = pairs

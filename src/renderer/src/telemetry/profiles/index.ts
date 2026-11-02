@@ -14,7 +14,8 @@ const EVENT_PROFILES: Record<string, EventProfile> = {
   fcb: fcbProfile,
   fcbgroundstation: fcbGroundStationProfile,
   easymini: easyMiniProfile,
-  sillygoose: flightStateProfile
+  sillygoose: flightStateProfile,
+  seriousgoose: flightStateProfile
 };
 
 export function getEventProfile(importerId: string): EventProfile | null {
