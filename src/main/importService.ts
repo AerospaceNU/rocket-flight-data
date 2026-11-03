@@ -961,7 +961,7 @@ function detectFromText(contents: string): AltimeterDetectionResult {
 
   if (
     lowerFirstLines.includes('timestampms\t') &&
-    lowerFirstLines.includes('magfieldteslaraw_x') &&
+    (lowerFirstLines.includes('magfieldteslaraw_x') || lowerFirstLines.includes('\tmagx\t')) &&
     lowerFirstLines.includes('gpslatitudedeg')
   ) {
     return {

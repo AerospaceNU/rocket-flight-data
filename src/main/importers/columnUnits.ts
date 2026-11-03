@@ -76,7 +76,12 @@ export const SERIOUSGOOSE_COLUMN_UNITS: ColumnUnitMap = {
   quaternion_d: DIMENSIONLESS,
   gpsLatitudeDeg: ANGLE_DEG,
   gpsLongitudeDeg: ANGLE_DEG,
-  gpsAltitudeM: LENGTH_M
+  gpsAltitudeM: LENGTH_M,
+  // SillyGoose Tool ground-station stream logs name the shared fields the SillyGoose way.
+  ...SILLYGOOSE_COLUMN_UNITS,
+  magX: unit('other', 'T'),
+  magY: unit('other', 'T'),
+  magZ: unit('other', 'T')
 };
 
 export const EASYMINI_COLUMN_UNITS: ColumnUnitMap = {
