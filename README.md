@@ -5,9 +5,15 @@ Logs from flight data.
 ## Layout
 
 ```
-data/
+flight-data/
   <YYYY-MM-DD> <Rocket Name>/
-    <log files for this flight day>
+    attributes.csv
+    <raw files not tied to one altimeter>
+    <Altimeter Type> <Role>/
+      attributes.csv
+      <original log files the importer parses>
+      raw/
+        <other raw files kept for the record: binary captures, exports, extra logs>
 ```
 
 ## Desktop builds
@@ -36,7 +42,7 @@ That gives Linux desktops a searchable app entry with the app icon, and future
 AppImage updates run against the stable installed copy instead of the file that
 happened to be in `Downloads`.
 
-Each subdirectory of `data/` corresponds to a single launch day on a single rocket. The directory name is the **launch date** (not the offload date) followed by the **rocket name**.
+Each subdirectory of `flight-data/` corresponds to a single launch day on a single rocket. The directory name is the **launch date** (not the offload date) followed by the **rocket name**. Files directly inside an altimeter folder are parsed by its importer, so anything that is not a log for that importer goes in its `raw/` subfolder, which the app ignores.
 
 ## SillyGoose log file naming
 
