@@ -1,0 +1,13 @@
+key,value
+altimeter_name,SeriousGoose
+altimeter_note,Ground Station
+importer_id,seriousgoose
+imported_at,2026-11-03T01:58:23.516Z
+row_count,4798
+peak_altitude_m,2210.56
+peak_velocity_ms,203.01
+peak_acceleration_mss,82.32
+has_gps_data,true
+parser_cache_version,5
+source,"SillyGoose Tool ground-station stream log (relayed telemetry, 1 packet/s)"
+source_fingerprint,v2:stream-2026-10-31T16-30-45-584Z-SeriousGoose.txt:1464238
