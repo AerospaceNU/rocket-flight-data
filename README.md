@@ -8,7 +8,6 @@ Logs from flight data.
 flight-data/
   <YYYY-MM-DD> <Rocket Name>/
     attributes.csv
-    <raw files not tied to one altimeter>
     <Altimeter Type> <Role>/
       attributes.csv
       <original log files the importer parses>
