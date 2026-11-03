@@ -621,8 +621,8 @@ export function FlightViewer({
   }, [sanitizeData, dataset, flight, gpsColumns, gpsViewActive, selectedDirectory]);
 
   const gpsEventMarkers = useMemo(
-    () => buildGpsEventMarkers(gpsPoints, eventDatasets, autoDetect),
-    [autoDetect, eventDatasets, gpsPoints]
+    () => (showEvents ? buildGpsEventMarkers(gpsPoints, eventDatasets, autoDetect) : []),
+    [autoDetect, eventDatasets, gpsPoints, showEvents]
   );
 
   useEffect(() => {
@@ -851,7 +851,7 @@ export function FlightViewer({
               onChange={(event) => setShowEvents(event.target.checked)}
               type="checkbox"
             />
-            <span title="Show flight event markers on the 2D plot">Show events</span>
+            <span title="Show flight event markers on the plots, maps and rocket replay">Show events</span>
           </label>
         </div>
       </header>
