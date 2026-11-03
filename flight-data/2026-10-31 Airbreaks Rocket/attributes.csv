@@ -2,6 +2,7 @@ key,value
 flight_date,2026-10-31
 rocket_name,Airbreaks Rocket
 flight_location,CRMRC
+motor,L1050
 peak_altitude_m,2225.73
 peak_velocity_ms,224.66
 peak_acceleration_mss,85.81
