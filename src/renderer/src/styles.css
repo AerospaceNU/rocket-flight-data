@@ -522,16 +522,19 @@ label {
   overflow: hidden;
 }
 
-.compare-toolbar {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  align-items: start;
+/* The view tabs keep their full width; the toggles wrap onto the next line when both don't fit.
+   .panel (later in this file) sets display: grid, hence the extra class. */
+.compare-toolbar.panel {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
   gap: 0.75rem;
   min-width: 0;
 }
 
 .compare-toolbar-main {
   min-width: 0;
+  max-width: 100%;
 }
 
 .compare-toolbar .segmented-control {
@@ -540,7 +543,7 @@ label {
 }
 
 .compare-toolbar-error {
-  grid-column: 1 / -1;
+  flex-basis: 100%;
 }
 
 .compare-plot-area {
@@ -1222,10 +1225,6 @@ button:disabled {
 
   .compare-selector--collapsed .compare-selector-toggle {
     min-height: 2.1rem;
-  }
-
-  .compare-toolbar {
-    grid-template-columns: 1fr;
   }
 
   .compare-filters .filter-wide {
