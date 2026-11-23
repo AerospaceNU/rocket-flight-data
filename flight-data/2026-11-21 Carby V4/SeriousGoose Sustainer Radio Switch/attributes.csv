@@ -1,0 +1,12 @@
+key,value
+altimeter_name,SeriousGoose
+altimeter_note,Sustainer Radio Switch
+importer_id,seriousgoose
+imported_at,2026-11-23T23:45:18.754Z
+row_count,345
+peak_altitude_m,926.91
+peak_velocity_ms,165.23
+peak_acceleration_mss,17.15
+has_gps_data,true
+parser_cache_version,5
+source_fingerprint,v2:stream-2026-11-21T20-16-32-011Z-SeriousGoose.txt:127213|v2:stream-2026-11-21T20-24-38-850Z-RadioBoard.txt:14758

@@ -1,0 +1,12 @@
+key,value
+altimeter_name,SeriousGoose
+altimeter_note,Ridealong
+importer_id,seriousgoose
+imported_at,2026-11-23T23:45:18.732Z
+row_count,396
+peak_altitude_m,2371.96
+peak_velocity_ms,147.04
+peak_acceleration_mss,131.68
+has_gps_data,false
+parser_cache_version,5
+source_fingerprint,v2:stream-2026-11-21T17-33-40-679Z-SeriousGoose.txt:149732
