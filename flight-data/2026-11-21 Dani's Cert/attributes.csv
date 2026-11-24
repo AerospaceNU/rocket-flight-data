@@ -3,5 +3,5 @@ flight_date,2026-11-21
 rocket_name,Dani's Cert
 flight_location,CRMRC
 peak_altitude_m,624.18
-peak_velocity_ms,118.44
-peak_acceleration_mss,18.67
+peak_velocity_ms,122.28
+peak_acceleration_mss,113.82
