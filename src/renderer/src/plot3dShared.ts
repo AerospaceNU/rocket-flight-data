@@ -99,6 +99,8 @@ export function buildSingleGpsPlot3dTraces(
     {
       type: 'scatter3d',
       mode: 'lines+markers',
+      // The colour bar explains this trace; an unnamed legend entry ("trace 0") would sit on top of it.
+      showlegend: false,
       x: points.map((point) => point.longitude),
       y: points.map((point) => point.latitude),
       z: points.map((point) => convertDisplayValue(point.altitude, LENGTH_METERS, displayUnits)),
@@ -121,6 +123,7 @@ export function buildSingleGpsPlot3dTraces(
     {
       type: 'scatter3d',
       mode: 'markers+text',
+      showlegend: false,
       x: eventMarkers.map((point) => point.longitude),
       y: eventMarkers.map((point) => point.latitude),
       z: eventMarkers.map((point) => convertDisplayValue(point.altitude, LENGTH_METERS, displayUnits)),
@@ -192,18 +195,19 @@ export function renderGpsPlot3d(
       scene: {
         aspectmode: 'manual',
         aspectratio: aspectRatio,
+        // Plotly 3 ignores a plain-string axis title (the axes showed "x"/"y"/"z"); it needs { text }.
         xaxis: {
-          title: 'Longitude',
+          title: { text: 'Longitude', font: { color: theme.textColor } },
           gridcolor: theme.gridColor,
           tickfont: { color: theme.textColor }
         },
         yaxis: {
-          title: 'Latitude',
+          title: { text: 'Latitude', font: { color: theme.textColor } },
           gridcolor: theme.gridColor,
           tickfont: { color: theme.textColor }
         },
         zaxis: {
-          title: zAxisTitle,
+          title: { text: zAxisTitle, font: { color: theme.textColor } },
           gridcolor: theme.gridColor,
           tickfont: { color: theme.textColor }
         },

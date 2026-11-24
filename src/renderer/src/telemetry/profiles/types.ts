@@ -17,6 +17,11 @@ export type StateEventProfile = {
   isLaunchTransition: (previousState: number, currentState: number) => boolean;
   /** True when a transition prev -> cur marks the end of flight (last match wins). */
   isEndTransition: (previousState: number, currentState: number) => boolean;
+  /**
+   * True for states that mean the rocket is still flying. When the log ends in one of these (no end transition,
+   * e.g. radio contact lost under the main), the flight runs to the last sample instead of the last event.
+   */
+  isInFlightState?: (state: number) => boolean;
 };
 
 export type EventProfile = {

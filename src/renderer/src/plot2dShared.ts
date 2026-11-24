@@ -85,6 +85,60 @@ export function attachPlotHoverDashboard(
   });
 }
 
+const GAP_FACTOR = 4;
+const MIN_GAP_SECONDS = 2;
+const SPARSE_MEDIAN_SPACING_SECONDS = 0.5;
+
+/**
+ * Finds the sample indexes that start a data gap: the step to the next sample is much longer than the
+ * shorter of the neighbouring steps (e.g. lost radio packets). A steady slow rate, such as a 5 s pre-flight
+ * log, is not a gap. Plotting a straight line across a gap looks like real data, so traces break there.
+ */
+export function findDataGaps(xValues: number[]) {
+  const steps = xValues.slice(1).map((value, index) => value - xValues[index]);
+  const gaps = new Set<number>();
+
+  for (let index = 0; index < steps.length; index += 1) {
+    const step = steps[index];
+    if (!Number.isFinite(step) || step < MIN_GAP_SECONDS) continue;
+    const neighbours = [steps[index - 1], steps[index + 1]].filter(
+      (value): value is number => value !== undefined && Number.isFinite(value) && value > 0
+    );
+    if (neighbours.length === 0 || step > GAP_FACTOR * Math.min(...neighbours)) {
+      gaps.add(index);
+    }
+  }
+
+  return gaps;
+}
+
+/** True when samples are far enough apart (radio telemetry) that each one should be drawn as a marker. */
+export function isSparseSeries(xValues: number[]) {
+  const steps = xValues
+    .slice(1)
+    .map((value, index) => value - xValues[index])
+    .filter((step) => Number.isFinite(step) && step > 0)
+    .sort((left, right) => left - right);
+  const median = steps[Math.floor(steps.length / 2)];
+  return median !== undefined && median >= SPARSE_MEDIAN_SPACING_SECONDS;
+}
+
+/** Inserts a null after each gap start so Plotly breaks the line there (connectgaps is off by default). */
+export function breakTraceAtGaps<T>(xValues: number[], yValues: (T | null)[], gaps: Set<number>) {
+  if (gaps.size === 0) return { x: xValues as (number | null)[], y: yValues };
+  const x: (number | null)[] = [];
+  const y: (T | null)[] = [];
+  xValues.forEach((value, index) => {
+    x.push(value);
+    y.push(yValues[index] ?? null);
+    if (gaps.has(index)) {
+      x.push(null);
+      y.push(null);
+    }
+  });
+  return { x, y };
+}
+
 export function computeEventLabelShifts(
   events: { label: string; time: number }[],
   xValues: number[]

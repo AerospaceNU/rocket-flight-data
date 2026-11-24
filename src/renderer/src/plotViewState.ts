@@ -28,13 +28,15 @@ function clonePlain<T>(value: T): T {
 function axisViewState(axis: unknown) {
   if (!isRecord(axis)) return null;
 
+  // Plotly fills in `range` even while autoranging, so autorange has to be checked first; otherwise an
+  // untouched plot is saved as a fixed range and that range is re-applied to the next dataset shown.
+  if (axis.autorange === true) {
+    return { autorange: true };
+  }
+
   const range = axis.range;
   if (Array.isArray(range) && range.length >= 2) {
     return { range: clonePlain(range.slice(0, 2)), autorange: false };
-  }
-
-  if (axis.autorange === true) {
-    return { autorange: true };
   }
 
   return null;

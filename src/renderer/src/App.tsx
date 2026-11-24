@@ -38,6 +38,8 @@ type ViewerTab = BaseTab & {
   kind: 'viewer';
   flightDirectoryName: string;
   selectedAltimeterDirectory?: string;
+  /** Bumped on every open request so re-opening the same altimeter re-selects it. */
+  altimeterRequestId: number;
 };
 
 type AppTab = HomeTab | CompareTab | SubmitTab | ImportTab | ViewerTab;
@@ -279,7 +281,10 @@ export function App() {
             ? {
                 ...tab,
                 selectedAltimeterDirectory:
-                  flight.selectedAltimeterDirectory ?? existingTab.selectedAltimeterDirectory
+                  flight.selectedAltimeterDirectory ?? existingTab.selectedAltimeterDirectory,
+                altimeterRequestId: flight.selectedAltimeterDirectory
+                  ? existingTab.altimeterRequestId + 1
+                  : existingTab.altimeterRequestId
               }
             : tab
         );
@@ -290,7 +295,8 @@ export function App() {
         title: flight.directoryName,
         kind: 'viewer',
         flightDirectoryName: flight.directoryName,
-        selectedAltimeterDirectory: flight.selectedAltimeterDirectory
+        selectedAltimeterDirectory: flight.selectedAltimeterDirectory,
+        altimeterRequestId: 0
       };
 
       setActiveTabId(newTab.id);
@@ -548,6 +554,7 @@ export function App() {
         isActive={isActive}
         onDatasetUpdated={refreshFlights}
         selectedAltimeterDirectory={tab.selectedAltimeterDirectory}
+        altimeterRequestId={tab.altimeterRequestId}
         theme={theme}
       />
     );
@@ -562,9 +569,10 @@ export function App() {
             key={tab.id}
             className={`tab ${tab.id === activeTab?.id ? 'active' : ''}`}
             onClick={() => setActiveTabId(tab.id)}
+            title={tab.title}
             type="button"
           >
-            <span>{tab.title}</span>
+            <span className="tab-title">{tab.title}</span>
             {tab.kind !== 'home' && tab.kind !== 'compare' ? (
               <span
                 aria-label={`Close ${tab.title}`}

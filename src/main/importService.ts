@@ -493,11 +493,78 @@ function hasMatchingSourceFingerprint(storedFingerprint: string | undefined, sou
 
 function hasFreshDerivedAttributes(attributes: Record<string, string>, sourceFingerprint: string) {
   return (
+    hasCompleteDerivedAttributes(attributes) &&
+    hasMatchingSourceFingerprint(attributes.source_fingerprint, sourceFingerprint)
+  );
+}
+
+function hasCompleteDerivedAttributes(attributes: Record<string, string>) {
+  return (
     attributes.parser_cache_version === PARSE_CACHE_VERSION &&
-    hasMatchingSourceFingerprint(attributes.source_fingerprint, sourceFingerprint) &&
     metricsFromAttributes(attributes).rowCount !== undefined &&
     parseBooleanAttribute(attributes.has_gps_data) !== null
   );
+}
+
+type LineEndingCounts = { crlf: number; loneLf: number };
+
+// Keyed by path, size and mtime so a file is only scanned once per session.
+const lineEndingCountCache = new Map<string, LineEndingCounts>();
+
+async function countLineEndings(filePath: string, size: number, mtimeMs: number): Promise<LineEndingCounts> {
+  const key = `${filePath}\0${size}\0${mtimeMs}`;
+  const cachedCounts = lineEndingCountCache.get(key);
+  if (cachedCounts) return cachedCounts;
+
+  const contents = await readFile(filePath);
+  let crlf = 0;
+  let loneLf = 0;
+  for (let index = 0; index < contents.length; index += 1) {
+    if (contents[index] !== 0x0a) continue;
+    if (index > 0 && contents[index - 1] === 0x0d) crlf += 1;
+    else loneLf += 1;
+  }
+
+  const counts = { crlf, loneLf };
+  lineEndingCountCache.set(key, counts);
+  return counts;
+}
+
+/**
+ * Git's core.autocrlf (on by default in Git for Windows and in the bundled MinGit) checks text files out with
+ * different line endings than the committed blob, so every file size differs from the one recorded in
+ * source_fingerprint. Treat a source file as unchanged when its size matches the recorded size after converting
+ * its line endings either way; otherwise every Windows checkout re-parses and rewrites attributes.csv, which
+ * leaves the repository dirty and makes "Sync Repository From GitHub" fail.
+ */
+async function matchesSourceFingerprintIgnoringLineEndings(
+  altimeterDirectory: string,
+  storedFingerprint: string | undefined
+): Promise<boolean> {
+  if (!storedFingerprint) return false;
+
+  const storedSizes = new Map<string, number>();
+  for (const part of storedFingerprint.split('|').filter(Boolean)) {
+    const fields = part.split(':');
+    if (fields[0] !== 'v2' || fields.length !== 3) return false;
+    const size = Number(fields[2]);
+    if (!Number.isFinite(size)) return false;
+    storedSizes.set(fields[1], size);
+  }
+
+  const filePaths = await listOriginalFilePaths(altimeterDirectory);
+  if (filePaths.length !== storedSizes.size) return false;
+
+  for (const filePath of filePaths) {
+    const storedSize = storedSizes.get(path.basename(filePath));
+    if (storedSize === undefined) return false;
+    const fileStat = await stat(filePath);
+    if (fileStat.size === storedSize) continue;
+    const { crlf, loneLf } = await countLineEndings(filePath, fileStat.size, fileStat.mtimeMs);
+    if (fileStat.size - crlf !== storedSize && fileStat.size + loneLf !== storedSize) return false;
+  }
+
+  return true;
 }
 
 function computeMetricsFromParsed(
@@ -585,7 +652,12 @@ async function resolveDerivedData(
     sourceFingerprint = '';
   }
 
-  if (sourceFingerprint && hasFreshDerivedAttributes(attributes, sourceFingerprint)) {
+  if (
+    sourceFingerprint &&
+    (hasFreshDerivedAttributes(attributes, sourceFingerprint) ||
+      (hasCompleteDerivedAttributes(attributes) &&
+        (await matchesSourceFingerprintIgnoringLineEndings(altimeterDirectory, attributes.source_fingerprint))))
+  ) {
     return {
       metrics: {
         rowCount: cached.rowCount ?? 0,

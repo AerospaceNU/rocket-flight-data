@@ -12,18 +12,40 @@ import {
 export type GpsPositionColumns = {
   latitudeIndex: number;
   longitudeIndex: number;
+  /** Fix-quality column when the logger has one (0 = no fix: the receiver repeats its last position). */
+  fixQualityIndex?: number | null;
 };
 
 export type GpsColumns = GpsPositionColumns & {
   altitudeIndex: number;
 };
 
-function scoreGpsColumnPair(rows: string[][], latitudeIndex: number, longitudeIndex: number) {
+const FIX_QUALITY_ALIASES = ['gpsfixquality', 'gps_fix_quality', 'fix_quality', 'fixquality'];
+
+/**
+ * False only when the row says it has no fix. Without a fix, SeriousGoose keeps logging the last (pre-flight)
+ * position, which would draw a flight that never moved, so those rows are not positions.
+ */
+export function rowHasGpsFix(row: string[], fixQualityIndex: number | null | undefined) {
+  if (fixQualityIndex === null || fixQualityIndex === undefined) return true;
+  const fixQuality = parseNumber(row[fixQualityIndex]);
+  return fixQuality === null || fixQuality > 0;
+}
+
+function scoreGpsColumnPair(
+  rows: string[][],
+  latitudeIndex: number,
+  longitudeIndex: number,
+  fixQualityIndex: number | null
+) {
   let validCount = 0;
   let meaningfulCount = 0;
   let localLookingCount = 0;
 
   for (const row of rows) {
+    if (!rowHasGpsFix(row, fixQualityIndex)) {
+      continue;
+    }
     const latitude = parseNumber(row[latitudeIndex]);
     const longitude = parseNumber(row[longitudeIndex]);
 
@@ -56,6 +78,7 @@ export function findGpsColumns(headers: string[], rows: string[][], options?: Au
     { latitudeAliases: ['gpslatitudedeg'], longitudeAliases: ['gpslongitudedeg'] }
   ];
 
+  const fixQualityIndex = getColumnIndexByAliases(headers, FIX_QUALITY_ALIASES);
   const candidates = pairs
     .map((pair, preferenceIndex) => {
       const latitudeIndex = getColumnIndexByAliases(headers, pair.latitudeAliases);
@@ -69,7 +92,7 @@ export function findGpsColumns(headers: string[], rows: string[][], options?: Au
         latitudeIndex,
         longitudeIndex,
         preferenceIndex,
-        ...scoreGpsColumnPair(rows, latitudeIndex, longitudeIndex)
+        ...scoreGpsColumnPair(rows, latitudeIndex, longitudeIndex, fixQualityIndex)
       };
     })
     .filter((candidate): candidate is NonNullable<typeof candidate> => candidate !== null)
@@ -103,7 +126,8 @@ export function findGpsColumns(headers: string[], rows: string[][], options?: Au
   const best = candidates[0];
   return {
     latitudeIndex: best.latitudeIndex,
-    longitudeIndex: best.longitudeIndex
+    longitudeIndex: best.longitudeIndex,
+    fixQualityIndex
   };
 }
 
@@ -123,12 +147,15 @@ export function buildGpsPoints(
     0;
 
   return rows
-    .map((row, index) => ({
-      latitude: parseNumber(row[gpsColumns.latitudeIndex]),
-      longitude: parseNumber(row[gpsColumns.longitudeIndex]),
-      altitude: parseNumber(row[gpsColumns.altitudeIndex]),
-      time: xValues[index]
-    }))
+    .map((row, index) => {
+      const hasFix = rowHasGpsFix(row, gpsColumns.fixQualityIndex);
+      return {
+        latitude: hasFix ? parseNumber(row[gpsColumns.latitudeIndex]) : null,
+        longitude: hasFix ? parseNumber(row[gpsColumns.longitudeIndex]) : null,
+        altitude: parseNumber(row[gpsColumns.altitudeIndex]),
+        time: xValues[index]
+      };
+    })
     .filter(
       (point): point is { latitude: number; longitude: number; altitude: number; time: number } =>
         point.latitude !== null &&

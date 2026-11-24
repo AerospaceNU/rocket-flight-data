@@ -127,6 +127,7 @@ h2 {
 }
 
 .unit-selector {
+  flex: none;
   display: inline-flex;
   align-items: center;
   gap: 0.4rem;
@@ -155,10 +156,13 @@ h2 {
 
 .tab {
   display: inline-flex;
+  flex: 0 1 auto;
   align-items: center;
   justify-content: space-between;
   gap: 0.5rem;
-  min-width: 6.5rem;
+  min-width: 4.5rem;
+  max-width: 16rem;
+  white-space: nowrap;
   min-height: 2rem;
   border: 1px solid var(--border);
   border-bottom: none;
@@ -174,7 +178,14 @@ h2 {
   color: var(--text-primary);
 }
 
+.tab-title {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 .tab-close {
+  flex: none;
   display: inline-grid;
   place-items: center;
   width: 1.1rem;

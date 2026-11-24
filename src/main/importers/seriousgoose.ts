@@ -10,6 +10,45 @@ const SERIOUSGOOSE_SANITIZATION: SanitizationConfig = {};
 // struct), so headers are read from the file rather than assumed.
 const HEADER_FIRST_COLUMN = 'timestampMs';
 
+// A board's clock only moves forward; a ground station can also decode the odd packet from another board on a
+// nearby channel, whose clock (time since its own boot) is unrelated. Packets are grouped into clock tracks
+// that each advance by at most MAX_TRACK_STEP_MS (long radio dropouts included).
+const MAX_TRACK_STEP_MS = 600_000;
+const TRACK_BACKWARD_TOLERANCE_MS = 1_000;
+
+/**
+ * Keeps only the rows on the clock track with the most rows, dropping interleaved packets from other boards.
+ * Without this a single foreign packet sends the time axis thousands of seconds backwards.
+ */
+function keepDominantBoardClock(headers: string[], rows: string[][]) {
+  const timeIndex = headers.indexOf(HEADER_FIRST_COLUMN);
+  if (timeIndex < 0 || rows.length === 0) return { rows, dropped: 0 };
+
+  const tracks: { last: number; rows: number[] }[] = [];
+  rows.forEach((row, index) => {
+    const time = Number(row[timeIndex]);
+    if (!Number.isFinite(time)) return;
+    let best: { last: number; rows: number[] } | null = null;
+    for (const track of tracks) {
+      const step = time - track.last;
+      if (step < -TRACK_BACKWARD_TOLERANCE_MS || step > MAX_TRACK_STEP_MS) continue;
+      if (!best || Math.abs(step) < Math.abs(time - best.last)) best = track;
+    }
+    if (best) {
+      best.last = Math.max(best.last, time);
+      best.rows.push(index);
+    } else {
+      tracks.push({ last: time, rows: [index] });
+    }
+  });
+
+  if (tracks.length <= 1) return { rows, dropped: 0 };
+  const largest = tracks.reduce((current, track) => (track.rows.length > current.rows.length ? track : current));
+  const keep = new Set(largest.rows);
+  const kept = rows.filter((_, index) => keep.has(index));
+  return { rows: kept, dropped: rows.length - kept.length };
+}
+
 function parseConfigLine(line: string): Record<string, string> {
   const body = line.replace(/^CONFIG[\s\t]+/, '').trim();
   if (!body || body.startsWith('<')) return {};
@@ -73,7 +112,12 @@ export const seriousGooseImporter: AltimeterImporter = {
       warnings.push('No SeriousGoose data rows were found in the selected file(s).');
     }
 
-    const { rows: cleanedRows } = sanitizeRows(headers, rows, SERIOUSGOOSE_SANITIZATION, options?.sanitize !== false);
+    const sanitize = options?.sanitize !== false;
+    const boardRows = sanitize ? keepDominantBoardClock(headers, rows) : { rows, dropped: 0 };
+    if (boardRows.dropped > 0) {
+      warnings.push(`Dropped ${boardRows.dropped} packets whose clock belongs to another board (off-channel reception)`);
+    }
+    const { rows: cleanedRows } = sanitizeRows(headers, boardRows.rows, SERIOUSGOOSE_SANITIZATION, sanitize);
 
     return {
       headers,

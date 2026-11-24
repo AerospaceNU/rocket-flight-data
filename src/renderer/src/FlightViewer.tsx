@@ -20,10 +20,13 @@ import {
 } from './telemetry/core';
 import {
   attachPlotHoverDashboard,
+  breakTraceAtGaps,
   buildPlot2dLayout,
   computeEventLabelShifts,
   defaultSeriesIndexes,
+  findDataGaps,
   HOVER_DASHBOARD_IDLE_TEXT,
+  isSparseSeries,
   PLOTLY_INTERACTION_CONFIG
 } from './plot2dShared';
 import {
@@ -50,7 +53,8 @@ import {
   normalizeEventLabel,
   type EventMarker
 } from './telemetry/events';
-import { buildGpsPoints, findGpsColumns } from './telemetry/gps';
+import { buildGpsPoints, findGpsColumns, rowHasGpsFix } from './telemetry/gps';
+import { getEventProfile } from './telemetry/profiles';
 import {
   computeGooseReplayPose,
   computeNorthAlignmentDegrees,
@@ -88,6 +92,8 @@ type FlightViewerProps = {
   flight: FlightSummary | null;
   isActive: boolean;
   selectedAltimeterDirectory?: string;
+  /** Changes on every request to show selectedAltimeterDirectory, including repeats of the same one. */
+  altimeterRequestId?: number;
   onDatasetUpdated: () => Promise<FlightSummary[]>;
   theme: ThemeId;
 };
@@ -113,6 +119,16 @@ const EVENT_SOURCE_PRIORITY: Record<string, number> = {
   stratologgercf: 1
 };
 
+const EVENT_LABEL_CLUSTER_SECONDS = 3;
+const EVENT_LABEL_CLUSTER_METERS = 25;
+
+function approximateDistanceMeters(left: GpsMapPoint, right: GpsMapPoint) {
+  const metersPerDegree = 111_320;
+  const north = (right.latitude - left.latitude) * metersPerDegree;
+  const east = (right.longitude - left.longitude) * metersPerDegree * Math.cos((left.latitude * Math.PI) / 180);
+  return Math.hypot(north, east);
+}
+
 function isEventSourceImporter(importerId: string) {
   return importerId in EVENT_SOURCE_PRIORITY;
 }
@@ -123,6 +139,12 @@ function relativeEventMarkers(dataset: ImportedDataset, autoDetect: boolean): Fl
   const importerId = getImporterId(dataset);
   const priority = EVENT_SOURCE_PRIORITY[importerId] ?? 0;
   const sourceLabel = dataset.summary.altimeterDirectoryName;
+
+  // A state-machine log with no launch in it (e.g. a board that rebooted mid-flight and restarted its clock)
+  // has no reference to the flight's launch time, so its events can't be placed on the shared flight path.
+  if (getEventProfile(importerId)?.state && timeline.rawEventData.launchTime === null && timeline.launchOffset === 0) {
+    return [];
+  }
 
   return timeline.rawEventData.events.map((event) => ({
     ...event,
@@ -170,13 +192,20 @@ function interpolateGpsPoint(points: GpsMapPoint[], targetTime: number): GpsMapP
   return points[points.length - 1] ?? null;
 }
 
+// Boards debounce landing differently (several seconds apart on the same flight), so landing events from
+// different altimeters are merged over a wider window than the other events.
+function eventDedupeToleranceSeconds(canonicalLabel: string) {
+  return canonicalLabel === 'LANDING' ? 10 : 1.5;
+}
+
 function dedupeFlightEventMarkers(markers: FlightEventMarker[]) {
   const deduped: FlightEventMarker[] = [];
 
   for (const marker of markers.sort((left, right) => left.time - right.time || right.priority - left.priority)) {
     const existingIndex = deduped.findIndex(
       (candidate) =>
-        candidate.canonicalLabel === marker.canonicalLabel && Math.abs(candidate.time - marker.time) <= 1.5
+        candidate.canonicalLabel === marker.canonicalLabel &&
+        Math.abs(candidate.time - marker.time) <= eventDedupeToleranceSeconds(marker.canonicalLabel)
     );
 
     if (existingIndex < 0) {
@@ -214,19 +243,30 @@ function buildGpsEventMarkers(
       .flatMap((dataset) => relativeEventMarkers(dataset, autoDetect))
   );
 
+  // Stack labels of events that sit at nearly the same map point (close in time, or at the same position)
+  // instead of cycling offsets across the whole flight, which let neighbouring labels land on each other.
+  let anchor: { time: number; point: GpsMapPoint } | null = null;
+  let stackIndex = 0;
   return deduped
-    .map((event, index) => {
+    .map((event) => {
       const point = interpolateGpsPoint(points, event.time);
       if (!point) {
         return null;
       }
+
+      const nearAnchor =
+        anchor !== null &&
+        (event.time - anchor.time <= EVENT_LABEL_CLUSTER_SECONDS ||
+          approximateDistanceMeters(anchor.point, point) <= EVENT_LABEL_CLUSTER_METERS);
+      stackIndex = nearAnchor ? stackIndex + 1 : 0;
+      if (!nearAnchor) anchor = { time: event.time, point };
 
       return {
         ...point,
         label: event.label,
         sourceLabel: event.sourceLabel,
         color: eventColorForLabel(event.canonicalLabel),
-        labelOffsetY: 12 + (index % 3) * 10
+        labelOffsetY: 12 + stackIndex * 13
       };
     })
     .filter((marker): marker is GpsEventMarker => marker !== null);
@@ -248,6 +288,7 @@ export function FlightViewer({
   flight,
   isActive,
   selectedAltimeterDirectory,
+  altimeterRequestId = 0,
   onDatasetUpdated,
   theme
 }: FlightViewerProps) {
@@ -275,6 +316,7 @@ export function FlightViewer({
   const plot2dRef = useRef<HTMLDivElement | null>(null);
   const plot3dRef = useRef<HTMLDivElement | null>(null);
   const plotViewStatesRef = useRef<Record<string, PlotViewState>>({});
+  const appliedAltimeterRequestRef = useRef<number | null>(null);
 
   useEffect(() => {
     if (!flight) {
@@ -282,9 +324,17 @@ export function FlightViewer({
       return;
     }
 
+    // Apply the requested altimeter once per request; a later flight-list refresh keeps the user's own choice.
+    const isNewRequest = appliedAltimeterRequestRef.current !== altimeterRequestId;
+    appliedAltimeterRequestRef.current = altimeterRequestId;
+
     setSelectedDirectory((current) => {
       const requested = selectedAltimeterDirectory;
-      if (requested && flight.altimeters.some((altimeter) => altimeter.altimeterDirectory === requested)) {
+      if (
+        requested &&
+        (isNewRequest || !current) &&
+        flight.altimeters.some((altimeter) => altimeter.altimeterDirectory === requested)
+      ) {
         return requested;
       }
 
@@ -298,7 +348,7 @@ export function FlightViewer({
 
       return flight.altimeters[0]?.altimeterDirectory ?? '';
     });
-  }, [flight, selectedAltimeterDirectory]);
+  }, [altimeterRequestId, flight, selectedAltimeterDirectory]);
 
   useEffect(() => {
     const flightDirectoryName = flight?.directoryName;
@@ -488,8 +538,9 @@ export function FlightViewer({
       return visibleIndexes
         .map((rowIndex, index) => {
           const row = dataset.rows[rowIndex] ?? [];
-          const latitude = parseNumber(row[gpsColumns.latitudeIndex]);
-          const longitude = parseNumber(row[gpsColumns.longitudeIndex]);
+          const hasFix = rowHasGpsFix(row, gpsColumns.fixQualityIndex);
+          const latitude = hasFix ? parseNumber(row[gpsColumns.latitudeIndex]) : null;
+          const longitude = hasFix ? parseNumber(row[gpsColumns.longitudeIndex]) : null;
           const altitude = parseNumber(row[gpsColumns.altitudeIndex]);
           const quaternion = pose.quaternions[rowIndex];
           const time = visibleXValues[index];
@@ -634,7 +685,10 @@ export function FlightViewer({
     if (!isActive || !plotElement || !dataset || activeSection !== 'plot2d') {
       return;
     }
-    const plot2dViewKey = `${selectedDirectory}:plot2d`;
+    // Key by the dataset actually being drawn: right after a tab switch selectedDirectory already names the new
+    // altimeter while the previous dataset is still loaded, and keying by it would save that plot's view under
+    // the new altimeter.
+    const plot2dViewKey = `${dataset.summary.altimeterDirectory}:plot2d`;
     const started = performance.now();
     void window.appBridge.debugLog('viewer:plot2d:start', {
       selectedDirectory,
@@ -643,15 +697,20 @@ export function FlightViewer({
       visibleEventCount: plotEvents.length
     });
 
+    const gaps = xAxis.hoverLabel === 'time' ? findDataGaps(visibleXValues) : new Set<number>();
+    const sparse = xAxis.hoverLabel === 'time' && isSparseSeries(visibleXValues);
     const traces = selectedSeries.map((seriesIndex) => ({
-      x: visibleXValues,
-      y: visibleRows.map((row) =>
-        parseDisplaySeriesValue(
-          row[seriesIndex],
-          dataset.headers[seriesIndex],
-          dataset.columnUnits,
-          displayUnits
-        )
+      ...breakTraceAtGaps(
+        visibleXValues,
+        visibleRows.map((row) =>
+          parseDisplaySeriesValue(
+            row[seriesIndex],
+            dataset.headers[seriesIndex],
+            dataset.columnUnits,
+            displayUnits
+          )
+        ),
+        gaps
       ),
       name: seriesDisplayLabel(
         dataset.headers[seriesIndex],
@@ -659,7 +718,8 @@ export function FlightViewer({
         dataset.columnUnits,
         displayUnits
       ),
-      mode: 'lines',
+      mode: sparse ? 'lines+markers' : 'lines',
+      marker: { size: 4 },
       type: 'scatter',
       hoverinfo: 'none'
     }));

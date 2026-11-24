@@ -555,7 +555,26 @@ async function downloadRemoteFlightDataToChosenLocation(mainWindow: BrowserWindo
   await syncRemoteFlightData(mainWindow, resolveRepositoryDownloadTarget(result.filePaths[0]));
 }
 
+/**
+ * Restores attributes.csv files whose only change is the app-regenerated source_fingerprint line. Older builds
+ * rewrote it on every Windows (CRLF) checkout, and those edits make `git pull --ff-only` abort whenever an
+ * incoming commit touches the same file. The value is recomputed on the next read, so nothing is lost.
+ */
+async function discardSourceFingerprintOnlyChanges(repositoryDirectory: string) {
+  const status = await runGitCommand(['status', '--porcelain=v1', '-z'], repositoryDirectory);
+  const changes = parseGitStatus(status.stdout);
+  const flags = await Promise.all(changes.map((change) => isSourceFingerprintOnlyChange(repositoryDirectory, change)));
+  const paths = changes.filter((_, index) => flags[index]).map((change) => change.path);
+
+  for (let index = 0; index < paths.length; index += 100) {
+    await runGitCommand(['checkout', 'HEAD', '--', ...paths.slice(index, index + 100)], repositoryDirectory);
+  }
+  if (paths.length) logMain('git:discarded-source-fingerprint-changes', { count: paths.length });
+  return paths.length;
+}
+
 async function syncExistingRepository(mainWindow: BrowserWindow, repositoryDirectory: string) {
+  await discardSourceFingerprintOnlyChanges(repositoryDirectory);
   const currentBranch = (await runGitCommand(['branch', '--show-current'], repositoryDirectory)).stdout.trim();
 
   if (currentBranch && currentBranch !== REMOTE_FLIGHT_DATA_BRANCH) {

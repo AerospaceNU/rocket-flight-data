@@ -13,9 +13,12 @@ import type {
 import type { GpsMapPoint } from './GpsMapView';
 import {
   attachPlotHoverDashboard,
+  breakTraceAtGaps,
   buildPlot2dLayout,
   computeEventLabelShifts,
+  findDataGaps,
   HOVER_DASHBOARD_IDLE_TEXT,
+  isSparseSeries,
   PLOTLY_INTERACTION_CONFIG
 } from './plot2dShared';
 import {
@@ -301,8 +304,7 @@ export function CompareView({ config, displayUnits, flights, isActive, theme }: 
           traceIndex += 1;
           return [
             {
-              x: entry.visibleXValues,
-              y: values,
+              ...breakTraceAtGaps(entry.visibleXValues, values, findDataGaps(entry.visibleXValues)),
               name: `${prefix} ${seriesDisplayLabel(
                 `${entry.label} - ${header}`,
                 header,
@@ -310,7 +312,8 @@ export function CompareView({ config, displayUnits, flights, isActive, theme }: 
                 displayUnits
               )}`,
               meta: prefix,
-              mode: 'lines',
+              mode: isSparseSeries(entry.visibleXValues) ? 'lines+markers' : 'lines',
+              marker: { size: 4, color: colorString(entry.color) },
               type: 'scatter',
               line: { color: colorString(entry.color), width: 2 },
               hoverinfo: 'none'

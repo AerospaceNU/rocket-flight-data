@@ -279,8 +279,15 @@ export function buildEventMarkers(
   const stateNameIndex = getColumnIndex(dataset.headers, 'state_name');
   const drogueFiredIndex = getColumnIndex(dataset.headers, 'drogueFired');
   const mainFiredIndex = getColumnIndex(dataset.headers, 'mainFired');
-  const drogueContinuityIndex = importerId === 'sillygoose' ? getColumnIndex(dataset.headers, 'drogueCont') : null;
-  const mainContinuityIndex = importerId === 'sillygoose' ? getColumnIndex(dataset.headers, 'mainCont') : null;
+  // SillyGoose logs continuity as 0/1; SeriousGoose logs a pyro state byte (0 none, 1 continuity, 2 armed with
+  // continuity), so any value above 0 means the channel has continuity on both.
+  const continuityColumns: Record<string, [string, string]> = {
+    sillygoose: ['drogueCont', 'mainCont'],
+    seriousgoose: ['drogueState', 'mainState']
+  };
+  const continuityColumnNames = continuityColumns[importerId] ?? null;
+  const drogueContinuityIndex = continuityColumnNames ? getColumnIndex(dataset.headers, continuityColumnNames[0]) : null;
+  const mainContinuityIndex = continuityColumnNames ? getColumnIndex(dataset.headers, continuityColumnNames[1]) : null;
   const events: EventMarker[] = [];
   let launchTime: number | null =
     getManualFlightStartTime(dataset) ?? (profile?.launchAtStart ? xValues[0] ?? 0 : null);
@@ -427,6 +434,14 @@ export function buildEventMarkers(
       rowIndex: xValues.findIndex((time) => time >= mainAt),
       color: '#69a7ff'
     });
+  }
+
+  if (flightEndTime === null && launchTime !== null && stateIndex !== null && stateProfile?.isInFlightState) {
+    const lastState = Number.parseInt(dataset.rows[dataset.rows.length - 1]?.[stateIndex] ?? '', 10);
+    const lastTime = xValues[xValues.length - 1];
+    if (Number.isFinite(lastState) && stateProfile.isInFlightState(lastState) && Number.isFinite(lastTime)) {
+      flightEndTime = lastTime;
+    }
   }
 
   const sortedEvents = events
