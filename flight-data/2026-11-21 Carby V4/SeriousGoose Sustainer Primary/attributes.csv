@@ -3,10 +3,10 @@ altimeter_name,SeriousGoose
 altimeter_note,Sustainer Primary
 importer_id,seriousgoose
 imported_at,2026-11-23T23:45:18.743Z
-row_count,385
 peak_altitude_m,1233.63
 peak_velocity_ms,184.04
 peak_acceleration_mss,17.12
 has_gps_data,true
 parser_cache_version,5
 source_fingerprint,v2:stream-2026-11-21T20-18-02-746Z-SeriousGoose.txt:158807
+row_count,379

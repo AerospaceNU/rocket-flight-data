@@ -25,3 +25,4 @@ BUZZER_ENABLED,1
 FIRST_STAGE_BURNOUT,0
 CONFIGURATION_VERSION,1
 source_fingerprint,v2:2026-11-21 V1 Airbreaks Rocket backup post reboot.txt:2525744
+flight_start_time_s,-20.8
